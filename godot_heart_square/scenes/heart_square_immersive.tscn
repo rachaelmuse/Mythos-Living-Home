@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://hearthsquareimmersive"]
+
+[ext_resource type="Script" path="res://scenes/heart_square_immersive.gd" id="1_heart"]
+
+[node name="HeartSquareImmersive" type="Node3D"]
+script = ExtResource("1_heart")

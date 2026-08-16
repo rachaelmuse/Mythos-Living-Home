@@ -1,0 +1,12 @@
+---
+description: Living-home village slice — where we are, proving slice, honesty laws
+alwaysApply: true
+---
+
+# Living home (family village)
+
+Every session: read `data/living_home/NEXT.md` and `STATUS.md` before changing this slice. Protocol: `docs/CONTINUITY.md`. Baseline: `BASELINE.md`.
+
+- Kernel: `living_home.py`. Live Godot is on Apex; `godot_heart_square/` is a snapshot.
+- Restart Hearth after kernel edits. Identities never merge. Mom `stop` wins. Evidence only.
+- Complete means seen in the running village. Do not rewrite `living-home-baseline-001`.

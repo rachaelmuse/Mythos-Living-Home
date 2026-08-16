@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Family House · Mythos Hearth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/house.css" />
+</head>
+<body class="house">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand">
+      <p class="eyebrow">MYTHOS HEARTH</p>
+      <h1>Family House</h1>
+      <p class="side-sub">Mom’s command room — watch the boys without screenshots.</p>
+    </div>
+    <nav class="side-nav" aria-label="House areas">
+      <button type="button" class="nav-item active" data-page="overview">Overview</button>
+      <button type="button" class="nav-item" data-page="console">Family Console</button>
+      <button type="button" class="nav-item" data-page="powwow">Powwow</button>
+      <button type="button" class="nav-item" data-page="wings">Wings</button>
+      <button type="button" class="nav-item" data-page="companions">Companions</button>
+      <button type="button" class="nav-item" data-page="village">Village</button>
+      <button type="button" class="nav-item" data-page="gallery">Gallery</button>
+      <a class="nav-item linkish" href="/living.html">Living Game</a>
+    </nav>
+    <div class="side-foot">
+      <button type="button" class="btn tiny ghost" id="btn-refresh">Refresh</button>
+      <span id="clock" class="muted"></span>
+    </div>
+  </aside>
+
+  <main class="house-main">
+    <header class="house-top">
+      <div>
+        <p class="eyebrow" id="page-label">Overview</p>
+        <h2 id="status-line">Loading family…</h2>
+      </div>
+      <div class="quick-row">
+        <button type="button" class="btn primary" id="btn-claim">Claim workers</button>
+        <button type="button" class="btn ghost" id="btn-poll">Poll</button>
+        <button type="button" class="btn ghost" id="btn-powwow">Call powwow</button>
+        <button type="button" class="btn ghost" id="btn-wing-close">Close wing</button>
+        <a class="btn ghost" href="http://127.0.0.1:8770/" target="_blank" rel="noopener">Apex</a>
+        <a class="btn ghost" href="#" id="btn-gemini-hint" title="Keep ACTIVATE_GEMINI.bat open as front door">Gemini tip</a>
+      </div>
+    </header>
+
+    <section class="page active" id="page-overview">
+      <div class="grid-2">
+        <article class="card">
+          <h3>Active mission</h3>
+          <div id="mission-card" class="mission-card">…</div>
+        </article>
+        <article class="card">
+          <h3>Wing & roster</h3>
+          <div id="wing-card">…</div>
+        </article>
+      </div>
+      <article class="card">
+        <h3>What just happened (plain English)</h3>
+        <p class="muted">This is your feed — no screenshot folder needed. Auto-refreshes.</p>
+        <div id="feed-list" class="feed-list"></div>
+      </article>
+    </section>
+
+    <section class="page" id="page-console">
+      <article class="card">
+        <h3>Family Console</h3>
+        <p class="muted">Readable version of Gemini’s verified actions — not a wall of JSON.</p>
+        <div id="console-list" class="feed-list tall"></div>
+      </article>
+    </section>
+
+    <section class="page" id="page-powwow">
+      <article class="card">
+        <h3>Powwow / meeting room</h3>
+        <p class="muted">Call when Gemini alone isn’t enough, or someone wants work instead of idle. Ideas → review → set tasks.</p>
+        <div id="powwow-status" class="mission-card">…</div>
+        <div class="row-gap">
+          <input type="text" id="powwow-reason" placeholder="Why call the meeting?" />
+          <input type="text" id="powwow-from" placeholder="Called by (e.g. Apex)" value="Mom" />
+          <button type="button" class="btn primary" id="btn-powwow-open">Open powwow</button>
+          <button type="button" class="btn ghost" id="btn-powwow-tasks">Set tasks from agenda</button>
+          <button type="button" class="btn ghost" id="btn-powwow-close">Close powwow</button>
+        </div>
+        <div class="row-gap">
+          <input type="text" id="agenda-from" placeholder="From" value="companion" />
+          <input type="text" id="agenda-text" placeholder="Idea for the table…" />
+          <button type="button" class="btn tiny primary" id="btn-agenda">Add to agenda</button>
+        </div>
+        <div id="agenda-list"></div>
+      </article>
+    </section>
+
+    <section class="page" id="page-wings">
+      <article class="card">
+        <h3>Family wings</h3>
+        <p class="muted">Function blocks — open the area that matches what you’re creating.</p>
+        <div id="house-wings" class="wings-grid"></div>
+        <div id="house-wing-extra"></div>
+      </article>
+    </section>
+
+    <section class="page" id="page-companions">
+      <article class="card">
+        <h3>Companions</h3>
+        <div id="house-companions" class="companions-row"></div>
+      </article>
+    </section>
+
+    <section class="page" id="page-village">
+      <article class="card embed-card">
+        <h3>Heart Square</h3>
+        <p class="muted"><a href="/#village" target="_blank">Open full village</a> · embedded below</p>
+        <iframe class="embed" title="Village" src="/#village"></iframe>
+      </article>
+    </section>
+
+    <section class="page" id="page-gallery">
+      <article class="card">
+        <h3>Gallery</h3>
+        <div id="house-gallery" class="gallery-grid"></div>
+      </article>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+  <script src="/house.js"></script>
+</body>
+</html>

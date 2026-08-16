@@ -1,0 +1,15 @@
+---
+description: Living Home continuity — read NEXT/STATUS first; proving slice; no fake complete
+alwaysApply: true
+---
+
+# Living home continuity
+
+Read `data/living_home/NEXT.md` and `STATUS.md` before changing this slice. Full protocol: `docs/CONTINUITY.md`.
+
+- Kernel: `living_home.py`. Save: `data/living_home/HOME.json`. Live Godot scene is on Apex; `godot_heart_square/` is a git snapshot only.
+- Restart Hearth after kernel edits. Gemini ≠ Codex ≠ Apex ≠ Merovin ≠ Draven. Mom `stop` wins. Evidence only.
+- Do not assume the last chat finished the work. Complete means seen in the running village.
+- Do not rewrite tag `living-home-baseline-001`. Do not overwrite the Apex GitHub remote.
+- Houses PLACEHOLDER. Speech MODEL_GENERATED or honest waiting/none. Wildlife AUTONOMOUS. Pathing PLACEHOLDER.
+- Proving slice first. Phase 13 last.

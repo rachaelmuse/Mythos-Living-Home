@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Living Game · Mythos Hearth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .living-hero { padding: 3rem 1.5rem 1.5rem; max-width: 920px; margin: 0 auto; }
+    .living-hero .brand { letter-spacing: 0.18em; font-size: 0.75rem; opacity: 0.8; }
+    .living-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); max-width: 960px; margin: 0 auto 3rem; padding: 0 1.5rem; }
+    .living-card { padding: 1.1rem 1.2rem; border: 1px solid rgba(232, 168, 74, 0.22); background: rgba(10, 22, 18, 0.55); border-radius: 12px; }
+    .living-card h3 { margin: 0 0 0.4rem; font-family: "Fraunces", serif; font-size: 1.15rem; color: #f0c57a; }
+    .living-card p { margin: 0 0 0.85rem; font-size: 0.9rem; opacity: 0.85; line-height: 1.45; }
+    .living-card .cta-row { flex-wrap: wrap; gap: 0.4rem; }
+    .living-list { max-width: 960px; margin: 0 auto 2rem; padding: 0 1.5rem; }
+    .living-list ul { margin: 0.4rem 0 0; padding-left: 1.1rem; }
+    .living-list a { color: #9fd4c0; }
+    .toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: rgba(20, 36, 28, 0.95); border: 1px solid rgba(232, 168, 74, 0.35); padding: 0.65rem 1.1rem; border-radius: 999px; font-size: 0.9rem; z-index: 40; }
+  </style>
+</head>
+<body>
+  <div class="mist" aria-hidden="true"></div>
+  <header class="living-hero">
+    <p class="brand">MYTHOS HEARTH · LIVING GAME</p>
+    <h1 class="headline" style="font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 0.4rem 0;">Hearthbound — the door that opens.</h1>
+    <p class="lede" style="max-width: 36rem;">Stories, sprints, art, Godot, and the Court folder — Gemini at the fire, Merovin &amp; Draven in Cinema, one village for the family.</p>
+    <div class="cta-row" style="margin-top: 1rem;">
+      <a class="btn primary" href="/">Back to village</a>
+      <a class="btn ghost" href="/#companions">Companions</a>
+      <a class="btn ghost" href="/#production">Build the game</a>
+      <a class="btn ghost" href="/#village">Heart Square</a>
+      <a class="btn ghost" href="/#arcade">Arcade</a>
+      <button class="btn ghost" type="button" id="btn-folder">Open Court folder</button>
+      <button class="btn ghost" type="button" id="btn-build-game-living">Start builder</button>
+    </div>
+  </header>
+
+  <div class="living-grid" id="doors"></div>
+
+  <section class="living-list panel" style="margin: 0 1.5rem 2rem; max-width: 960px; margin-left: auto; margin-right: auto;">
+    <div class="section-head">
+      <h2>Story & sprint</h2>
+      <p>Synced from Court living_game into the Hearth library.</p>
+    </div>
+    <div id="story-links"></div>
+    <div id="vision" style="margin-top: 1.2rem;"></div>
+  </section>
+
+  <footer class="foot">
+    <span>Creator · rachaelmuse23</span>
+    <span>Built for the family hearth</span>
+    <a href="/">Village</a>
+  </footer>
+  <div class="toast" id="toast" hidden></div>
+
+  <script>
+    async function api(path, opts = {}) {
+      const r = await fetch(path, {
+        headers: { "Content-Type": "application/json" },
+        ...opts,
+      });
+      const text = await r.text();
+      let data;
+      try { data = text ? JSON.parse(text) : {}; } catch { throw new Error("Bad response from " + path); }
+      if (!r.ok) throw new Error(data.error || path + " failed");
+      return data;
+    }
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.hidden = false;
+      el.textContent = msg;
+      setTimeout(() => { el.hidden = true; }, 2800);
+    }
+    function closePopup(popup) {
+      if (!popup || popup.closed) return;
+      try { popup.close(); } catch (e) {}
+    }
+    async function launchDoor(tool, title, popup) {
+      toast("Launching " + title + "…");
+      try {
+        const data = await api("/api/launch", { method: "POST", body: JSON.stringify({ tool_id: tool }) });
+        if (data.url) {
+          if (popup && !popup.closed) popup.location.href = data.url;
+          else window.open(data.url, "_blank", "noopener");
+        } else {
+          closePopup(popup);
+        }
+        toast(data.ok ? "Launched " + title : (data.error || "Launch failed"));
+      } catch (err) {
+        closePopup(popup);
+        toast(err.message || "Launch failed");
+      }
+    }
+    const doors = [
+      { title: "Build the game", blurb: "Cursor SDK Game Builder — Stage 1→2 slice. No Apex/Codex.", href: "/#production", action: null },
+      { title: "Enter 3D World", blurb: "Portable Godot main world.", href: null, tool: "godot_play" },
+      { title: "First World", blurb: "Mythos_First_World · AvatarAnchor scene.", href: null, tool: "godot_first_world" },
+      { title: "Gallery wall", blurb: "Concept prompts & Comfy stills.", href: "/#gallery", action: null },
+      { title: "Companion Room", blurb: "Live Court room on Apex (optional).", href: "http://127.0.0.1:8770/companion", action: null },
+      { title: "Gameworld console", blurb: "Codex console in the Arcade.", href: "/play/gameworld/", action: null },
+      { title: "First Hearth Gift", blurb: "Herb → tea → gift — the care beat.", href: "/#village", action: null },
+      { title: "Arcade", blurb: "Cozy Valley, Desert Island, Matrix Wish, Gameworld.", href: "/#arcade", action: null },
+    ];
+    const grid = document.getElementById("doors");
+    doors.forEach((d) => {
+      const el = document.createElement("div");
+      el.className = "living-card";
+      el.innerHTML = `<h3>${d.title}</h3><p>${d.blurb}</p><div class="cta-row"></div>`;
+      const row = el.querySelector(".cta-row");
+      if (d.href) {
+        const a = document.createElement("a");
+        a.className = "btn tiny primary";
+        a.href = d.href;
+        a.textContent = "Enter";
+        if (d.href.startsWith("http")) { a.target = "_blank"; a.rel = "noopener"; }
+        row.appendChild(a);
+      }
+      if (d.tool) {
+        const b = document.createElement("button");
+        b.className = "btn tiny primary";
+        b.type = "button";
+        b.textContent = "Launch";
+        b.onclick = () => {
+          // Only reserve a tab when we expect a URL; bats (Godot) stay toast-only
+          const popup = null;
+          launchDoor(d.tool, d.title, popup);
+        };
+        row.appendChild(b);
+      }
+      grid.appendChild(el);
+    });
+
+    document.getElementById("btn-folder").onclick = async () => {
+      const data = await api("/api/open_living_game", { method: "POST", body: "{}" });
+      toast(data.ok ? "Opened Court living_game folder" : (data.error || "Folder missing"));
+    };
+
+    document.getElementById("btn-build-game-living").onclick = async () => {
+      toast("Starting Game Builder…");
+      try {
+        const data = await api("/api/game_builder", {
+          method: "POST",
+          body: JSON.stringify({ goal: "sprint_0002 Stage 1→2 vertical slice" }),
+        });
+        toast(data.ok ? "Builder started (no Apex/Codex)" : (data.error || "Failed"));
+      } catch (err) {
+        toast(err.message || "Builder failed");
+      }
+    };
+
+    (async () => {
+      const data = await api("/api/living_game");
+      const box = document.getElementById("story-links");
+      const stories = data.stories || [];
+      const quests = data.quests || [];
+      box.innerHTML = `
+        <p><strong>Path:</strong> <code>${data.path || "—"}</code> · ${data.exists ? "present" : "missing"}</p>
+        <p><strong>Stories</strong></p>
+        <ul>${stories.map((s) => `<li><a href="/#companions" data-story="${s.id}">${s.title}</a></li>`).join("") || "<li>None synced yet</li>"}</ul>
+        <p><strong>Quests</strong></p>
+        <ul>${quests.map((q) => `<li>${q.title}</li>`).join("") || "<li>None synced yet</li>"}</ul>
+      `;
+      const vision = document.getElementById("vision");
+      if (data.vision) {
+        vision.innerHTML = `<h3 style="font-family:Fraunces,serif;color:#f0c57a">Family vision</h3><pre style="white-space:pre-wrap;opacity:0.9;font-family:Outfit,sans-serif;font-size:0.92rem;line-height:1.5">${data.vision.replace(/</g, "&lt;")}</pre>`;
+      }
+    })();
+  </script>
+</body>
+</html>

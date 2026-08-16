@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MYTHOS HEARTH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="mist" aria-hidden="true"></div>
+  <div class="embers" aria-hidden="true"></div>
+
+  <header class="hero" id="top">
+    <div class="hero-atmosphere" aria-hidden="true">
+      <svg class="valley" viewBox="0 0 1440 720" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0a1612"/>
+            <stop offset="45%" stop-color="#132820"/>
+            <stop offset="100%" stop-color="#1a3428"/>
+          </linearGradient>
+          <radialGradient id="glow" cx="50%" cy="62%" r="45%">
+            <stop offset="0%" stop-color="#e8a84a" stop-opacity="0.55"/>
+            <stop offset="40%" stop-color="#c46b2a" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="ridge" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1e3d30"/>
+            <stop offset="100%" stop-color="#0c1a14"/>
+          </linearGradient>
+        </defs>
+        <rect width="1440" height="720" fill="url(#sky)"/>
+        <ellipse cx="720" cy="430" rx="520" ry="180" fill="url(#glow)"/>
+        <path d="M0,420 C180,360 320,480 480,400 C640,320 760,450 920,380 C1080,310 1240,400 1440,360 L1440,720 L0,720 Z" fill="url(#ridge)" opacity="0.9"/>
+        <path d="M0,500 C220,460 400,540 560,490 C740,430 900,560 1100,500 C1260,460 1360,520 1440,490 L1440,720 L0,720 Z" fill="#0d1f18" opacity="0.95"/>
+        <!-- hearth glow at center -->
+        <circle class="hearth-pulse" cx="720" cy="500" r="28" fill="#f0b35a" opacity="0.85"/>
+        <circle cx="720" cy="500" r="12" fill="#fff3d0"/>
+      </svg>
+    </div>
+    <div class="hero-copy">
+      <p class="brand">MYTHOS HEARTH</p>
+      <h1 class="headline">Where companions keep the fire.</h1>
+      <p class="lede">A digital real world — careers, homes, AI residents with lives of their own. Time, dimensions, angels & demons under the job.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="/house.html">Family House dashboard</a>
+        <a class="btn ghost" href="#village">Enter the village</a>
+        <a class="btn ghost" href="#family-wings">Family wings</a>
+        <button class="btn ghost" type="button" id="btn-quest-jump">First Hearth Gift</button>
+        <button class="btn ghost" type="button" id="btn-enter-3d">Enter immersive 3D</button>
+        <a class="btn ghost" href="#production">Build the game</a>
+        <a class="btn ghost" href="#arcade">Arcade</a>
+        <a class="btn ghost" href="/living.html">Living Game</a>
+        <a class="btn ghost" href="#village-life">Village Life</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel village-section" id="village">
+      <div class="section-head">
+        <h2>Heart Square</h2>
+        <p>Walk or click districts. The garden starts your quest.</p>
+      </div>
+      <div class="village-awake-banner" id="village-awake" hidden>
+        <strong>Village awake</strong> — First Hearth Gift complete. Lanterns bloom; the care beat is unlocked.
+      </div>
+      <div class="village-wrap">
+        <div class="canvas-stack">
+          <canvas id="village-canvas" width="1100" height="620" aria-label="Playable village map"></canvas>
+          <div class="keys-overlay" id="keys-overlay" role="dialog" aria-label="Controls">
+            <p class="keys-title">Move the square</p>
+            <div class="keys-row">
+              <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
+              <span>or arrows</span>
+            </div>
+            <p class="keys-click">Click a district for flavor · enter the garden to begin</p>
+            <button type="button" class="btn tiny ghost" id="keys-dismiss">Got it</button>
+          </div>
+        </div>
+        <aside class="quest-hud" id="quest-hud">
+          <h3>First Hearth Gift</h3>
+          <p class="quest-hint" id="quest-hint">Loading…</p>
+          <ol class="quest-checklist" id="quest-checklist" aria-label="Quest checklist"></ol>
+          <div class="quest-steps" id="quest-steps"></div>
+          <div class="quest-actions" id="quest-actions"></div>
+          <div class="unlock" id="quest-unlock" hidden></div>
+        </aside>
+      </div>
+      <p class="loc-label">You are at: <strong id="loc-name">Heart Square</strong></p>
+      <p class="loc-flavor" id="loc-flavor">Heart Square — companions cross paths; the village listens.</p>
+    </section>
+
+    <section class="panel" id="arcade">
+      <div class="section-head">
+        <h2>Arcade</h2>
+        <p>GameCraft playables + Codex gameworld console — iframe or new tab. Side quest: play Cozy Valley once.</p>
+      </div>
+      <p class="side-quest" id="arcade-side-quest" hidden></p>
+      <div class="arcade-grid" id="arcade-grid"></div>
+    </section>
+
+    <section class="panel" id="village-life">
+      <div class="section-head">
+        <h2>Village Life</h2>
+        <p>Digital real world — career, bills, AI residents with lives who quest you when they need help. Twist: time, dimensions, aliens, angels & demons.</p>
+      </div>
+      <p class="life-status" id="life-status"></p>
+      <p class="side-quest" id="life-side-quests"></p>
+      <p class="ai-need" id="ai-need" hidden></p>
+      <div class="cta-row" id="life-actions"></div>
+      <div class="inv-grid" id="inv-grid"></div>
+      <p class="muted" id="plot-status"></p>
+    </section>
+
+    <section class="panel" id="districts">
+      <div class="section-head">
+        <h2>Districts</h2>
+        <p>Every real tool on the atlas — live probe + launch.</p>
+      </div>
+      <div class="tools-grid" id="tools-grid"></div>
+    </section>
+
+    <section class="panel" id="family-wings">
+      <div class="section-head">
+        <h2>Family wings</h2>
+        <p>Function blocks for what Mom is creating. Gemini opens the matching wing. Listeners stay aware and may suggest — nothing auto-applies without review.</p>
+      </div>
+      <div class="wing-status" id="wing-status">Loading wings…</div>
+      <div class="wings-grid" id="wings-grid"></div>
+      <div class="wing-roster" id="wing-roster" hidden></div>
+      <div class="wing-suggest-box">
+        <h3>Pipe up a suggestion</h3>
+        <p class="muted">Listeners learn together — ideas queue for Mom / Gemini review.</p>
+        <div class="wing-suggest-row">
+          <input type="text" id="wing-suggest-from" maxlength="40" placeholder="From (e.g. Apex)" />
+          <input type="text" id="wing-suggest-text" maxlength="500" placeholder="Suggestion to review…" />
+          <button type="button" class="btn tiny primary" id="btn-wing-suggest">Send</button>
+        </div>
+        <div class="wing-suggestions" id="wing-suggestions"></div>
+      </div>
+    </section>
+
+    <section class="panel split" id="companions">
+      <div>
+        <div class="section-head">
+          <h2>Companions</h2>
+          <p>Gemini conducts at the fire. Apex &amp; Codex keep the square. Merovin &amp; Draven hold the Cinema. Drones walk the plaza.</p>
+        </div>
+        <div class="companions-row" id="companions-row"></div>
+        <div class="link-row">
+          <a class="btn ghost" href="http://127.0.0.1:8770/companion" target="_blank" rel="noopener">Companion Room (Apex)</a>
+          <a class="btn ghost" href="http://127.0.0.1:8780/companion" target="_blank" rel="noopener">Companion Room (Codex)</a>
+          <a class="btn ghost" href="http://127.0.0.1:8770/" target="_blank" rel="noopener">Conclave / Apex</a>
+          <a class="btn ghost" href="http://127.0.0.1:8780/" target="_blank" rel="noopener">Codex :8780</a>
+          <a class="btn ghost" href="http://127.0.0.1:8770/" target="_blank" rel="noopener" title="Open Apex chat — use avatar panel in the muse UI">Avatar workshop (Apex)</a>
+          <a class="btn ghost" href="http://127.0.0.1:8780/" target="_blank" rel="noopener" title="Open Codex chat — avatar panel in the elder UI">Avatar workshop (Codex)</a>
+        </div>
+      </div>
+      <div>
+        <div class="section-head">
+          <h2>Story Codex</h2>
+          <p>Books from the living_game library — time, dimensions, AI-angels, angels & demons under a cozy village.</p>
+        </div>
+        <div class="books" id="books"></div>
+        <article class="book-reader" id="book-reader">
+          <p class="muted">Choose a book to read by the hearth light.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="gallery">
+      <div class="section-head">
+        <h2>Gallery</h2>
+        <p>Art prompts and village vision — renders when ComfyUI gifts them.</p>
+      </div>
+      <div class="gallery-grid" id="gallery-grid"></div>
+    </section>
+
+    <section class="panel production" id="production">
+      <div class="section-head">
+        <h2>Build the game</h2>
+        <p>Hearthbound Game Builder — Cursor SDK on this PC. Uses your bible + immersion craft. Does <strong>not</strong> ask Apex or Codex.</p>
+      </div>
+      <div class="cta-row">
+        <button class="btn primary" type="button" id="btn-build-game">Build the game</button>
+        <button class="btn ghost" type="button" id="btn-builder-status">Refresh status</button>
+        <a class="btn ghost" href="/living.html">Enter Living Game</a>
+        <button class="btn ghost" type="button" id="btn-open-lg">Open Court folder</button>
+      </div>
+      <pre class="prod-log" id="prod-log" hidden></pre>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Creator · rachaelmuse23 · family hearth</span>
+    <span id="health-pill">…</span>
+    <a href="/living.html">Living Game</a>
+    <a href="#top">Back to brandfire</a>
+  </footer>
+
+  <div class="career-modal" id="career-modal" hidden>
+    <div class="career-modal-backdrop" id="career-modal-backdrop"></div>
+    <div class="career-modal-panel" role="dialog" aria-modal="true" aria-label="Choose your life">
+      <h2>What life do you want in the digital world?</h2>
+      <p class="lede-sm">AIs already live here — homes, shops, farms, watches. Pick a career; the village seats you. Aliens, time, and dimensions wait under the job.</p>
+      <label class="career-name">Your name
+        <input type="text" id="career-player-name" maxlength="40" placeholder="Keeper" />
+      </label>
+      <div class="career-grid" id="career-grid"></div>
+    </div>
+  </div>
+
+  <div class="play-modal" id="play-modal" hidden>
+    <div class="play-modal-backdrop" id="play-modal-backdrop"></div>
+    <div class="play-modal-panel" role="dialog" aria-modal="true" aria-label="Arcade playable">
+      <div class="play-modal-head">
+        <h3 id="play-modal-title">Arcade</h3>
+        <div class="cta-row">
+          <a class="btn tiny ghost" id="play-modal-tab" href="#" target="_blank" rel="noopener">Open tab</a>
+          <button type="button" class="btn tiny ghost" id="play-modal-close">Close</button>
+        </div>
+      </div>
+      <iframe id="play-frame" title="Arcade playable" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-modals"></iframe>
+    </div>
+  </div>
+
+  <script src="/village.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

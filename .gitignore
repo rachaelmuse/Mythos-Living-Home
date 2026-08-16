@@ -1,0 +1,39 @@
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+
+# Engines, models, caches — not required to reconstruct the family kernel
+tools/Godot_v4.7/
+tools/*.zip
+tools/*.exe
+*.gguf
+*.bin
+
+# Hearth runtime junk
+data/art/
+data/sandboxes/
+data/tonight_gift/
+data/sprint/
+data/game_builder_run.log
+data/**/*.log
+data/living_home/godot_headless.log
+data/drive_wander_latest.json
+data/mom_history_latest.json
+data/inventor_pass_latest.json
+data/_tool_status_dump.json
+web/play/
+web/assets/
+
+# Godot import cache
+**/.godot/
+**/*.import
+
+APEX.env.bat
