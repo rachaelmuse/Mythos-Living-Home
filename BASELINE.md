@@ -71,8 +71,9 @@ Immediate continuity files (different job from Git):
 
 - `data/living_home/NEXT.md`
 - `data/living_home/STATUS.md`
+- `data/living_home/FEDERATION_WIRING.md`
 
-See `docs/CONTINUITY.md`.
+Dual-mode law: `docs/DUAL_MODE.md`. See `docs/CONTINUITY.md`.
 
 ## Known limits at snapshot time
 

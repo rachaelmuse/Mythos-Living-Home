@@ -1,0 +1,18 @@
+---
+description: Dual-mode law — original MAS (Mode A) and Living Gameworld (Mode B); never sacrifice one for the other
+alwaysApply: true
+---
+
+# Dual-mode family (standing)
+
+Gameworld expands the family. It does not replace it.
+
+Read first: `data/living_home/NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`. Law: `docs/DUAL_MODE.md`.
+
+- Gemini ≠ Apex ≠ Codex twin ≠ Merovin ≠ Draven ≠ OpenMontage ≠ Hearth ≠ Court ≠ Mom. Never merge.
+- Mode A (Court, MAS, tools, launchers, memory) must keep working while Mode B (Heart Square) is built.
+- If Gameworld cannot use a capability yet: keep Mode A, mark **ORIGINAL MODE — ACTIVE**. Do not delete or flatten it.
+- Prefer adapters over rewrites. Recursive MAS is protected; NPC village behavior is a different, bounded system.
+- `CAPABILITIES.json` path/port `VERIFIED` is **not** end-to-end wiring.
+- Gameworld proving slice remains Living Home. Wiring audit is a parallel workstream. If Gameworld breaks Mode A, stop expansion and repair.
+- Do not rewrite tag `living-home-baseline-001`. Evidence only. Never report wired/connected/complete without a test.

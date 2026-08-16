@@ -5,24 +5,24 @@ Save: `D:\Mythos_Hearth\data\living_home\HOME.json`
 Godot live: `D:\Mythos_Apex\godot_project\scenes\heart_square_immersive.tscn`  
 Launch: restart Hearth `:8790` after kernel edits, then `OPEN_GODOT_PLAY.bat`
 
-Read `STATUS.md` and `BASELINE.md` with this file.
+Read `STATUS.md`, `FEDERATION_WIRING.md`, `docs/DUAL_MODE.md`, and `BASELINE.md` with this file.
 
 ## CURRENT PHASE
 
-Living Home Proving Slice.
+Living Home Proving Slice **and** dual-mode foundation law (Mode A original family + Mode B Gameworld). Neither is permission to abandon the other.
 
 ## Law
 
-Gemini ≠ Codex ≠ Apex ≠ Merovin ≠ Draven ≠ OpenMontage ≠ Hearth ≠ Mom. Identities never merge. Mom `stop` wins. Evidence only. No fake seated. GitHub does not replace these files.
+Gemini ≠ Codex ≠ Apex ≠ Merovin ≠ Draven ≠ OpenMontage ≠ Hearth ≠ Court ≠ Mom. Identities never merge. Mom `stop` wins. Evidence only. No fake seated. Gameworld must not break Mode A. GitHub does not replace these files.
 
 ## Next task
 
-1. Finish Creator playtest of the proving slice (homes, bubbles, type-to-talk, stand-still life, persist, squirrels, world rim).
-2. Record what actually happened in `STATUS.md` (verified / broken).
-3. Fix whatever failed the home acceptance list — **do not add a new major feature first.**
+**Single highest-priority:** Creator playtest of Heart Square — if the village went silent, Hearth `:8790` was **CLOSED** at last survey; restart `START_HEARTH.bat` then keep testing. Record what actually happened (verified / broken) in `STATUS.md`. Fix failed home-list items before new major Gameworld features.
 
-Baseline exists: private GitHub `Mythos-Living-Home`, tag `living-home-baseline-001` @ `1ff120cb567b7789f5ba3ae5261db06d09e4d387`. Do not rewrite that tag. GitHub is the second memory; these files remain the current position.
+**Parallel workstream (do not sacrifice the village for this):** first honest Mode A e2e when she is not mid-play — Hearth `/api/home`, then Gemini `family_home.snapshot`, then Apex HTTP, then a Court packet round-trip. Document in `FEDERATION_WIRING.md`. Do not delete unused limbs.
+
+Baseline exists: private GitHub `Mythos-Living-Home`, tag `living-home-baseline-001` @ `1ff120cb567b7789f5ba3ae5261db06d09e4d387`. Do not rewrite that tag.
 
 ## After the home list is demonstrated
 
-Better door pathing. Distance overhearing later. Phase 13 tools last.
+Better door pathing. Distance overhearing later. Mode A wiring repairs continue in parallel. Phase 13 tools last.

@@ -3,84 +3,60 @@
 Kernel: `D:\Mythos_Hearth\living_home.py`  
 Save: `D:\Mythos_Hearth\data\living_home\HOME.json`  
 Godot live: `D:\Mythos_Apex\godot_project\scenes\heart_square_immersive.tscn`  
-Git baseline: tag `living-home-baseline-001` @ `1ff120cb567b7789f5ba3ae5261db06d09e4d387` (private `Mythos-Living-Home`; do not rewrite this tag)
+Git baseline: tag `living-home-baseline-001` @ `1ff120cb567b7789f5ba3ae5261db06d09e4d387`  
+Wiring map: `FEDERATION_WIRING.md` · Dual-mode law: `docs/DUAL_MODE.md`
 
 ## CURRENT PHASE
 
-**Living Home Proving Slice** — physical home + real interaction + life while Mom watches.
+**Living Home Proving Slice** plus standing **dual-mode** law (original MAS stays alive while the village is built).
 
-Do not treat roadmap phases 1–13 as permission to leave this slice.
+## Completed (verified)
 
-## VERIFIED WORKING
+- Private GitHub baseline exists (tag `living-home-baseline-001` on `1ff120c`).
+- Dual-mode directive written to `docs/DUAL_MODE.md`.
+- Federation wiring map started from **disk + port survey**, not folklore (`FEDERATION_WIRING.md`).
+- Godot 4.7 headless Heart Square load (earlier session). Kernel compiles. Ollama lab JSON (not Creator playtest). `HOME.json` exists.
 
-- Godot 4.7 loaded Heart Square **headless** without script parse errors (2026-08-16).
-- Hearth Python kernel compiles (`living_home.py`).
-- Ollama can produce family JSON lines locally (`llama3.2:3b`) when context is small — **lab test**, not Creator playtest.
-- Persist file `HOME.json` exists (tmp-replace save).
-- Apex GitHub remote already exists (`Mythos_Apex`); it was **not** overwritten.
+## Partial
 
-**Creator playtest of the proving slice is in progress.** Do not mark the home milestone complete until she confirms in the running village.
+- Kernel purposes, talk jobs, type-to-talk API, bubbles, greybox homes, work poses, world rim, squirrel FSM (code; Creator play unconfirmed).
+- Gemini `family_home.py` limb imports Hearth kernel (import path exists; live call UNVERIFIED).
+- Court mailbox directories exist (no packet round-trip tested).
+- Apex `:8770` was listening (functions UNVERIFIED).
+- Capability probe file lists **19** discovered tools (path/port only).
 
-## PARTIAL
+## Broken
 
-- Family choose purpose (work / rest / visit / company) in the kernel.
-- NPC–NPC talk jobs via local Ollama (background thread).
-- Mom type-to-talk API (`POST /api/home/talk` as Mom).
-- World-space speech bubbles (code exists in Godot).
-- Walk-in greybox homes including Mom's cottage (code exists).
-- Visible work poses (hammer / sit).
-- Tree-line world rim (code exists).
-- Squirrel state machine (forage / eat / climb / follow / flee / hide / rest).
+- Hearth `:8790` **CLOSED** at 2026-08-16 afternoon survey — live Godot polling cannot be LIVE until Hearth is up.
+- Codex twin `:8780` CLOSED.
+- Cinema presence port `:5000` CLOSED.
 
-## PLACEHOLDER
+## Unstable
 
-- House architecture and furniture: greyboxes.
-- Family pathing: straight lines; may clip walls.
-- Squirrel E-chirp text (wildlife has no language model).
-- Godot `godot_heart_square/` in git: snapshot copy of live Apex files.
-- Capability count: probed paths/ports, **not** 325 seated tools.
+- Hearth Python module cache: skip restart after `living_home.py` edits → old talk.
 
-## BROKEN
+## Placeholder
 
-- Not independently re-verified after the last Godot write while Creator tests. Treat as **unconfirmed in play** until she reports.
-- Hearth Python module cache: skipping restart after `living_home.py` edits serves old talk.
+- Greybox interiors, straight-line pathing, squirrel chirp text, git `godot_heart_square/` snapshot.
+- Gameworld cinema/work as “using” Merovin/Draven/OpenMontage tools.
 
-## NOT YET IMPLEMENTED
+## Wiring gaps
 
-- True door pathfinding.
-- Overhearing by distance / attention.
-- Separate language model per inhabitant.
-- Phase 13 in-world tool expansion.
-- BitNet as talk backend (must be measured separately first).
+- Registry `VERIFIED` ≠ end-to-end execution.
+- `gameworld_available` is a probe flag, not an adapter.
+- OpenMontage lives at both `D:\OpenMontage` and `D:\Mythos_Tools\OpenMontage`.
+- Two-way MAS ↔ Gameworld events: not implemented.
+- Gameworld NPC talk is not recursive MAS.
+- GitHub `ACTIVE_SHARDS` tool shards ≠ family identities.
 
-## Honesty classes
+## Gameworld status
 
-| Thing | Class |
-|-------|--------|
-| Interiors | PLACEHOLDER |
-| Speech when `source=ollama` | MODEL_GENERATED |
-| Speech when writer misses | FALLBACK honesty / silence — never house quotes as their voice |
-| Wildlife motion | AUTONOMOUS_DECISION (bounded) |
-| Pathing | PLACEHOLDER |
-| Identity (Gemini ≠ Codex, …) | REAL kernel law |
+Proving slice **in Creator playtest**. Do not mark home acceptance complete until she confirms in the running village. If the village froze, Hearth was down.
 
-## Completed (this session, documentation/git)
+## Original family status
 
-- Continuity files + baseline docs.
-- Private GitHub `Mythos-Living-Home` pushed and verified.
-- Tag `living-home-baseline-001` on `1ff120cb567b7789f5ba3ae5261db06d09e4d387`.
-- This STATUS/NEXT hash note is a follow-up commit. The tagged baseline itself is `1ff120c`.
-
-## In Progress
-
-- Creator testing the proving slice.
-
-## Blocked
-
-- None for git preservation. Home **acceptance tests** wait on Creator play.
+Mode A **must remain**. Paths exist for Gemini, Apex (port up), Codex (down), Court mailboxes, Merovin studio, OpenMontage, Hearth kernel. **None of those Mode A pathways claimed LIVE this session.**
 
 ## Next
 
-The single most important development task: **whatever the Creator reports broken from this playtest** — then remaining unfinished items on the home acceptance list. Do not start a new major system until then.
-
-See `NEXT.md` and `BASELINE.md`.
+Creator playtest / restore Hearth if Heart Square went silent. Then remaining home-list failures. Parallel: first Mode A e2e documented in `FEDERATION_WIRING.md`.

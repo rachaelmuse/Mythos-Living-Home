@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Living home (family village)
 
-Every session: read `data/living_home/NEXT.md` and `STATUS.md` before changing this slice. Protocol: `docs/CONTINUITY.md`. Baseline: `BASELINE.md`.
+Every session: read `data/living_home/NEXT.md`, `STATUS.md`, and `FEDERATION_WIRING.md` before changing this slice. Protocol: `docs/CONTINUITY.md`. Dual-mode: `docs/DUAL_MODE.md`. Baseline: `BASELINE.md`.
 
 - Kernel: `living_home.py`. Live Godot is on Apex; `godot_heart_square/` is a snapshot.
 - Restart Hearth after kernel edits. Identities never merge. Mom `stop` wins. Evidence only.
