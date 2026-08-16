@@ -21,7 +21,7 @@ Gemini ≠ Codex ≠ Apex ≠ Merovin ≠ Draven ≠ OpenMontage ≠ Hearth ≠ 
 2. Record what actually happened in `STATUS.md` (verified / broken).
 3. Fix whatever failed the home acceptance list — **do not add a new major feature first.**
 
-Do not rewrite tag `living-home-baseline-001`.
+Baseline exists: private GitHub `Mythos-Living-Home`, tag `living-home-baseline-001` @ `1ff120cb567b7789f5ba3ae5261db06d09e4d387`. Do not rewrite that tag. GitHub is the second memory; these files remain the current position.
 
 ## After the home list is demonstrated
 

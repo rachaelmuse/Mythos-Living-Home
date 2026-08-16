@@ -3,7 +3,7 @@
 Kernel: `D:\Mythos_Hearth\living_home.py`  
 Save: `D:\Mythos_Hearth\data\living_home\HOME.json`  
 Godot live: `D:\Mythos_Apex\godot_project\scenes\heart_square_immersive.tscn`  
-Git baseline: tag `living-home-baseline-001` (hash recorded after first push)
+Git baseline: tag `living-home-baseline-001` @ `1ff120cb567b7789f5ba3ae5261db06d09e4d387` (private `Mythos-Living-Home`; do not rewrite this tag)
 
 ## CURRENT PHASE
 
@@ -67,7 +67,9 @@ Do not treat roadmap phases 1–13 as permission to leave this slice.
 ## Completed (this session, documentation/git)
 
 - Continuity files + baseline docs.
-- Private GitHub preservation planned as `Mythos-Living-Home`.
+- Private GitHub `Mythos-Living-Home` pushed and verified.
+- Tag `living-home-baseline-001` on `1ff120cb567b7789f5ba3ae5261db06d09e4d387`.
+- This STATUS/NEXT hash note is a follow-up commit. The tagged baseline itself is `1ff120c`.
 
 ## In Progress
 

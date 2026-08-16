@@ -19,10 +19,11 @@ It is not a finished world. It is a known-good starting point so experiments can
 
 ## Baseline identity
 
-- Repository: `Mythos-Living-Home`
+- Repository: `Mythos-Living-Home` (https://github.com/rachaelmuse/Mythos-Living-Home)
 - Visibility: **private**
+- Git working tree: `G:\The-Axiom-Codex\Mythos-Living-Home`
 - Tag: `living-home-baseline-001` (do not move or rewrite)
-- Commit hash: *(filled after first commit)*
+- Baseline commit: `1ff120cb567b7789f5ba3ae5261db06d09e4d387`
 - Phase: **Living Home Proving Slice**
 
 ## How to launch (this machine)
