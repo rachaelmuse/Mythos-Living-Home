@@ -27,11 +27,15 @@ var _bubble: Label3D
 var _bubble_left := 0.0
 var _tool: MeshInstance3D
 var _sit_y := 0.0
+var _hearth_applied := false
 
 
 func _ready() -> void:
+	print("[Citizen] ready: ", member_id, " (", display_name, ")")
 	add_to_group("family_citizen")
 	set_meta("is_companion", true)
+	if str(member_id) != "" and not has_meta("family_id"):
+		set_meta("family_id", str(member_id))
 	motion_mode = MOTION_MODE_GROUNDED
 	floor_stop_on_slope = true
 	collision_layer = 4
@@ -46,8 +50,19 @@ func _ready() -> void:
 	_ensure_tool()
 	set_process(true)
 	set_physics_process(true)
-	var h: int = absi(hash(member_id))
-	set_target_xz(float((h % 7) - 3), float(((h / 7) % 7) - 3))
+	# Hold spawn until Hearth apply_home — do NOT walk to plaza (0,0) while offline.
+	call_deferred("_hold_spawn_target")
+
+
+func _hold_spawn_target() -> void:
+	# Race guard: if Hearth already applied, never wipe their place target.
+	if _hearth_applied:
+		return
+	set_target_xz(global_position.x, global_position.z)
+	stance = "standing"
+	activity = "idle"
+	if _status:
+		_status.text = "Waiting for Hearth…"
 
 
 func _ensure_bubble() -> void:
@@ -57,10 +72,10 @@ func _ensure_bubble() -> void:
 	_bubble = Label3D.new()
 	_bubble.name = "Bubble"
 	_bubble.position = Vector3(0, 2.62, 0)
-	_bubble.font_size = 28
-	_bubble.outline_size = 8
+	_bubble.font_size = 42
+	_bubble.outline_size = 12
 	_bubble.modulate = Color(1, 1, 1, 0)
-	_bubble.pixel_size = 0.012
+	_bubble.pixel_size = 0.018
 	_bubble.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_bubble.no_depth_test = true
 	add_child(_bubble)
@@ -89,35 +104,141 @@ func set_target_xz(x: float, z: float) -> void:
 
 
 func _standing() -> bool:
-	return stance in ["talking", "waiting", "resting", "standing", "working"]
+	if stance in ["talking", "waiting"]:
+		var near := Vector3(target.x - global_position.x, 0, target.z - global_position.z)
+		return near.length() < 1.35
+	if stance in ["resting", "standing", "working"]:
+		var near2 := Vector3(target.x - global_position.x, 0, target.z - global_position.z)
+		return near2.length() < 1.2
+	return false
+
+
+func _field_str(d: Dictionary, key: String, fallback: String = "") -> String:
+	if not d.has(key):
+		return fallback
+	var v: Variant = d[key]
+	# Reject bools — Object/JSON mixups have shown up as true/false here before.
+	if typeof(v) == TYPE_BOOL:
+		return fallback
+	if typeof(v) == TYPE_STRING:
+		var s := str(v)
+		if s == "" or s == "true" or s == "false":
+			return fallback
+		return s
+	if typeof(v) == TYPE_NIL:
+		return fallback
+	return str(v)
+
+
+func _door_approach(place_id: String, x: float, z: float) -> Vector2:
+	## Outdoor point in front of the door (matches heart_square building door faces).
+	## Vector2 = (x, z). Walkers use this so they leave interiors and cross the plaza.
+	match place_id:
+		"mom_home":
+			return Vector2(x, z + 3.8)  # door z+
+		"first_hearth":
+			return Vector2(x, z + 3.6)
+		"gemini_home", "gallery", "court_porch":
+			return Vector2(x, z + 3.2)
+		"gate":
+			return Vector2(x, z - 3.4)  # door z-
+		"apex_forge", "workshop", "cinema":
+			return Vector2(x - 3.6, z)  # door x-
+		"codex_library":
+			return Vector2(x + 3.6, z)  # door x+
+		"garden", "wildlife", "heart_square":
+			return Vector2(x, z)
+		_:
+			return Vector2(x, z + 2.5)
 
 
 func apply_home(person: Dictionary, places: Dictionary) -> void:
-	stance = str(person.get("stance") or "walking")
-	talking_to = str(person.get("talking_to") or "")
-	purpose_plain = str(person.get("purpose_plain") or "")
-	activity = str(person.get("activity") or stance)
-	at_home = bool(person.get("at_home"))
+	_hearth_applied = true
+	stance = _field_str(person, "stance", "walking")
+	talking_to = _field_str(person, "talking_to", "")
+	purpose_plain = _field_str(person, "purpose_plain", "")
+	activity = _field_str(person, "activity", stance)
+	at_home = bool(person["at_home"]) if person.has("at_home") and typeof(person["at_home"]) == TYPE_BOOL else false
+	var pl := _field_str(person, "place", "")
+	if pl == "":
+		pl = _field_str(person, "home", home_place)
+	if pl == "":
+		pl = "heart_square"
+	home_place = pl
 	if _status:
-		var loc := str(person.get("place") or "")
 		var home_bit := " · home" if at_home else ""
 		_status.text = purpose_plain if purpose_plain != "" else (activity + home_bit)
-		if loc != "":
-			_status.text = (activity + home_bit).strip_edges()
-			if purpose_plain != "":
-				_status.text = purpose_plain
-	var pl := str(person.get("place") or home_place)
-	home_place = pl
-	if places.has(pl) and places[pl] is Dictionary:
+
+	var dest_x := INF
+	var dest_z := INF
+	var raw_place: Variant = person["place"] if person.has("place") else null
+	# 1) places dictionary — walkers aim at the DOOR outside so they cross the square
+	if places.has(pl) and typeof(places[pl]) == TYPE_DICTIONARY:
 		var rec: Dictionary = places[pl]
-		var pos: Variant = rec.get("pos")
+		var pos: Variant = rec["pos"] if rec.has("pos") else null
 		if pos is Array and (pos as Array).size() >= 3:
 			var arr: Array = pos
-			set_target_xz(float(arr[0]), float(arr[2]))
-			if stance == "talking" or stance == "waiting":
-				_kernel_fresh = 90.0
+			var door := _door_approach(pl, float(arr[0]), float(arr[2]))
+			var h: int = absi(hash(member_id))
+			var jx := float(h % 9) * 0.35 - 1.4
+			var jz := float((h / 9) % 9) * 0.35 - 1.4
+			if stance == "walking" or stance == "talking" or stance == "waiting":
+				dest_x = door.x + jx * 0.35
+				dest_z = door.y + jz * 0.35
 			else:
-				_kernel_fresh = 40.0 if _standing() else 12.0
+				# Arrived / working / resting — stand inside near center
+				dest_x = float(arr[0]) + jx * 0.5
+				dest_z = float(arr[2]) + jz * 0.5
+	# 2) fallback — snapshot row already carries world pos
+	if dest_x == INF and person.has("pos"):
+		var pos2: Variant = person["pos"]
+		if pos2 is Array and (pos2 as Array).size() >= 3:
+			var arr2: Array = pos2
+			var door2 := _door_approach(pl, float(arr2[0]), float(arr2[2]))
+			if stance == "walking":
+				dest_x = door2.x
+				dest_z = door2.y
+			else:
+				dest_x = float(arr2[0])
+				dest_z = float(arr2[2])
+
+	if dest_x == INF:
+		print(
+			"[Citizen] ",
+			member_id,
+			" cannot resolve place pl=",
+			pl,
+			" raw_place=",
+			raw_place,
+			" typeof=",
+			typeof(raw_place),
+			" places_has=",
+			places.has(pl)
+		)
+		return
+
+	set_target_xz(dest_x, dest_z)
+	# Must walk to place before posing as resting/working in place.
+	var gap := Vector3(target.x - global_position.x, 0.0, target.z - global_position.z)
+	if gap.length() > 1.8 and stance not in ["talking", "waiting"]:
+		stance = "walking"
+		if activity in ["sit", "sleep", "idle", ""]:
+			activity = "walk"
+	if stance == "talking" or stance == "waiting":
+		_kernel_fresh = 90.0
+	else:
+		_kernel_fresh = 40.0 if _standing() else 12.0
+	print("[Citizen] ", member_id, " -> ", pl, " target=", dest_x, ",", dest_z, " stance=", stance)
+
+
+func test_walk_to_heart_square() -> void:
+	print("[Citizen] TEST walk to heart_square: ", member_id)
+	_hearth_applied = true
+	set_target_xz(0.0, 0.0)
+	stance = "walking"
+	activity = "walk"
+	if _status:
+		_status.text = "TEST: walking to Heart Square"
 
 
 func speak(text: String, source: String = "ollama") -> void:
@@ -152,7 +273,7 @@ func _physics_process(delta: float) -> void:
 					set_target_xz(meet.x, meet.z)
 		else:
 			for other in get_tree().get_nodes_in_group("family_citizen"):
-				if str(other.get("member_id")) == talking_to and other is Node3D:
+				if str(other.member_id) == talking_to and other is Node3D:
 					var them2: Node3D = other
 					var meet2: Vector3 = (them2.global_position + here) * 0.5
 					if stance == "talking" or stance == "waiting":
@@ -169,8 +290,8 @@ func _physics_process(delta: float) -> void:
 	var stop_now := _standing() and to.length() < 1.15
 	if to.length() > 0.7 and not stop_now:
 		var dir := to.normalized()
-		velocity.x = dir.x * 2.15
-		velocity.z = dir.z * 2.15
+		velocity.x = dir.x * 3.4
+		velocity.z = dir.z * 3.4
 		if _body:
 			_body.rotation.y = lerp_angle(_body.rotation.y, atan2(dir.x, dir.z), delta * 6.0)
 	else:
@@ -196,7 +317,7 @@ func _face_partner(delta: float) -> void:
 			face = players[0].global_position - global_position
 	else:
 		for other in get_tree().get_nodes_in_group("family_citizen"):
-			if str(other.get("member_id")) == talking_to and other is Node3D:
+			if str(other.member_id) == talking_to and other is Node3D:
 				face = other.global_position - global_position
 				break
 	face.y = 0

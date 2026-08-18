@@ -17,11 +17,11 @@ var hearth_url := "http://127.0.0.1:8790"
 
 func _ready() -> void:
 	_get = HTTPRequest.new()
-	_get.timeout = 15.0
+	_get.timeout = 25.0
 	add_child(_get)
 	_get.request_completed.connect(_on_get)
 	_post = HTTPRequest.new()
-	_post.timeout = 15.0
+	_post.timeout = 25.0
 	add_child(_post)
 	_post.request_completed.connect(_on_post)
 	refresh()
@@ -65,8 +65,7 @@ func _process(delta: float) -> void:
 	_tick_ago += delta
 	if _tick_ago >= 6.5:
 		_tick_ago = 0.0
-		if last_ok:
-			tick_world()
+		tick_world()
 
 
 func _on_get(_result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:

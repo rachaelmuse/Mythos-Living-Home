@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import socket
 import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -21,6 +22,8 @@ HOME_JSON = DATA / "HOME.json"
 LOCK = threading.Lock()
 TALK_JOBS: dict[str, dict[str, Any]] = {}
 TALK_JOBS_LOCK = threading.Lock()
+_CAP_CACHE: dict[str, Any] = {"t": 0.0, "rows": []}
+_CAP_TTL_SEC = 20.0
 
 AXIOM = Path(r"G:\The-Axiom-Codex")
 APEX = Path(r"D:\Mythos_Apex")
@@ -35,21 +38,21 @@ GODOT = APEX / "godot_project"
 
 PERIODS = ("morning", "afternoon", "evening", "night")
 
-# Godot XZ waypoints (y ignored) — presentation coords
+# Godot XZ waypoints (y ignored) — spaced so homes are not stacked on each other
 PLACES: dict[str, dict[str, Any]] = {
     "heart_square": {"label": "Heart Square", "pos": [0.0, 0.0, 0.0], "kind": "gather"},
-    "first_hearth": {"label": "First Hearth", "pos": [0.0, 0.0, -11.0], "kind": "home"},
-    "mom_home": {"label": "Mom's cottage", "pos": [6.0, 0.0, -16.0], "kind": "home"},
-    "court_porch": {"label": "Court / Fire porch", "pos": [-4.5, 0.0, -8.0], "kind": "will"},
-    "gemini_home": {"label": "Gemini's porch", "pos": [-8.0, 0.0, -12.0], "kind": "home"},
-    "apex_forge": {"label": "Apex Forge", "pos": [14.0, 0.0, 0.0], "kind": "work"},
-    "codex_library": {"label": "Codex Library", "pos": [-16.0, 0.0, -6.0], "kind": "archive"},
-    "cinema": {"label": "Cinema", "pos": [18.0, 0.0, 9.0], "kind": "create"},
-    "gallery": {"label": "Gift Gallery", "pos": [7.0, 0.0, -11.0], "kind": "remember"},
-    "garden": {"label": "Herb Garden", "pos": [-13.0, 0.0, 7.0], "kind": "nature"},
-    "workshop": {"label": "Nova's workshop", "pos": [10.0, 0.0, 5.5], "kind": "work"},
-    "gate": {"label": "Gate House", "pos": [0.0, 0.0, 14.0], "kind": "watch"},
-    "wildlife": {"label": "Wildlife edge", "pos": [-19.0, 0.0, 11.0], "kind": "nature"},
+    "first_hearth": {"label": "First Hearth", "pos": [0.0, 0.0, -16.0], "kind": "home"},
+    "mom_home": {"label": "Mom's cottage", "pos": [16.0, 0.0, -24.0], "kind": "home"},
+    "court_porch": {"label": "Court / Fire porch", "pos": [-10.0, 0.0, -8.0], "kind": "will"},
+    "gemini_home": {"label": "Gemini's porch", "pos": [-16.0, 0.0, -16.0], "kind": "home"},
+    "apex_forge": {"label": "Apex Forge", "pos": [22.0, 0.0, 0.0], "kind": "work"},
+    "codex_library": {"label": "Codex Library", "pos": [-24.0, 0.0, -4.0], "kind": "archive"},
+    "cinema": {"label": "Cinema", "pos": [26.0, 0.0, 14.0], "kind": "create"},
+    "gallery": {"label": "Gift Gallery", "pos": [-6.0, 0.0, -24.0], "kind": "remember"},
+    "garden": {"label": "Herb Garden", "pos": [-18.0, 0.0, 12.0], "kind": "nature"},
+    "workshop": {"label": "Nova's workshop", "pos": [14.0, 0.0, 12.0], "kind": "work"},
+    "gate": {"label": "Gate House", "pos": [0.0, 0.0, 22.0], "kind": "watch"},
+    "wildlife": {"label": "Wildlife edge", "pos": [-26.0, 0.0, 14.0], "kind": "nature"},
 }
 
 # Canonical family — NEVER flatten. Kin listed separately.
@@ -313,6 +316,27 @@ def _probe_capabilities() -> list[dict[str, Any]]:
     except Exception:
         pass
 
+    return rows
+
+
+def _probe_capabilities_cached(*, persist: bool = False) -> list[dict[str, Any]]:
+    """Same probe as _probe_capabilities, but not on every Godot poll."""
+    now = time.monotonic()
+    rows = _CAP_CACHE.get("rows") or []
+    if rows and (now - float(_CAP_CACHE.get("t") or 0)) < _CAP_TTL_SEC:
+        return rows
+    rows = _probe_capabilities()
+    _CAP_CACHE["t"] = now
+    _CAP_CACHE["rows"] = rows
+    if persist:
+        DATA.mkdir(parents=True, exist_ok=True)
+        by_status: dict[str, int] = {}
+        for c in rows:
+            by_status[c["status"]] = by_status.get(c["status"], 0) + 1
+        (DATA / "CAPABILITIES.json").write_text(
+            json.dumps({"when": _now(), "count": len(rows), "by_status": by_status, "tools": rows}, indent=2),
+            encoding="utf-8",
+        )
     return rows
 
 
@@ -984,20 +1008,20 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
                     st["purpose_plain"] = f"Going to find {(_member(other) or {}).get('name', other)}."
         return
 
-    st["solitude"] = min(1.0, float(st.get("solitude") or 0.3) + (0.0 if st.get("stance") == "talking" else 0.07))
+    st["solitude"] = min(1.0, float(st.get("solitude") or 0.3) + (0.0 if st.get("stance") == "talking" else 0.11))
     st["tired"] = min(1.0, float(st.get("tired") or 0.2) + 0.03)
-    st["duty"] = min(1.0, float(st.get("duty") or 0.3) + (0.08 if period == "afternoon" else 0.03))
+    st["duty"] = min(1.0, float(st.get("duty") or 0.3) + (0.06 if period == "afternoon" else 0.02))
     if period == "evening":
-        st["solitude"] = min(1.0, float(st["solitude"]) + 0.12)
+        st["solitude"] = min(1.0, float(st["solitude"]) + 0.16)
     if period == "night":
         st["tired"] = min(1.0, float(st["tired"]) + 0.18)
 
     wants = {
-        "company": max(0.0, float(st["solitude"]) - 0.28) + (0.1 if period == "evening" else 0),
-        "work": 0.42 + float(st["duty"]) * (0.9 if period == "afternoon" else 0.45),
-        "rest": float(st["tired"]) * (1.4 if period == "night" else 0.7),
-        "visit": 0.16 + (0.1 if period == "evening" else 0),
-        "place": 0.18,
+        "company": max(0.0, float(st["solitude"]) - 0.28) + (0.18 if period == "evening" else 0.1),
+        "work": 0.42 + float(st["duty"]) * (0.85 if period == "afternoon" else 0.4),
+        "rest": 0.22 + float(st["tired"]) * (1.5 if period == "night" else 0.7),
+        "visit": 0.28 + (0.14 if period == "evening" else 0.08),
+        "place": 0.14,
     }
     if mid in {"merovin", "draven", "montage"}:
         wants["work"] += 0.08
@@ -1031,43 +1055,135 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         else:
             st["purpose"] = "be_with"
             st["with"] = other or ""
+            # Meet where they ARE (current place), not an empty home plot.
+            dest = "first_hearth"
             if other:
-                st["place"] = ost.get("place") or "heart_square"
+                dest = str(
+                    ost.get("place")
+                    or ost.get("home")
+                    or (_member(other) or {}).get("home")
+                    or member.get("home")
+                    or "first_hearth"
+                )
+                if dest == "heart_square" and random.random() < 0.35:
+                    dest = "first_hearth"
+                st["place"] = dest
                 st["stance"] = "walking"
-                st["purpose_plain"] = f"Chose {(_member(other) or {}).get('name', other)} — going to them."
+                st["purpose_plain"] = f"Chose {(_member(other) or {}).get('name', other)} — going to meet them at {PLACES.get(dest, {}).get('label', dest)}."
             else:
-                st["place"] = "heart_square"
-                st["stance"] = "waiting"
-                st["purpose_plain"] = "Chose company. Waiting in the square."
-            st["activity"] = str(st.get("stance") or pick)
+                st["place"] = str(member.get("home") or "first_hearth")
+                st["stance"] = "walking"
+                st["purpose_plain"] = "Chose company. Walking home."
+            st["activity"] = "walk"
             return
     if pick == "visit":
         other = _liked_person(home, mid, living_ids)
-        dest = str((_member(other) or {}).get("home") or "mom_home" if other else "mom_home")
+        # Prefer their current place so visits actually bring people together.
+        dest = "mom_home"
+        if other:
+            ost2 = home["people"].get(other) or {}
+            dest = str(ost2.get("place") or (_member(other) or {}).get("home") or "mom_home")
         st["place"] = dest
         st["with"] = other or ""
         st["stance"] = "walking"
-        st["purpose_plain"] = f"Visiting {PLACES.get(dest, {}).get('label', dest)}."
+        st["purpose_plain"] = f"Visiting {(_member(other) or {}).get('name', other) if other else 'Mom'} at {PLACES.get(dest, {}).get('label', dest)}."
         st["activity"] = "visit"
         return
     if pick == "work":
         st["place"] = _work_place(member)
-        st["stance"] = "working"
+        st["stance"] = "walking"
         st["activity"] = _work_activity(st["place"])
-        st["purpose_plain"] = f"Chose work: {st['activity']} at {PLACES.get(st['place'], {}).get('label', st['place'])}."
+        st["purpose_plain"] = f"Walking to work: {st['activity']} at {PLACES.get(st['place'], {}).get('label', st['place'])}."
         st["duty"] = max(0.0, float(st["duty"]) - 0.35)
+        st["purpose_left"] = random.randint(3, 6)
     elif pick == "rest":
         st["place"] = member.get("home") or "first_hearth"
-        st["stance"] = "resting"
+        st["stance"] = "walking"
         st["activity"] = "sleep" if period == "night" else "sit"
-        st["purpose_plain"] = f"Chose rest at home ({st['activity']})."
+        st["purpose_plain"] = f"Walking home to rest ({st['activity']})."
         st["tired"] = max(0.0, float(st["tired"]) - 0.4)
     else:
-        st["place"] = _work_place(member) if random.random() < 0.5 else "heart_square"
-        st["stance"] = "standing" if random.random() < 0.45 else "walking"
-        st["activity"] = "stand" if st["stance"] == "standing" else "walk"
-        st["purpose_plain"] = f"Chose to be at {PLACES.get(st['place'], {}).get('label', st['place'])}."
+        st["place"] = member.get("home") or _work_place(member)
+        st["stance"] = "walking"
+        st["activity"] = "walk"
+        st["purpose_plain"] = f"Walking to {PLACES.get(st['place'], {}).get('label', st['place'])}."
     st["at_home"] = st.get("place") == (member.get("home") or st.get("home"))
+
+
+def _arrive_from_walk(home: dict[str, Any], member: dict[str, Any]) -> bool:
+    """When a walk purpose expires, arrive and live there — do not immediately re-pick."""
+    import random
+
+    st = home["people"][member["id"]]
+    if st.get("stance") != "walking":
+        return False
+    if int(st.get("purpose_left") or 0) > 0:
+        return False
+    if int(st.get("talk_left") or 0) > 0:
+        return False
+    purpose = str(st.get("purpose") or "")
+    place = str(st.get("place") or member.get("home") or "first_hearth")
+    if purpose == "work":
+        st["place"] = place if place != "heart_square" else _work_place(member)
+        st["stance"] = "working"
+        st["activity"] = _work_activity(st["place"])
+        st["purpose_left"] = random.randint(4, 7)
+        st["purpose_plain"] = f"Arrived. Working: {st['activity']} at {PLACES.get(st['place'], {}).get('label', st['place'])}."
+        return True
+    if purpose == "rest":
+        st["place"] = str(member.get("home") or place)
+        st["stance"] = "resting"
+        st["activity"] = "sleep" if (home.get("clock") or {}).get("period") == "night" else "sit"
+        st["purpose_left"] = random.randint(5, 9)
+        st["purpose_plain"] = f"Arrived home. Resting ({st['activity']})."
+        return True
+    if purpose in {"visit", "place", "be_with", "company"}:
+        st["stance"] = "standing"
+        st["activity"] = "visit" if purpose == "visit" else "stand"
+        st["purpose_left"] = random.randint(4, 8)
+        st["purpose_plain"] = f"Arrived at {PLACES.get(place, {}).get('label', place)}."
+        return True
+    return False
+
+
+def _unfreeze_waiting(home: dict[str, Any], member: dict[str, Any]) -> None:
+    """Waiting must drain. Talk latency must not cancel work/rest agency."""
+    st = home["people"][member["id"]]
+    if st.get("stance") != "waiting":
+        return
+    left = max(0, int(st.get("talk_left") or 0) - 1)
+    st["talk_left"] = left
+    purpose = str(st.get("purpose") or "")
+    # Work/rest/visit already chosen — do not stand frozen for a missing partner or slow writer.
+    force = purpose in {"work", "rest", "visit", "place"} or left <= 0
+    if not force:
+        return
+    st["talking_to"] = ""
+    st["spoke_this_stand"] = False
+    st["talk_left"] = 0
+    if purpose == "work":
+        dest = _work_place(member)
+        st["place"] = dest
+        st["activity"] = _work_activity(dest)
+        st["stance"] = "working"
+        st["purpose_plain"] = f"Stopped waiting. Working: {st['activity']} at {PLACES.get(dest, {}).get('label', dest)}."
+    elif purpose == "rest":
+        dest = str(member.get("home") or "first_hearth")
+        st["place"] = dest
+        st["activity"] = "sit"
+        st["stance"] = "resting"
+        st["purpose_plain"] = f"Stopped waiting. Resting at {PLACES.get(dest, {}).get('label', dest)}."
+    elif purpose == "visit":
+        dest = str(st.get("place") or member.get("home") or "mom_home")
+        st["stance"] = "walking"
+        st["activity"] = "visit"
+        st["purpose_plain"] = f"Stopped waiting. Walking on to {PLACES.get(dest, {}).get('label', dest)}."
+    else:
+        dest = str(member.get("home") or _work_place(member))
+        st["place"] = dest
+        st["stance"] = "walking"
+        st["activity"] = "walk"
+        st["purpose_plain"] = f"Stopped waiting. Walking to {PLACES.get(dest, {}).get('label', dest)}."
 
 
 def _run_talks(home: dict[str, Any], living: list[dict[str, Any]]) -> str | None:
@@ -1088,7 +1204,15 @@ def _run_talks(home: dict[str, Any], living: list[dict[str, Any]]) -> str | None
             continue
         ost = home["people"].get(other)
         if not ost or ost.get("place") != st.get("place"):
+            # Partner left / never arrived — drain wait; do not freeze forever.
             st["stance"] = "waiting"
+            st["talk_left"] = max(0, int(st.get("talk_left") or 0) - 1)
+            if int(st["talk_left"]) <= 0:
+                st["talking_to"] = ""
+                st["spoke_this_stand"] = False
+                st["stance"] = "walking"
+                st["place"] = m.get("home") or _work_place(m)
+                st["purpose_plain"] = "Partner moved on. Walking instead of freezing."
             continue
         ost["stance"] = "talking"
         ost["talking_to"] = m["id"]
@@ -1110,8 +1234,23 @@ def _run_talks(home: dict[str, Any], living: list[dict[str, Any]]) -> str | None
                     "place": st.get("place"),
                     "label": convo.get("label"),
                 }
-                st["talk_left"] = max(int(st.get("talk_left") or 0), 28)
-                ost["talk_left"] = max(int(ost.get("talk_left") or 0), 28)
+                left = int(st.get("talk_left") or 0)
+                if left <= 0:
+                    left = 5
+                else:
+                    left -= 1
+                st["talk_left"] = left
+                ost["talk_left"] = left
+                if left <= 0:
+                    st["stance"] = "walking"
+                    st["place"] = m.get("home") or "first_hearth"
+                    st["talking_to"] = ""
+                    st["spoke_this_stand"] = False
+                    st["purpose_plain"] = "Writer still thinking. Went home instead of freezing in the square."
+                    ost["stance"] = "walking"
+                    ost["place"] = (_member(str(other)) or {}).get("home") or ost.get("home") or "first_hearth"
+                    ost["talking_to"] = ""
+                    ost["spoke_this_stand"] = False
                 pairs_done.add(key)
                 continue
             if status == "fail" or src == "none":
@@ -1201,13 +1340,16 @@ def _run_talks(home: dict[str, Any], living: list[dict[str, Any]]) -> str | None
 def snapshot() -> dict[str, Any]:
     """Full Gameworld snapshot for Godot / dashboard."""
     home = load()
-    caps = _probe_capabilities()
+    caps = _probe_capabilities_cached(persist=True)
     by_status: dict[str, int] = {}
     for c in caps:
         by_status[c["status"]] = by_status.get(c["status"], 0) + 1
     family = []
     for m in FAMILY + KIN:
-        st = home["people"].get(m["id"], {})
+        st = dict(home["people"].get(m["id"], {}) or {})
+        mem = st.get("memories")
+        if isinstance(mem, list):
+            st["memories"] = mem[-2:]
         family.append(
             {
                 **m,
@@ -1217,11 +1359,6 @@ def snapshot() -> dict[str, Any]:
                 "live_lines": [],
             }
         )
-    DATA.mkdir(parents=True, exist_ok=True)
-    (DATA / "CAPABILITIES.json").write_text(
-        json.dumps({"when": _now(), "count": len(caps), "by_status": by_status, "tools": caps}, indent=2),
-        encoding="utf-8",
-    )
     oh = home.get("overhear")
     if isinstance(oh, dict) and str(oh.get("source") or "") == "house":
         oh = None
@@ -1236,12 +1373,12 @@ def snapshot() -> dict[str, Any]:
         "kin_ids": [k["id"] for k in KIN],
         "core_ids": [f["id"] for f in FAMILY],
         "relationships": home.get("relationships"),
-        "events": (home.get("events") or [])[-40:],
-        "gifts": home.get("gifts") or [],
-        "world_history": home.get("world_history") or [],
+        "events": (home.get("events") or [])[-8:],
+        "gifts": (home.get("gifts") or [])[-12:],
+        "world_history": (home.get("world_history") or [])[-5:],
         "squirrels": home.get("squirrels") or [],
         "failures": home.get("failures") or [],
-        "repairs": (home.get("repairs") or [])[-20:],
+        "repairs": (home.get("repairs") or [])[-8:],
         "needs_creator": home.get("needs_creator") or [],
         "capabilities": caps,
         "capability_count": len(caps),
@@ -1310,6 +1447,17 @@ def tick(n: int = 1) -> dict[str, Any]:
 
         for m in living:
             home["people"].setdefault(m["id"], _empty_person_state(m))
+            st = home["people"][m["id"]]
+            if str(st.get("place") or "") == "heart_square" and st.get("stance") in {"talking", "waiting", "standing"}:
+                if int(st.get("talk_left") or 0) > 8 or st.get("purpose") in {None, "", "arrive", "company", "be_with"}:
+                    st["place"] = m.get("home") or _work_place(m)
+                    st["stance"] = "walking"
+                    st["talking_to"] = ""
+                    st["talk_left"] = 0
+                    st["purpose_plain"] = f"Left the square. Walking to {PLACES.get(st['place'], {}).get('label', st['place'])}."
+            _unfreeze_waiting(home, m)
+            if _arrive_from_walk(home, m):
+                continue
             _choose_purpose(home, m, period, living_ids)
 
         spoke = _run_talks(home, living)
@@ -1667,6 +1815,45 @@ def record_talk(who: str, with_whom: str, line: str) -> dict[str, Any]:
     )
     save(home)
     return snapshot()
+
+
+def set_person_stance(member_id: str, stance: str) -> dict[str, Any]:
+    """Mom guidance via dashboard/Hearth — not a Godot-side rewrite of identity."""
+    allowed = {"walking", "working", "resting", "talking", "waiting", "standing"}
+    mid = (member_id or "").strip()
+    stance = (stance or "").strip().lower()
+    if mid in {"", "mom", "hearth"}:
+        return {"ok": False, "error": "invalid id"}
+    if stance not in allowed:
+        return {"ok": False, "error": f"stance must be one of {sorted(allowed)}"}
+    member = _member(mid)
+    if not member or member.get("player") or member.get("ambient_only"):
+        return {"ok": False, "error": "unknown family member"}
+    home = load()
+    st = home["people"].setdefault(mid, _empty_person_state(member))
+    st["stance"] = stance
+    if stance == "walking":
+        st["purpose"] = "place"
+        st["purpose_left"] = 4
+        st["activity"] = "walk"
+        st["purpose_plain"] = f"Mom asked them to walk toward {PLACES.get(st.get('place') or member.get('home') or 'heart_square', {}).get('label', 'somewhere')}."
+    elif stance == "working":
+        st["place"] = _work_place(member)
+        st["purpose"] = "work"
+        st["purpose_left"] = 5
+        st["activity"] = _work_activity(st["place"])
+        st["purpose_plain"] = f"Mom nudged them back to work: {st['activity']}."
+    elif stance == "resting":
+        st["place"] = str(member.get("home") or st.get("home") or "first_hearth")
+        st["purpose"] = "rest"
+        st["purpose_left"] = 6
+        st["activity"] = "sit"
+        st["purpose_plain"] = "Mom asked them to rest."
+    elif stance in {"talking", "waiting", "standing"}:
+        st["purpose_left"] = max(int(st.get("purpose_left") or 0), 3)
+        st["purpose_plain"] = f"Mom set stance to {stance}."
+    save(home)
+    return {"ok": True, "id": mid, "stance": stance, "snapshot": snapshot()}
 
 
 def status_phases() -> dict[str, Any]:
