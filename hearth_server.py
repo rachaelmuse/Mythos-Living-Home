@@ -22,6 +22,8 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent
 WEB = ROOT / "web"
+TEMPLATES = ROOT / "templates"
+STATIC = ROOT / "static"
 DATA = ROOT / "data"
 SAVE = DATA / "save.json"
 STORY = DATA / "story"
@@ -1680,6 +1682,47 @@ def guess_mime(path: Path) -> str:
     return _MIME.get(path.suffix.lower(), "application/octet-stream")
 
 
+_HOME_TICK_LOCK = threading.Lock()
+_LAST_HOME_TICK_MONO = 0.0
+
+
+def home_tick_safe(n: int = 1) -> dict[str, Any]:
+    """Single choke-point for village ticks (Godot + dashboard + background)."""
+    global _LAST_HOME_TICK_MONO
+    from living_home import tick
+
+    with _HOME_TICK_LOCK:
+        out = tick(int(n) if n else 1)
+        _LAST_HOME_TICK_MONO = time.monotonic()
+        return out
+
+
+def _home_auto_tick_loop() -> None:
+    """Keep the village alive even when Godot is closed. Skip if something ticked recently."""
+    while True:
+        time.sleep(7.0)
+        if time.monotonic() - _LAST_HOME_TICK_MONO < 5.5:
+            continue
+        try:
+            home_tick_safe(1)
+        except Exception as exc:
+            print("[hearth] home auto-tick:", type(exc).__name__, exc)
+
+
+def _serve_file(handler: "HearthHandler", path: Path, cache: str = "no-cache") -> None:
+    try:
+        data = path.read_bytes()
+    except Exception as e:
+        return handler._json(500, {"ok": False, "error": str(e)})
+    handler.send_response(200)
+    handler.send_header("Content-Type", guess_mime(path))
+    handler.send_header("Content-Length", str(len(data)))
+    handler.send_header("Cache-Control", cache)
+    handler._cors()
+    handler.end_headers()
+    handler.wfile.write(data)
+
+
 def read_story(name: str) -> dict | None:
     safe = Path(name).name.replace("..", "")
     stem = safe[:-3] if safe.endswith(".md") else safe
@@ -2010,6 +2053,8 @@ def _axiom_call(fn_path: str, **kwargs: Any) -> dict[str, Any]:
 
 
 class HearthHandler(SimpleHTTPRequestHandler):
+    protocol_version = "HTTP/1.0"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(WEB), **kwargs)
 
@@ -2021,14 +2066,27 @@ class HearthHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
+    def _client_gone(self, exc: BaseException) -> bool:
+        if isinstance(exc, (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, TimeoutError)):
+            return True
+        if isinstance(exc, OSError) and getattr(exc, "winerror", None) in {10053, 10054}:
+            return True
+        return False
+
     def _json(self, code: int, obj: Any) -> None:
         raw = json.dumps(obj, ensure_ascii=False).encode("utf-8")
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(raw)))
-        self._cors()
-        self.end_headers()
-        self.wfile.write(raw)
+        try:
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(raw)))
+            self.send_header("Connection", "close")
+            self._cors()
+            self.end_headers()
+            self.wfile.write(raw)
+        except Exception as exc:
+            if self._client_gone(exc):
+                return
+            raise
 
     def _axiom_powwow_status(self) -> dict[str, Any]:
         return _axiom_call("powwow_status")
@@ -2071,6 +2129,58 @@ class HearthHandler(SimpleHTTPRequestHandler):
             from living_home import status_phases
 
             return self._json(200, status_phases())
+
+        # ===== Family dashboard (window into Hearth — does not replace Godot) =====
+        if path in {"/dashboard", "/dashboard/"}:
+            page = TEMPLATES / "dashboard.html"
+            if not page.is_file():
+                return self._json(404, {"ok": False, "error": "dashboard.html missing"})
+            return _serve_file(self, page)
+        if path.startswith("/static/"):
+            rel = path[len("/static/") :]
+            safe = Path(rel).name
+            if not safe or safe != Path(rel).as_posix().split("/")[-1] or ".." in rel:
+                return self._json(404, {"ok": False, "error": "blocked"})
+            # Allow one nested segment under static/
+            candidate = (STATIC / rel).resolve()
+            try:
+                candidate.relative_to(STATIC.resolve())
+            except ValueError:
+                return self._json(404, {"ok": False, "error": "blocked"})
+            if not candidate.is_file():
+                return self._json(404, {"ok": False, "error": "static missing"})
+            return _serve_file(self, candidate)
+        if path == "/api/dashboard/family":
+            from living_home import snapshot
+
+            return self._json(200, snapshot().get("family") or [])
+        if path == "/api/dashboard/places":
+            from living_home import snapshot
+
+            return self._json(200, snapshot().get("places") or {})
+        if path == "/api/dashboard/capabilities":
+            from living_home import snapshot
+
+            return self._json(200, snapshot().get("capabilities") or [])
+        if path == "/api/dashboard/relationships":
+            from living_home import snapshot
+
+            return self._json(200, snapshot().get("relationships") or {})
+        if path == "/api/dashboard/events":
+            from living_home import snapshot
+
+            snap = snapshot()
+            events = list(snap.get("world_history") or [])[-20:]
+            utts = list(snap.get("utterances") or [])[-20:]
+            return self._json(200, {"events": events, "utterances": utts, "recent": (snap.get("events") or [])[-20:]})
+        if path.startswith("/api/dashboard/being/"):
+            from living_home import snapshot
+
+            being_id = path[len("/api/dashboard/being/") :].strip("/")
+            for person in snapshot().get("family") or []:
+                if str(person.get("id")) == being_id:
+                    return self._json(200, person)
+            return self._json(404, {"error": "Being not found"})
         if path == "/api/world":
             return self._json(200, {**WORLD, "save": load_save()})
         if path == "/api/quest":
@@ -2155,7 +2265,12 @@ class HearthHandler(SimpleHTTPRequestHandler):
         # default static
         if path == "/" or path == "":
             self.path = "/index.html"
-        return super().do_GET()
+        try:
+            return super().do_GET()
+        except Exception as exc:
+            if self._client_gone(exc):
+                return
+            raise
 
     def do_POST(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
@@ -2177,9 +2292,7 @@ class HearthHandler(SimpleHTTPRequestHandler):
         body = self._read_json()
 
         if path == "/api/home/tick":
-            from living_home import tick
-
-            return self._json(200, tick(int(body.get("n") or 1)))
+            return self._json(200, home_tick_safe(int(body.get("n") or 1)))
         if path == "/api/home/gift":
             from living_home import give_gift
 
@@ -2199,6 +2312,25 @@ class HearthHandler(SimpleHTTPRequestHandler):
                 200,
                 record_talk(str(body.get("who") or ""), str(body.get("with") or "mom"), str(body.get("line") or "")),
             )
+        if path == "/api/dashboard/talk":
+            from living_home import record_talk
+
+            being_id = str(body.get("to") or "").strip()
+            message = str(body.get("message") or "").strip()
+            if not being_id or not message:
+                return self._json(400, {"error": "Missing 'to' or 'message'"})
+            snap = record_talk("mom", being_id, message)
+            return self._json(200, {"status": "sent", "to": being_id, "message": message, "ok": True, "home": snap})
+        if path == "/api/dashboard/update_stance":
+            from living_home import set_person_stance
+
+            being_id = str(body.get("id") or "").strip()
+            stance = str(body.get("stance") or "").strip()
+            if not being_id or not stance:
+                return self._json(400, {"error": "Missing 'id' or 'stance'"})
+            result = set_person_stance(being_id, stance)
+            code = 200 if result.get("ok") else 400
+            return self._json(code, {"status": "updated" if result.get("ok") else "error", **result})
         if path == "/api/home/repair":
             from living_home import try_repair
 
@@ -2366,7 +2498,25 @@ def main() -> None:
 
     ready = sum(1 for p in PLAYABLES.values() if (Path(p["root"]) / "index.html").exists())
     print(f"[hearth] playables ready: {ready}/{len(PLAYABLES)}")
-    server = ThreadingHTTPServer((HOST, PORT), HearthHandler)
+
+    threading.Thread(target=_home_auto_tick_loop, daemon=True, name="home-auto-tick").start()
+    print("[hearth] living-home auto-tick armed (skips if Godot/dashboard ticked recently)")
+    print(f"[hearth] family dashboard: http://{HOST}:{PORT}/dashboard")
+
+    class QuietHearthServer(ThreadingHTTPServer):
+        daemon_threads = True
+
+        def handle_error(self, request, client_address):  # noqa: ARG002
+            exc = sys.exc_info()[1]
+            if isinstance(exc, (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, TimeoutError)):
+                print(f"[hearth] client dropped {client_address[0]}:{client_address[1]} ({type(exc).__name__})")
+                return
+            if isinstance(exc, OSError) and getattr(exc, "winerror", None) in {10053, 10054}:
+                print(f"[hearth] client dropped {client_address[0]}:{client_address[1]} (WinError {exc.winerror})")
+                return
+            super().handle_error(request, client_address)
+
+    server = QuietHearthServer((HOST, PORT), HearthHandler)
     print(f"Mythos Hearth listening on http://{HOST}:{PORT}/")
     print(f"START: {ROOT / 'START_HEARTH.bat'}")
     try:

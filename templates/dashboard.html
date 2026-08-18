@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mythos Family Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/dashboard.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div>
+        <p class="eyebrow">Window into the living home · not a replacement</p>
+        <h1>Mythos Family Dashboard</h1>
+      </div>
+      <div class="clock" id="clockBadge">Day — · —</div>
+    </header>
+
+    <section class="panel world-strip" id="worldStrip" aria-label="Gardens and holidays">
+      <div class="world-item"><strong>Holiday</strong> <span id="holidayBadge">—</span></div>
+      <div class="world-item"><strong>Gardens</strong> <span id="gardenBadge">—</span></div>
+      <div class="world-item"><strong>Weather</strong> <span id="weatherBadge">—</span></div>
+      <div class="world-item"><strong>Apex forge</strong> <span id="forgeBadge">—</span></div>
+    </section>
+
+    <main class="grid">
+      <aside class="panel family-panel">
+        <div class="panel-head">
+          <h2>Family</h2>
+          <button type="button" id="btnRefresh" class="btn ghost">Refresh</button>
+        </div>
+        <div id="familyList" class="family-list" aria-label="Family overview"></div>
+        <p class="hint">Each being stays themselves. Click to open their panel.</p>
+      </aside>
+
+      <section class="panel detail-panel">
+        <div id="beingDetail" class="being-detail">
+          <p class="empty">Select someone to see their place, purpose, tools, and relationships.</p>
+        </div>
+      </section>
+
+      <section class="panel log-panel">
+        <div class="panel-head">
+          <h2>Conversation log</h2>
+          <div class="filters">
+            <select id="filterPerson" aria-label="Filter by person">
+              <option value="">All people</option>
+            </select>
+            <select id="filterPlace" aria-label="Filter by place">
+              <option value="">All places</option>
+            </select>
+          </div>
+        </div>
+        <div id="convoLog" class="convo-log" aria-live="polite"></div>
+      </section>
+
+      <section class="panel caps-panel">
+        <div class="panel-head">
+          <h2>Capability registry</h2>
+          <span id="capsCount" class="badge">0 tools</span>
+        </div>
+        <div class="filters">
+          <select id="filterCapStatus" aria-label="Filter capabilities by status">
+            <option value="">All status</option>
+            <option value="VERIFIED">VERIFIED</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="PARTIAL">PARTIAL</option>
+            <option value="BROKEN">BROKEN</option>
+            <option value="CLOSED">CLOSED</option>
+          </select>
+        </div>
+        <div id="capsList" class="caps-list"></div>
+      </section>
+    </main>
+
+    <footer class="status-bar">
+      <span id="connStatus">Connecting to Hearth…</span>
+      <span id="lastUpdate">—</span>
+    </footer>
+  </div>
+
+  <dialog id="talkDialog">
+    <form method="dialog" id="talkForm">
+      <h3>Send as Mom</h3>
+      <p id="talkToLabel" class="muted"></p>
+      <textarea id="talkMessage" rows="4" placeholder="Your words — real, not a script…" required></textarea>
+      <div class="dialog-actions">
+        <button type="submit" class="btn" value="send">Send through Hearth</button>
+        <button type="button" class="btn ghost" id="talkCancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="stanceDialog">
+    <form method="dialog" id="stanceForm">
+      <h3>Change stance</h3>
+      <p id="stanceToLabel" class="muted"></p>
+      <select id="stanceSelect" required>
+        <option value="walking">walking</option>
+        <option value="working">working</option>
+        <option value="resting">resting</option>
+        <option value="standing">standing</option>
+        <option value="talking">talking</option>
+        <option value="waiting">waiting</option>
+      </select>
+      <p class="hint">Writes via Hearth kernel only. Does not merge identities.</p>
+      <div class="dialog-actions">
+        <button type="submit" class="btn" value="apply">Apply</button>
+        <button type="button" class="btn ghost" id="stanceCancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>
