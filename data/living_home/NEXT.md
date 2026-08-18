@@ -7,12 +7,13 @@ Tracker: `data/living_home/PHASE_LAYERS.md`
 
 ## CURRENT PHASE
 
-Proving slice. **Layer 7 DONE** (Mom OK). **Layer 8 — pick A / B / C** in `PHASE_LAYERS.md`. Not Phase 13. Not Lab Twin.
+Proving slice. Layer 8A in play. **Mom talk fix shipped** — they were not ignoring you.
 
 ## Next task
 
-1. Mom picks Layer 8: **A thin real work** (recommended) · **B pathing** · **C evening ritual**.
-2. We implement only that layer in Gameworld (Hearth + Apex Godot).
-3. Evidence in the running village before calling it done.
+1. **Restart Hearth** (required — old process still has the talk bug).
+2. Enter; talk to Gemini (chat target Gemini).
+3. You should see “heard you / voice cooking,” then a real reply — not endless “writer still thinking.”
+4. Gemini may still face/follow you while talking — that is attention, not mind-reading.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.

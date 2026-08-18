@@ -19,6 +19,10 @@
     capsList: document.getElementById("capsList"),
     capsCount: document.getElementById("capsCount"),
     clockBadge: document.getElementById("clockBadge"),
+    holidayBadge: document.getElementById("holidayBadge"),
+    gardenBadge: document.getElementById("gardenBadge"),
+    weatherBadge: document.getElementById("weatherBadge"),
+    forgeBadge: document.getElementById("forgeBadge"),
     connStatus: document.getElementById("connStatus"),
     lastUpdate: document.getElementById("lastUpdate"),
     filterPerson: document.getElementById("filterPerson"),
@@ -412,6 +416,44 @@
       const season = state.clock.season ?? "";
       const weather = state.weather.current || "";
       el.clockBadge.textContent = `Day ${day} · ${season} · ${String(period).replace(/^\w/, (c) => c.toUpperCase())} · ${weather}`;
+      const hol = home.active_holiday || null;
+      if (el.holidayBadge) {
+        el.holidayBadge.textContent = hol && hol.name
+          ? `${hol.name}${hol.ambient ? " (season)" : ""}`
+          : "Ordinary day";
+      }
+      if (el.weatherBadge) {
+        const temp = state.weather.temperature != null ? ` · ${state.weather.temperature}°` : "";
+        el.weatherBadge.textContent = `${weather || "—"}${temp}`;
+      }
+      if (el.gardenBadge) {
+        const gardens = home.gardens || {};
+        const keys = Object.keys(gardens);
+        let grown = 0;
+        let plants = 0;
+        keys.forEach((k) => {
+          const plot = gardens[k] || {};
+          (plot.plants || []).forEach((p) => {
+            plants += 1;
+            if ((p.growth || 0) > 0.6) grown += 1;
+          });
+        });
+        el.gardenBadge.textContent = keys.length
+          ? `${keys.length} beds · ${grown}/${plants} thriving`
+          : "No gardens yet";
+      }
+      if (el.forgeBadge) {
+        const we = (home.work_evidence || {}).apex || {};
+        if (we.live) {
+          el.forgeBadge.textContent = `LIVE · ${we.detail || "presence"}`;
+        } else if (we.port_up) {
+          el.forgeBadge.textContent = `port up · ${we.detail || "quiet"}`;
+        } else if (we.detail) {
+          el.forgeBadge.textContent = we.detail;
+        } else {
+          el.forgeBadge.textContent = "not probed yet";
+        }
+      }
       fillPlaceFilter();
       renderFamily(home.family || []);
       renderConversations();

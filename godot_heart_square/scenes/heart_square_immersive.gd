@@ -48,6 +48,8 @@ var _garden_root: Node3D
 var _garden_mats: Array = []
 var _holiday_props: Array = []
 var _holiday_label: Label
+var _forge_glow_mat: StandardMaterial3D
+var _forge_live_label: Label3D
 var _last_holiday_id := ""
 
 
@@ -360,6 +362,7 @@ func _apply_environment(data: Dictionary) -> void:
 			(mat as StandardMaterial3D).albedo_color.a = clampf(dens, 0.15, 1.0)
 	_apply_garden_growth(data)
 	_apply_holiday_decor(data, season)
+	_apply_forge_work_evidence(data)
 	if _world_env and _world_env.environment:
 		var env: Environment = _world_env.environment
 		match weather:
@@ -386,6 +389,32 @@ func _apply_environment(data: Dictionary) -> void:
 		var period = (clock_v as Dictionary).get("period", "?")
 		var hol_bit := (" · " + hol_name) if hol_name != "" else ""
 		life_label.text = "Day %s · %s · %s%s · gardens live" % [str(day), str(season), str(period), hol_bit]
+
+
+func _apply_forge_work_evidence(data: Dictionary) -> void:
+	## Layer 8A — Apex forge glow tracks real Mode A presence probe (not mime).
+	var we_v: Variant = data.get("work_evidence")
+	var live := false
+	var detail := "holding post"
+	if we_v is Dictionary:
+		var apex_v: Variant = (we_v as Dictionary).get("apex")
+		if apex_v is Dictionary:
+			live = bool((apex_v as Dictionary).get("live", false))
+			detail = str((apex_v as Dictionary).get("detail", detail))
+	if _forge_glow_mat:
+		if live:
+			_forge_glow_mat.emission = Color(0.35, 0.95, 1.0)
+			_forge_glow_mat.emission_energy_multiplier = 3.2
+		else:
+			_forge_glow_mat.emission = Color(1.0, 0.4, 0.1)
+			_forge_glow_mat.emission_energy_multiplier = 1.4
+	if _forge_live_label:
+		if live:
+			_forge_live_label.text = "Forge LIVE · Mode A"
+			_forge_live_label.modulate = Color(0.45, 0.95, 1.0)
+		else:
+			_forge_live_label.text = "Forge quiet · honest hold"
+			_forge_live_label.modulate = Color(0.7, 0.55, 0.4)
 
 
 func _apply_garden_growth(data: Dictionary) -> void:
@@ -689,7 +718,9 @@ func _play_overhear(data: Dictionary) -> void:
 		return
 	var line := ""
 	if src == "waiting":
-		line = "They stood. Words aren't ready yet."
+		line = str(rec.get("text", "")).strip()
+		if line == "":
+			line = "They heard Mom. Local voice is still cooking — not ignoring her."
 	elif src == "none":
 		line = str(rec.get("text", "Writer not seated."))
 	elif src == "house":
@@ -960,6 +991,15 @@ func _furnish(pos: Vector3, kind: String) -> void:
 			fm.emission_enabled = true
 			fm.emission = Color(1.0, 0.4, 0.1)
 			fm.emission_energy_multiplier = 2.0
+			_forge_glow_mat = fm
+			_forge_live_label = Label3D.new()
+			_forge_live_label.text = "Forge · Mode A probe"
+			_forge_live_label.position = pos + Vector3(0, 3.4, 0)
+			_forge_live_label.font_size = 48
+			_forge_live_label.outline_size = 12
+			_forge_live_label.modulate = Color(0.55, 0.85, 0.95)
+			_forge_live_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			add_child(_forge_live_label)
 		"workshop":
 			_add_box(pos + Vector3(0.7, 0.45, -0.5), Vector3(1.6, 0.55, 0.7), Color(0.42, 0.34, 0.28), true, "NovaBench")
 			_add_box(pos + Vector3(-1.1, 0.4, -0.8), Vector3(0.55, 0.8, 0.55), Color(0.4, 0.32, 0.45), true, "NovaStool")

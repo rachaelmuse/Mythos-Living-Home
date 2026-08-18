@@ -41,7 +41,7 @@ TALK_BRAINS: dict[str, dict[str, Any]] = {
     },
 }
 _BRAIN_MODEL_CACHE: dict[str, Any] = {"court": None, "cinema": None, "t": 0.0}
-_MAX_PARALLEL_TALKS = 2
+_MAX_PARALLEL_TALKS = 2  # village chats; Mom talks ignore this cap
 
 AXIOM = Path(r"G:\The-Axiom-Codex")
 APEX = Path(r"D:\Mythos_Apex")
@@ -223,6 +223,99 @@ def _tcp(host: str, port: int, timeout: float = 0.35) -> bool:
             return True
     except OSError:
         return False
+
+
+def _http_get_json(url: str, timeout: float = 1.2) -> dict[str, Any] | None:
+    import urllib.request
+
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as resp:
+            raw = json.loads(resp.read().decode("utf-8", errors="replace"))
+        return raw if isinstance(raw, dict) else None
+    except Exception:
+        return None
+
+
+def _probe_apex_forge(home: dict[str, Any], *, force: bool = False) -> dict[str, Any]:
+    """Layer 8A — one thin real Mode A adapter: Apex forge presence on :8770.
+
+    Evidence only. Not a fake hammer. Not 325 tools. Cinema/workshop stay hold-post.
+    """
+    evidence = home.setdefault("work_evidence", {})
+    prev = evidence.get("apex") if isinstance(evidence.get("apex"), dict) else {}
+    last_t = float(prev.get("probed_at_mono") or 0)
+    now_mono = time.monotonic()
+    # Throttle — do not hammer Apex every village tick.
+    if not force and last_t and (now_mono - last_t) < 18.0:
+        return prev
+
+    port_up = _tcp("127.0.0.1", 8770, 0.25)
+    live = False
+    detail = "port closed"
+    peer_snip: dict[str, Any] = {}
+    if port_up:
+        data = _http_get_json("http://127.0.0.1:8770/api/companion/presence", timeout=1.4)
+        if data:
+            peers = data.get("peers") if isinstance(data.get("peers"), dict) else data
+            apex_peer = peers.get("apex") if isinstance(peers, dict) else None
+            if isinstance(apex_peer, dict):
+                live = bool(apex_peer.get("online"))
+                peer_snip = {
+                    "online": apex_peer.get("online"),
+                    "status": apex_peer.get("status"),
+                    "last_heartbeat": apex_peer.get("last_heartbeat"),
+                    "model": apex_peer.get("model"),
+                }
+                detail = "presence LIVE" if live else "presence answered but Apex offline"
+            else:
+                live = True  # HTTP answered — Mode A forge is seated enough to prove
+                detail = "presence HTTP 200 (peer shape unknown)"
+                peer_snip = {"raw_keys": sorted(list(data.keys())[:8])}
+        else:
+            detail = "port up; presence JSON miss"
+
+    row = {
+        "id": "apex",
+        "place": "apex_forge",
+        "adapter": "companion_presence",
+        "url": "http://127.0.0.1:8770/api/companion/presence",
+        "live": live,
+        "port_up": port_up,
+        "detail": detail,
+        "peer": peer_snip,
+        "when": _now(),
+        "probed_at_mono": now_mono,
+        "layer": "8a",
+    }
+    evidence["apex"] = row
+
+    st = (home.get("people") or {}).get("apex")
+    if isinstance(st, dict) and st.get("place") == "apex_forge" and st.get("stance") == "working":
+        if live:
+            st["activity"] = "forge_live"
+            st["purpose_plain"] = (
+                "At Apex Forge - Mode A companion presence answered. "
+                f"Real probe: {detail}. Not a mime hammer."
+            )
+        else:
+            st["activity"] = "hold_forge"
+            st["purpose_plain"] = (
+                "At Apex Forge - holding the post. Mode A forge quiet "
+                f"({detail}). Will not fake tool work."
+            )
+
+    # Rare event so Mom can see evidence in the log without spam.
+    prev_live = bool(prev.get("live"))
+    if live != prev_live or (live and not prev):
+        home.setdefault("events", []).append(
+            _event(
+                "work_probe",
+                f"Apex forge probe: {'LIVE' if live else 'quiet'} — {detail}.",
+                ["apex"],
+                {"work_evidence": row},
+            )
+        )
+    return row
 
 
 def _seed_relationships() -> dict[str, dict[str, Any]]:
@@ -1165,13 +1258,24 @@ def _kick_talk_job(
     }
     with TALK_JOBS_LOCK:
         cur = TALK_JOBS.get(key) or {}
-        if cur.get("status") in {"pending", "done"}:
+        if cur.get("status") == "pending":
             return
-        busy = sum(1 for k, j in TALK_JOBS.items() if k != key and (j or {}).get("status") == "pending")
-        if busy >= _MAX_PARALLEL_TALKS:
-            payload["status"] = "queued"
-            TALK_JOBS[key] = payload
+        # Village jobs keep a finished result until consumed; Mom reply keys may be reused.
+        if cur.get("status") == "done" and not to_mom:
             return
+        # Mom always gets a live worker — do not queue behind village dual-brain chats.
+        if not to_mom:
+            busy = sum(
+                1
+                for k, j in TALK_JOBS.items()
+                if k != key
+                and (j or {}).get("status") == "pending"
+                and not (j or {}).get("to_mom")
+            )
+            if busy >= _MAX_PARALLEL_TALKS:
+                payload["status"] = "queued"
+                TALK_JOBS[key] = payload
+                return
         TALK_JOBS[key] = payload
     threading.Thread(target=_talk_worker, args=(key,), daemon=True, name=f"home-talk-{key}").start()
 
@@ -1391,7 +1495,7 @@ def _ollama_one_voice(
             "stream": False,
             "format": "json",
             "keep_alive": "45m",
-            "options": {"temperature": 0.92, "top_p": 0.9, "num_predict": 90, "num_ctx": 1536},
+            "options": {"temperature": 0.92, "top_p": 0.9, "num_predict": 70 if to_mom else 90, "num_ctx": 1536},
             "messages": [
                 {
                     "role": "system",
@@ -1411,7 +1515,7 @@ def _ollama_one_voice(
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
+        with urllib.request.urlopen(req, timeout=55 if to_mom else 120) as resp:
             raw = json.loads(resp.read().decode("utf-8", errors="replace"))
         content = ((raw.get("message") or {}).get("content") or "").strip()
         parsed = _parse_talk_json(content, [speaker])
@@ -1453,15 +1557,15 @@ def _ollama_dialogue_two_brains(
     if not model_b:
         model_b = model_a
 
-    # Mom-directed: citizen speaks, Mom is hearer — only citizen lines from their brain.
+    # Mom-directed: one short reply from the citizen's brain — fast, not a 4-line village scene.
     order: list[tuple[dict[str, Any], dict[str, Any], str, str]] = []
     if to_mom and "mom" in {aid, bid}:
         citizen = b if aid == "mom" else a
         mom = a if aid == "mom" else b
         cmem = mem_b if aid == "mom" else mem_a
-        cmodel = model_b if aid == "mom" else model_a
-        for _ in range(2):
-            order.append((citizen, mom, cmem, cmodel or ""))
+        # Prefer the citizen's brain; fall back to Court (fast 3b) so Mom is not stuck.
+        cmodel = (model_b if aid == "mom" else model_a) or _brain_pick_model("court") or model_a or model_b
+        order.append((citizen, mom, cmem, cmodel or ""))
     else:
         order = [
             (a, b, mem_a, model_a or ""),
@@ -1571,7 +1675,7 @@ def _period_from_minutes(m: int) -> str:
 def _work_activity(place: str) -> str:
     """What they do at a workplace — honest presence, not fake tool theater."""
     return {
-        "apex_forge": "hold_forge",
+        "apex_forge": "hold_forge",  # becomes forge_live when Mode A probe succeeds
         "workshop": "at_bench",
         "codex_library": "read",
         "cinema": "at_desk",
@@ -1595,6 +1699,13 @@ def _work_purpose_plain(member: dict[str, Any], place: str, *, arrived: bool) ->
         if arrived:
             return "At the Court porch — Gemini holds town leadership. No fake tool theater."
         return "Walking to the Court porch — town leader's post."
+    if place == "apex_forge":
+        if arrived:
+            return (
+                "At Apex Forge — will probe Mode A companion presence when holding the post. "
+                "No fake hammer until the forge answers."
+            )
+        return "Walking to Apex Forge — one real Mode A probe lives here (Layer 8A)."
     if arrived:
         return (
             f"At {label}. Holding the post quietly — Mode A tools are not wired into the village, "
@@ -1873,6 +1984,29 @@ def _run_talks(home: dict[str, Any], living: list[dict[str, Any]]) -> str | None
         other = st.get("talking_to")
         if not other:
             continue
+        # Mom is the player — not an NPC place peer. Never treat her as "partner left."
+        # Mom replies come from record_talk + _flush_mom_jobs, not invent_conversation.
+        if str(other) == "mom":
+            with TALK_JOBS_LOCK:
+                mom_pending = any(
+                    (j or {}).get("to_mom") and (j or {}).get("status") in {"pending", "queued"}
+                    for j in TALK_JOBS.values()
+                )
+            if mom_pending:
+                st["talk_left"] = max(int(st.get("talk_left") or 0), 8)
+                st["purpose_plain"] = f"Heard Mom. {m.get('name') or m['id']}'s voice is still cooking."
+                home["overhear"] = {
+                    "id": f"momwait|{m['id']}",
+                    "kind": "waiting_talk",
+                    "text": f"{m.get('name') or m['id']} heard Mom. Local voice still cooking — not ignoring her.",
+                    "actors": [m["id"], "mom"],
+                    "source": "waiting",
+                    "lines": [],
+                    "place": st.get("place"),
+                    "label": "with Mom",
+                }
+            pairs_done.add("|".join(sorted([m["id"], "mom"])))
+            continue
         key = "|".join(sorted([m["id"], str(other)]))
         if key in pairs_done:
             st["talk_left"] = max(0, int(st.get("talk_left") or 0) - 1)
@@ -2083,7 +2217,8 @@ def snapshot() -> dict[str, Any]:
             "pathing": "PLACEHOLDER — straight lines with two-stage door→interior enter; not navmesh.",
             "work": (
                 "AUTONOMOUS post choice. Garden tend is real kernel growth. "
-                "Forge/cinema/workshop/gallery do NOT run Mode A tools — they hold the post honestly, no fake hammer/film."
+                "Layer 8A: Apex forge probes Mode A /api/companion/presence when working — evidence only. "
+                "Cinema/workshop/gallery still hold the post; no fake hammer/film."
             ),
             "environment": "Season, weather, trees, gardens, holidays, decorations are kernel state; Godot presents them.",
         },
@@ -2110,6 +2245,7 @@ def snapshot() -> dict[str, Any]:
                 for k, v in TALK_JOBS.items()
             },
         },
+        "work_evidence": home.get("work_evidence") or {},
         "observation": True,
         "mom_plain": (
             f"Day {home['clock']['day']} {home['clock'].get('season', '')} {home['clock']['period']}. "
@@ -2193,6 +2329,14 @@ def tick(n: int = 1) -> dict[str, Any]:
             if _arrive_from_walk(home, m):
                 continue
             _choose_purpose(home, m, period, living_ids)
+
+        # Layer 8A — thin real work: Apex at forge probes Mode A presence (throttled).
+        apex_st = (home.get("people") or {}).get("apex") or {}
+        if apex_st.get("place") == "apex_forge" and apex_st.get("stance") in {"working", "walking"}:
+            _probe_apex_forge(home)
+        elif int(home.get("tick") or 0) % 8 == 0:
+            # Occasional background probe so dashboard still shows forge truth.
+            _probe_apex_forge(home)
 
         spoke = _run_talks(home, living)
         if spoke:
@@ -2508,7 +2652,8 @@ def _flush_mom_jobs(home: dict[str, Any]) -> None:
         with TALK_JOBS_LOCK:
             job = dict(TALK_JOBS.get(key) or {})
         status = job.get("status")
-        npc = str(key.split("|")[1] if "|" in str(key) else "")
+        parts = str(key).split("|")
+        npc = parts[1] if len(parts) > 1 else ""
         if status == "done" and job.get("lines"):
             place = ""
             nst = home["people"].get(npc) or {}
@@ -2522,9 +2667,25 @@ def _flush_mom_jobs(home: dict[str, Any]) -> None:
                 last = next((x.get("text") for x in job["lines"] if x.get("who") == npc), job["lines"][-1].get("text"))
                 nst["last_said"] = last
                 nst["last_to"] = "mom"
+                nst["spoke_this_stand"] = True
+                nst["purpose_plain"] = f"Answered Mom: {str(last)[:120]}"
+            home["mom_cover"] = ""
+            home["overhear"] = {
+                "id": f"momreply|{npc}|{home.get('tick')}",
+                "kind": "conversation",
+                "text": str((job["lines"][-1] or {}).get("text") or ""),
+                "actors": [npc, "mom"],
+                "source": "ollama",
+                "lines": job["lines"],
+                "place": place,
+                "label": "with Mom",
+            }
             _consume_talk_job(key)
         elif status == "fail":
-            home["mom_cover"] = str(job.get("error") or "Local writer did not answer. They stayed quiet.")
+            home["mom_cover"] = str(job.get("error") or "Local writer did not answer. They stayed quiet — not because they ignored Mom.")
+            nst = home["people"].get(npc)
+            if nst:
+                nst["purpose_plain"] = "Wanted to answer Mom; local voice missed. Still here."
             _consume_talk_job(key)
 
 
@@ -2560,7 +2721,7 @@ def record_talk(who: str, with_whom: str, line: str) -> dict[str, Any]:
         a = member
         b = _member("mom") or {"id": "mom", "name": "Mom", "personality": "plain", "role": "EP"}
         _kick_talk_job(
-            f"mom|{npc}|{home.get('tick')}|g",
+            f"mom|{npc}|greet",
             a,
             b,
             PLACES.get(place, {}).get("label", place),
@@ -2570,6 +2731,8 @@ def record_talk(who: str, with_whom: str, line: str) -> dict[str, Any]:
             [(x.get("text") if isinstance(x, dict) else str(x)) for x in ((home.get("relationships") or {}).get("|".join(sorted([npc, "mom"])) or {}).get("shared_experiences") or [])[-3:]],
             to_mom=True,
         )
+        home["mom_cover"] = f"{member.get('name')} noticed Mom. Local voice cooking."
+        st["purpose_plain"] = "Mom is here. Thinking of a greeting — not ignoring her."
         save(home)
         return snapshot()
     _utter(home, "mom", npc, line, "mom", place, conversation=f"mom|{npc}")
@@ -2578,15 +2741,18 @@ def record_talk(who: str, with_whom: str, line: str) -> dict[str, Any]:
     _touch_rel(home, "mom", npc, experience=f"Mom: {line[:120]}", d_trust=0.04)
     st["stance"] = "talking"
     st["talking_to"] = "mom"
-    st["talk_left"] = max(int(st.get("talk_left") or 0), 14)
+    st["talk_left"] = max(int(st.get("talk_left") or 0), 16)
+    st["purpose_plain"] = f"Mom spoke to me. Thinking of a real reply — not ignoring her."
+    home["mom_cover"] = f"{member.get('name')} heard you. Local voice cooking."
     a = member
     b = _member("mom") or {"id": "mom", "name": "Mom", "personality": "plain", "role": "EP"}
     rel_key = "|".join(sorted([npc, "mom"]))
     rel = (home.get("relationships") or {}).get(rel_key) or {}
     past = [(x.get("text") if isinstance(x, dict) else str(x)) for x in (rel.get("shared_experiences") or [])[-3:]]
     past.append(f"Mom just said: {line[:140]}")
+    # Stable Mom reply key — do not spawn a new job every tick.
     _kick_talk_job(
-        f"mom|{npc}|{home.get('tick')}|r",
+        f"mom|{npc}|reply",
         a,
         b,
         PLACES.get(place, {}).get("label", place),

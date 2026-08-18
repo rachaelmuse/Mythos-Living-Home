@@ -2,13 +2,14 @@
 
 ## CURRENT PHASE
 
-Proving slice. Layer 7 DONE (Mom). Layer 8 awaiting pick. Tracker: `PHASE_LAYERS.md`.
+Proving slice. Layer 8A IN PROGRESS (thin real work). Tracker: `PHASE_LAYERS.md`.
 
 ## This pass
 
-- Layer 7 closed: lived-in greybox, Gemini town leader, dual talk brains, door/tree clearance.
-- Lab Twin / Goose / OpenHands are **Mode A tool seats** — not this Gameworld layer.
+- Apex forge adapter: GET `http://127.0.0.1:8770/api/companion/presence` when Apex works the forge.
+- Evidence in `HOME.json` → `work_evidence.apex`; activity `forge_live` when LIVE.
+- Dashboard forge badge + Godot forge glow. Lab smoke: presence LIVE.
 
 ## Next
 
-Mom picks Layer 8 (A recommended: one real workplace tool with evidence).
+Mom playtest after Hearth restart.

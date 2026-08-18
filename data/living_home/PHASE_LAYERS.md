@@ -14,26 +14,21 @@
 | 5 | Entrance / enter + side gardens | DONE (Mom OK) | Door-axis enter/inside; gardens beside cottages. |
 | 6 | Hearth UI: Living Home panel | DONE (Mom OK) | `house.html` sidebar → Living Home. |
 | 7 | Lived-in greybox + dual talk | DONE (Mom OK) | denser rooms; Gemini town leader; trees clear; Court+Cinema brains. |
-| 8 | Next proving layer | READY — pick | See options below. Still not Phase 13. |
+| 8 | Thin real work (A) | IN PROGRESS | Apex forge probes Mode A `/api/companion/presence`. Others still hold-post. |
 
 ## Standing choice
 
-**Gemini = town leader** (same as elsewhere). Kernel `town_leader: gemini`; Court porch is the leader post; home remains Gemini's porch.
+**Gemini = town leader.** Dual talk brains. Garden tend stays real.
 
-**Talk:** Court brain + Cinema brain (half the village each). One voice per call.
+## Layer 8A verify
 
-## Layer 8 candidates (pick one)
+1. Restart Hearth + Enter (Apex `:8770` should be up for LIVE).
+2. Dashboard **Apex forge** badge: LIVE when presence answers.
+3. In village: forge sign glow cyan when LIVE; Apex purpose mentions real probe.
+4. Cinema / workshop / gallery still honest hold — no fake film/hammer.
 
-| Option | What Mom sees | Risk |
-|--------|----------------|------|
-| **A — Thin real work (recommended)** | One workplace does a **real** Mode A action with evidence (e.g. Apex forge ping, or Genesis garden already-real + one new). Others stay honest “holding post.” | Must not fake 325 tools |
-| **B — Pathing upgrade** | Citizens walk around buildings (simple obstacle avoid / waypoints), not through walls | Still not full navmesh |
-| **C — Village life beat** | One shared evening ritual Mom can watch (square gather → short talk → disperse) | Needs dual brains quiet enough |
+## Later (not now)
 
-**Not now:** final art, full navmesh, Phase 13, Lab Twin / Goose / OpenHands.
-
-## Later (after 8)
-
-- Navmesh (if B wasn’t enough)
-- Final art
+- B pathing / C evening ritual (if Mom wants next)
+- Navmesh, final art
 - Phase 13 — last
