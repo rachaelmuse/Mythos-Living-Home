@@ -1,18 +1,20 @@
 # Living Home — where we are
 
 Kernel: `D:\Mythos_Hearth\living_home.py`  
-Dashboard: **http://127.0.0.1:8790/dashboard**  
-Launch: `D:\Mythos_Hearth\OPEN_GODOT_PLAY.bat`
+House UI: **http://127.0.0.1:8790/house.html** → **Living Home**  
+Enter: Desktop **Mythos Living Home - Enter**  
+Tracker: `data/living_home/PHASE_LAYERS.md`
 
 ## CURRENT PHASE
 
-**Still Living Home Proving Slice.** Not seasons/gardens/decorations. Dual-mode law stands.
-
-## Honesty
-
-- **Working** = kernel chose a work place + PLACEHOLDER Godot pose. Cinema “film” does **not** produce Merovin/Draven/OpenMontage files in the village.
-- Merovin/Draven were co-housed in the Cinema (home==work). Now: **cinema = shared workroom**; **merovin_loft** / **draven_loft** = separate homes.
+Proving slice. **Layer 7 IN PROGRESS**. Dual talk brains shipped (Court + Cinema). Not Phase 13.
 
 ## Next task
 
-Restart Hearth + `OPEN_GODOT_PLAY.bat`. Confirm Merovin/Draven can leave the cinema for their own lofts. Do **not** start Environment/Garden phases until proving-slice acceptance is met or Mom explicitly advances.
+1. Restart Hearth (kernel talk rewrite) + Enter.
+2. Listen: fewer “writer isn’t ready”; two conversations can cook at once.
+3. Court brain: Gemini, Mom, Codex, Jarvis, Genesis, Percy.
+4. Cinema brain: Merovin, Draven, OpenMontage, Nova, Apex.
+5. Still Layer 7 rooms — not Phase 13.
+
+Baseline tag `living-home-baseline-001` — do not rewrite.

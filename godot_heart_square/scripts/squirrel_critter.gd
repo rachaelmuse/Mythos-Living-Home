@@ -1,6 +1,5 @@
 extends CharacterBody3D
-## Wildlife — bounded choices: forage, eat, climb, follow, flee, hide, rest.
-## AUTONOMOUS. No LLM. Not a left-right patrol script.
+## Wildlife — roam the whole village. AUTONOMOUS. No LLM.
 
 signal chattered(line: String)
 
@@ -14,13 +13,43 @@ var _seed := 1
 var _eat := false
 var _climb_y := 0.0
 
-const FOOD := Vector3(-13.0, 0.2, 7.0)
+const FOOD_SPOTS := [
+	Vector3(-13.0, 0.2, 7.0),
+	Vector3(4.0, 0.2, 4.0),
+	Vector3(-6.0, 0.2, -20.0),
+	Vector3(18.0, 0.2, -8.0),
+	Vector3(0.0, 0.2, 18.0),
+	Vector3(-24.0, 0.2, 2.0),
+]
 const TREES := [
 	Vector3(-10.0, 0.2, 10.0),
-	Vector3(-18.0, 0.2, 8.0),
-	Vector3(-6.0, 0.2, 12.0),
+	Vector3(-20.0, 0.2, 8.0),
+	Vector3(8.0, 0.2, 10.0),
+	Vector3(18.0, 0.2, -8.0),
+	Vector3(0.0, 0.2, 28.0),
+	Vector3(-22.0, 0.2, -12.0),
+	Vector3(12.0, 0.2, 18.0),
 ]
-const HIDE := Vector3(-20.5, 0.2, 12.8)
+const HIDE_SPOTS := [
+	Vector3(-30.0, 0.2, 10.0),
+	Vector3(28.0, 0.2, 4.0),
+	Vector3(-14.0, 0.2, -30.0),
+	Vector3(20.0, 0.2, 28.0),
+]
+const TOWN_STOPS := [
+	Vector3(0.0, 0.2, 0.0),
+	Vector3(0.0, 0.2, -16.0),
+	Vector3(16.0, 0.2, -24.0),
+	Vector3(-16.0, 0.2, -16.0),
+	Vector3(-24.0, 0.2, -4.0),
+	Vector3(22.0, 0.2, 0.0),
+	Vector3(14.0, 0.2, 12.0),
+	Vector3(0.0, 0.2, 22.0),
+	Vector3(-18.0, 0.2, 12.0),
+	Vector3(-6.0, 0.2, -24.0),
+	Vector3(26.0, 0.2, 14.0),
+	Vector3(20.0, 0.2, 30.0),
+]
 
 
 func _ready() -> void:
@@ -41,6 +70,7 @@ func apply_kernel(rec: Dictionary) -> void:
 	if tgt is Array and (tgt as Array).size() >= 3:
 		var arr: Array = tgt
 		dest = Vector3(float(arr[0]), 0.2, float(arr[2]))
+		_clamp_town(dest)
 
 
 func _rng() -> float:
@@ -48,20 +78,31 @@ func _rng() -> float:
 	return float(_seed % 10000) / 10000.0
 
 
+func _clamp_town(p: Vector3) -> Vector3:
+	p.x = clampf(p.x, -34.0, 34.0)
+	p.z = clampf(p.z, -34.0, 34.0)
+	p.y = 0.2
+	return p
+
+
+func _jitter(base: Vector3, span: float) -> Vector3:
+	return _clamp_town(base + Vector3((_rng() - 0.5) * span, 0, (_rng() - 0.5) * span))
+
+
 func _pick(kind: String = "") -> void:
 	if kind == "":
 		var roll := _rng()
 		if player_near:
 			kind = "flee" if roll < 0.7 else "hide"
-		elif roll < 0.22:
+		elif roll < 0.18:
 			kind = "eat"
 		elif roll < 0.40:
 			kind = "forage"
 		elif roll < 0.52:
 			kind = "climb"
-		elif roll < 0.64:
-			kind = "investigate"
-		elif roll < 0.78:
+		elif roll < 0.68:
+			kind = "wander"
+		elif roll < 0.80:
 			kind = "follow"
 		elif roll < 0.90:
 			kind = "rest"
@@ -73,29 +114,26 @@ func _pick(kind: String = "") -> void:
 	_t = 0.0
 	match kind:
 		"eat":
-			dest = FOOD + Vector3((_rng() - 0.5) * 1.6, 0, (_rng() - 0.5) * 1.6)
-		"forage":
-			dest = FOOD + Vector3((_rng() - 0.5) * 6.0, 0, (_rng() - 0.5) * 5.0)
+			dest = _jitter(FOOD_SPOTS[int(_rng() * FOOD_SPOTS.size()) % FOOD_SPOTS.size()], 2.4)
+		"forage", "wander", "investigate":
+			dest = _jitter(TOWN_STOPS[int(_rng() * TOWN_STOPS.size()) % TOWN_STOPS.size()], 6.0)
 		"climb":
 			dest = TREES[int(_rng() * TREES.size()) % TREES.size()]
 		"hide", "flee":
-			dest = HIDE + Vector3((_rng() - 0.5) * 1.2, 0, (_rng() - 0.5) * 1.0)
+			dest = _jitter(HIDE_SPOTS[int(_rng() * HIDE_SPOTS.size()) % HIDE_SPOTS.size()], 2.0)
 		"follow":
 			var pack := get_tree().get_nodes_in_group("squirrel")
 			if pack.size() > 1:
 				var other: Node = pack[int(_rng() * pack.size()) % pack.size()]
 				if other != self and other is Node3D:
-					dest = other.global_position + Vector3(0.7, 0, 0.4)
+					dest = _clamp_town((other as Node3D).global_position + Vector3(0.7, 0, 0.4))
 				else:
-					dest = Vector3(-16, 0.2, 10)
+					dest = _jitter(TOWN_STOPS[0], 4.0)
 			else:
-				dest = Vector3(-16, 0.2, 10)
-		"investigate":
-			dest = Vector3(-14.0 + (_rng() - 0.5) * 8.0, 0.2, 8.0 + (_rng() - 0.5) * 6.0)
+				dest = _jitter(TOWN_STOPS[0], 4.0)
 		_:
 			dest = global_position
-	dest.x = clampf(dest.x, -22.0, -6.0)
-	dest.z = clampf(dest.z, 3.0, 14.0)
+	dest = _clamp_town(dest)
 
 
 func _physics_process(delta: float) -> void:
@@ -104,12 +142,16 @@ func _physics_process(delta: float) -> void:
 	var here := global_position
 	var to := dest - here
 	to.y = 0
-	var speed := 2.35
+	var speed := 2.8
 	if state == "flee":
-		speed = 3.9
+		speed = 4.2
+	elif state == "wander" or state == "forage":
+		speed = 3.1
 	elif state == "rest" or state == "eat":
-		speed = 0.0 if to.length() < 0.55 else 1.1
-	if to.length() < 0.45 or _hold > (2.8 if state == "eat" else 6.5):
+		speed = 0.0 if to.length() < 0.55 else 1.2
+	# Reach farther goals before re-picking so they cross the village.
+	var patience := 11.0 if state in ["wander", "forage", "investigate"] else (3.2 if state == "eat" else 7.0)
+	if to.length() < 0.55 or _hold > patience:
 		_pick("")
 		to = dest - here
 		to.y = 0
@@ -152,7 +194,6 @@ func _process(_delta: float) -> void:
 
 
 func chatter() -> String:
-	# Honest: wildlife has no language model. Chirps are PLACEHOLDER sound-stand-ins.
 	var s := "*chip*  (wildlife — autonomous, not speech)"
 	chattered.emit(s)
 	return s

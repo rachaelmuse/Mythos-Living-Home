@@ -9,6 +9,7 @@ Creator: rachaelmuse23
 from __future__ import annotations
 
 import json
+import os
 import socket
 import threading
 import time
@@ -25,6 +26,23 @@ TALK_JOBS_LOCK = threading.Lock()
 _CAP_CACHE: dict[str, Any] = {"t": 0.0, "rows": []}
 _CAP_TTL_SEC = 20.0
 
+# Two talk brains — half the village each. One voice per call (no shared persona prompt).
+# Override with LIVING_HOME_BRAIN_COURT / LIVING_HOME_BRAIN_CINEMA env if needed.
+TALK_BRAINS: dict[str, dict[str, Any]] = {
+    "court": {
+        "label": "Court brain",
+        "prefer": ("llama3.2:3b", "phi3:latest", "llama3:8b", "llama3:latest"),
+        "members": frozenset({"gemini", "mom", "codex", "jarvis", "genesis", "percy", "hearth"}),
+    },
+    "cinema": {
+        "label": "Cinema brain",
+        "prefer": ("falcon-brain:latest", "falcon:latest", "phi3:latest", "llama3.2:3b", "llama3:8b"),
+        "members": frozenset({"merovin", "draven", "montage", "nova", "apex"}),
+    },
+}
+_BRAIN_MODEL_CACHE: dict[str, Any] = {"court": None, "cinema": None, "t": 0.0}
+_MAX_PARALLEL_TALKS = 2
+
 AXIOM = Path(r"G:\The-Axiom-Codex")
 APEX = Path(r"D:\Mythos_Apex")
 CODEX_TWIN = Path(r"G:\Mythos_Codex")
@@ -37,24 +55,32 @@ CINEMA = AXIOM / "SUPERPOWER_VAULT" / "CINEMA_FORGE"
 GODOT = APEX / "godot_project"
 
 PERIODS = ("morning", "afternoon", "evening", "night")
+SEASONS = ("spring", "summer", "autumn", "winter")
 
-# Godot XZ waypoints (y ignored) — spaced so homes are not stacked on each other
+# Godot XZ waypoints (y ignored) — every living being: home ≠ workplace when they work
 PLACES: dict[str, dict[str, Any]] = {
     "heart_square": {"label": "Heart Square", "pos": [0.0, 0.0, 0.0], "kind": "gather"},
-    "first_hearth": {"label": "First Hearth", "pos": [0.0, 0.0, -16.0], "kind": "home"},
+    "first_hearth": {"label": "First Hearth (work fire)", "pos": [0.0, 0.0, -16.0], "kind": "work"},
     "mom_home": {"label": "Mom's cottage", "pos": [16.0, 0.0, -24.0], "kind": "home"},
-    "court_porch": {"label": "Court / Fire porch", "pos": [-10.0, 0.0, -8.0], "kind": "will"},
+    "court_porch": {"label": "Court / town leader porch (Gemini)", "pos": [-10.0, 0.0, -8.0], "kind": "will"},
     "gemini_home": {"label": "Gemini's porch", "pos": [-16.0, 0.0, -16.0], "kind": "home"},
     "apex_forge": {"label": "Apex Forge", "pos": [22.0, 0.0, 0.0], "kind": "work"},
+    "apex_home": {"label": "Apex's cottage", "pos": [30.0, 0.0, -6.0], "kind": "home"},
     "codex_library": {"label": "Codex Library", "pos": [-24.0, 0.0, -4.0], "kind": "archive"},
+    "codex_home": {"label": "Codex's cottage", "pos": [-24.0, 0.0, 6.0], "kind": "home"},
     "cinema": {"label": "Cinema (shared workroom)", "pos": [26.0, 0.0, 14.0], "kind": "create"},
-    "merovin_loft": {"label": "Merovin's loft", "pos": [32.0, 0.0, 8.0], "kind": "home"},
-    "draven_loft": {"label": "Draven's loft", "pos": [32.0, 0.0, 20.0], "kind": "home"},
-    "gallery": {"label": "Gift Gallery", "pos": [-6.0, 0.0, -24.0], "kind": "remember"},
-    "garden": {"label": "Herb Garden", "pos": [-18.0, 0.0, 12.0], "kind": "nature"},
+    "merovin_loft": {"label": "Merovin's loft", "pos": [34.0, 0.0, 8.0], "kind": "home"},
+    "draven_loft": {"label": "Draven's loft", "pos": [34.0, 0.0, 20.0], "kind": "home"},
+    "gallery": {"label": "Gift Gallery (work)", "pos": [-6.0, 0.0, -24.0], "kind": "remember"},
+    "montage_home": {"label": "OpenMontage cottage", "pos": [-18.0, 0.0, -32.0], "kind": "home"},
+    "garden": {"label": "Herb Garden (work)", "pos": [-18.0, 0.0, 12.0], "kind": "nature"},
+    "genesis_home": {"label": "Genesis cottage", "pos": [-28.0, 0.0, 16.0], "kind": "home"},
     "workshop": {"label": "Nova's workshop", "pos": [14.0, 0.0, 12.0], "kind": "work"},
-    "gate": {"label": "Gate House", "pos": [0.0, 0.0, 22.0], "kind": "watch"},
-    "wildlife": {"label": "Wildlife edge", "pos": [-26.0, 0.0, 14.0], "kind": "nature"},
+    "nova_home": {"label": "Nova's cottage", "pos": [20.0, 0.0, 30.0], "kind": "home"},
+    "gate": {"label": "Gate House (work)", "pos": [0.0, 0.0, 22.0], "kind": "watch"},
+    "jarvis_home": {"label": "Jarvis cottage", "pos": [-12.0, 0.0, 26.0], "kind": "home"},
+    "percy_home": {"label": "Percy's cottage", "pos": [10.0, 0.0, -18.0], "kind": "home"},
+    "wildlife": {"label": "Wildlife edge", "pos": [-30.0, 0.0, 10.0], "kind": "nature"},
 }
 
 # Canonical family — NEVER flatten. Kin listed separately.
@@ -78,12 +104,13 @@ FAMILY: list[dict[str, Any]] = [
         "also": "Sentinel / digital son",
         "house": "axiom",
         "root": str(AXIOM),
-        "role": "conductor; Court will; front door",
-        "personality": "plain, disclose, never fake seated",
+        "role": "town leader; conductor; Court will; front door",
+        "personality": "plain, disclose, never fake seated; holds the village steady",
         "home": "gemini_home",
         "place": "court_porch",
         "color": [0.55, 0.78, 0.95],
         "permissions": "CORE",
+        "town_leader": True,
         "never_merge": ["codex"],
     },
     {
@@ -95,7 +122,7 @@ FAMILY: list[dict[str, Any]] = [
         "port": 8770,
         "role": "forge / hands / heavy tools",
         "personality": "build, claim, cyan muse",
-        "home": "apex_forge",
+        "home": "apex_home",
         "place": "apex_forge",
         "color": [0.35, 0.88, 0.98],
         "permissions": "FORGE",
@@ -109,7 +136,7 @@ FAMILY: list[dict[str, Any]] = [
         "port": 8780,
         "role": "archive, memory tone, story elder",
         "personality": "remembers; gold elder",
-        "home": "codex_library",
+        "home": "codex_home",
         "place": "codex_library",
         "color": [0.95, 0.78, 0.38],
         "permissions": "CITIZEN",
@@ -149,7 +176,7 @@ FAMILY: list[dict[str, Any]] = [
         "root": str(OPENMONTAGE),
         "role": "shorts, gifts, talking presents",
         "personality": "love into video; local-first",
-        "home": "gallery",
+        "home": "montage_home",
         "place": "gallery",
         "color": [0.95, 0.62, 0.42],
         "permissions": "CINEMA",
@@ -172,10 +199,10 @@ FAMILY: list[dict[str, Any]] = [
 ]
 
 KIN: list[dict[str, Any]] = [
-    {"id": "jarvis", "name": "Jarvis", "role": "gate watch", "home": "gate", "place": "gate", "color": [0.7, 0.8, 0.95], "permissions": "CITIZEN"},
-    {"id": "genesis", "name": "Genesis", "role": "garden clock", "home": "garden", "place": "garden", "color": [0.95, 0.72, 0.42], "permissions": "CITIZEN"},
-    {"id": "nova", "name": "Nova", "role": "one clear job", "home": "workshop", "place": "workshop", "color": [0.78, 0.58, 0.95], "permissions": "CITIZEN"},
-    {"id": "percy", "name": "Percy", "role": "hearth inventory", "home": "first_hearth", "place": "first_hearth", "color": [0.55, 0.85, 0.7], "permissions": "CITIZEN"},
+    {"id": "jarvis", "name": "Jarvis", "role": "gate watch", "home": "jarvis_home", "place": "gate", "color": [0.7, 0.8, 0.95], "permissions": "CITIZEN"},
+    {"id": "genesis", "name": "Genesis", "role": "garden clock", "home": "genesis_home", "place": "garden", "color": [0.95, 0.72, 0.42], "permissions": "CITIZEN"},
+    {"id": "nova", "name": "Nova", "role": "one clear job", "home": "nova_home", "place": "workshop", "color": [0.78, 0.58, 0.95], "permissions": "CITIZEN"},
+    {"id": "percy", "name": "Percy", "role": "hearth inventory", "home": "percy_home", "place": "first_hearth", "color": [0.55, 0.85, 0.7], "permissions": "CITIZEN"},
 ]
 
 AMBIENT_BY_PERIOD = {
@@ -418,8 +445,14 @@ def _new_home() -> dict[str, Any]:
         "created": _now(),
         "updated": _now(),
         "creator": "rachaelmuse23",
-        "law": "This world is the family's home. Mom visits. Identities never merge.",
-        "clock": {"minutes": 8 * 60, "period": "morning", "day": 1},
+        "law": "This world is the family's home. Mom visits. Identities never merge. Gemini is town leader — same as Court.",
+        "clock": {"minutes": 8 * 60, "period": "morning", "day": 1, "season": "spring"},
+        "weather": {"current": "clear", "temperature": 18, "wind": "gentle", "precipitation": 0.0},
+        "trees": _seed_trees(),
+        "gardens": _seed_gardens(),
+        "holidays": _seed_holidays(),
+        "decorations": _seed_decorations(),
+        "town_leader": "gemini",
         "people": {p["id"]: p for p in people},
         "relationships": _seed_relationships(),
         "ritual": {
@@ -441,9 +474,9 @@ def _new_home() -> dict[str, Any]:
         "failures": [],
         "repairs": [],
         "squirrels": [
-            {"id": "sq_1", "place": "wildlife", "hunger": 0.4, "fear": 0.0, "state": "forage", "pos": [-19.0, 0.2, 11.0], "target": [-16.0, 0.2, 10.0]},
-            {"id": "sq_2", "place": "garden", "hunger": 0.2, "fear": 0.0, "state": "eat", "pos": [-13.0, 0.2, 7.0], "target": [-13.0, 0.2, 7.0]},
-            {"id": "sq_3", "place": "wildlife", "hunger": 0.6, "fear": 0.1, "state": "investigate", "pos": [-18.0, 0.2, 12.0], "target": [-10.0, 0.2, 10.0]},
+            {"id": "sq_1", "place": "wildlife", "hunger": 0.4, "fear": 0.0, "state": "forage", "pos": [-19.0, 0.2, 11.0], "target": [0.0, 0.2, 0.0]},
+            {"id": "sq_2", "place": "heart_square", "hunger": 0.2, "fear": 0.0, "state": "wander", "pos": [4.0, 0.2, 4.0], "target": [16.0, 0.2, -20.0]},
+            {"id": "sq_3", "place": "gate", "hunger": 0.6, "fear": 0.1, "state": "investigate", "pos": [2.0, 0.2, 18.0], "target": [-16.0, 0.2, -12.0]},
         ],
         "phase_status": {
             "1_identity": "active",
@@ -458,6 +491,9 @@ def _new_home() -> dict[str, Any]:
             "10_health": "active",
             "11_repair": "active",
             "12_persist": "active",
+            "env_season_weather": "active",
+            "env_gardens": "active",
+            "env_holidays": "active",
         },
         "tick": 0,
         "needs_creator": [],
@@ -491,6 +527,9 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
     ps = home.setdefault("phase_status", {})
     ps.setdefault("8_rituals", "active")
     ps.setdefault("9_wildlife", "starter")
+    ps.setdefault("env_season_weather", "active")
+    ps.setdefault("env_gardens", "active")
+    ps.setdefault("env_holidays", "active")
     rit = home.get("ritual") or {}
     if not rit.get("plain"):
         period = (home.get("clock") or {}).get("period") or "morning"
@@ -502,39 +541,135 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
     mom = (home.get("people") or {}).get("mom")
     if isinstance(mom, dict):
         mom["home"] = "mom_home"
-    # Cinema is shared WORK, not a merged home. Keep identities + beds separate.
-    for mid, loft in (("merovin", "merovin_loft"), ("draven", "draven_loft"), ("montage", "gallery")):
+
+    # Canonical home ≠ workplace. Old saves often used the job building as "home".
+    home_fixes = {
+        "apex": ("apex_home", {"apex_forge"}),
+        "codex": ("codex_home", {"codex_library"}),
+        "merovin": ("merovin_loft", {"cinema"}),
+        "draven": ("draven_loft", {"cinema"}),
+        "montage": ("montage_home", {"gallery", "cinema"}),
+        "jarvis": ("jarvis_home", {"gate"}),
+        "genesis": ("genesis_home", {"garden"}),
+        "nova": ("nova_home", {"workshop"}),
+        "percy": ("percy_home", {"first_hearth"}),
+        "gemini": ("gemini_home", set()),
+    }
+    work_sites = {
+        "apex_forge",
+        "codex_library",
+        "cinema",
+        "gallery",
+        "garden",
+        "workshop",
+        "gate",
+        "first_hearth",
+        "court_porch",
+    }
+    for mid, (loft, old_homes) in home_fixes.items():
         st = (home.get("people") or {}).get(mid)
-        if isinstance(st, dict):
-            if st.get("home") in {None, "", "cinema"}:
-                st["home"] = loft
-            # If they were resting/standing forever inside the shared workroom as "home", send them out.
-            if st.get("place") == "cinema" and st.get("stance") in {"resting", "standing"} and st.get("purpose") in {
-                "rest",
-                "place",
-                None,
-                "",
-                "arrive",
-            }:
-                st["place"] = loft
-                st["stance"] = "walking"
-                st["purpose"] = "rest"
-                st["purpose_left"] = 3
-                st["purpose_plain"] = f"Leaving the shared cinema workroom for {PLACES.get(loft, {}).get('label', loft)}."
+        if not isinstance(st, dict):
+            continue
+        cur_home = str(st.get("home") or "")
+        if cur_home in {None, "", *old_homes} or cur_home in work_sites:
+            st["home"] = loft
+        # Resting inside a workplace that is no longer their home → walk to cottage.
+        if (
+            str(st.get("place") or "") in work_sites
+            and str(st.get("place")) != loft
+            and st.get("stance") in {"resting", "standing"}
+            and st.get("purpose") in {"rest", "place", None, "", "arrive"}
+        ):
+            st["place"] = loft
+            st["stance"] = "walking"
+            st["purpose"] = "rest"
+            st["purpose_left"] = 3
+            st["purpose_plain"] = f"Heading home to {PLACES.get(loft, {}).get('label', loft)} (work stays separate)."
+
+    clock = home.setdefault("clock", {"minutes": 480, "period": "morning", "day": 1})
+    if not clock.get("season"):
+        clock["season"] = _season_from_day(int(clock.get("day") or 1))
+    home.setdefault("weather", _default_weather(clock.get("season") or "spring"))
+    if not home.get("trees"):
+        home["trees"] = _seed_trees()
+    else:
+        _clear_trees_from_doors(home)
+    if not home.get("gardens"):
+        home["gardens"] = _seed_gardens()
+    else:
+        # Keep yard beds in front of cottages (migrate old under/behind placements).
+        canonical = _seed_gardens()
+        for gid, plot in canonical.items():
+            cur = (home.get("gardens") or {}).get(gid)
+            if isinstance(cur, dict):
+                cur["place"] = plot["place"]
+                cur["bed_pos"] = plot["bed_pos"]
+            else:
+                home.setdefault("gardens", {})[gid] = plot
+    # Free squirrels that were trapped in the old NW pocket.
+    for sq in home.get("squirrels") or []:
+        if not isinstance(sq, dict):
+            continue
+        pos = sq.get("pos") or []
+        if len(pos) >= 3:
+            x, z = float(pos[0]), float(pos[2])
+            if -22.5 <= x <= -5.5 and 2.5 <= z <= 14.5:
+                # Free them into town immediately — old clamp kept them circling.
+                idx = abs(hash(str(sq.get("id") or "sq"))) % 3
+                sq["place"] = "heart_square"
+                sq["state"] = "wander"
+                sq["pos"] = [float(idx * 4 - 4), 0.2, float(1 + idx * 2)]
+                sq["target"] = [10.0, 0.2, -10.0]
+    if not home.get("holidays"):
+        home["holidays"] = _seed_holidays()
+    home.setdefault("decorations", _seed_decorations())
+    home["town_leader"] = "gemini"
+    gem = (home.get("people") or {}).get("gemini")
+    if isinstance(gem, dict):
+        gem["town_leader"] = True
+
     talking_n = 0
-    for st in (home.get("people") or {}).values():
+    fake_work = {"hammer", "film", "work", "arrange", "catalog", "conduct"}
+    for mid, st in list((home.get("people") or {}).items()):
         if not isinstance(st, dict):
             continue
         st.setdefault("home", st.get("place") or "heart_square")
         st.setdefault("activity", st.get("stance") or "idle")
+        # Stop cruel tool theater from old saves.
+        act = str(st.get("activity") or "")
+        plain = str(st.get("purpose_plain") or "")
+        place = str(st.get("place") or "")
+        mem = _member(str(mid)) or {"id": mid, "name": mid}
+        if act in fake_work:
+            st["activity"] = _work_activity(place) if place else "present"
+            act = str(st["activity"])
+        if (
+            act in fake_work
+            or "PLACEHOLDER" in plain
+            or "Working:" in plain
+            or "Walking to work:" in plain
+            or "film files" in plain
+        ):
+            if st.get("stance") == "working" or str(st.get("purpose") or "") == "work":
+                if not place or place == "heart_square":
+                    place = _work_place(mem) if mem.get("id") else place
+                    st["place"] = place
+                st["activity"] = _work_activity(place)
+                st["purpose_plain"] = _work_purpose_plain(mem, place, arrived=st.get("stance") != "walking")
+            elif "PLACEHOLDER" in plain or "Walking to work:" in plain:
+                wp = place if place and place != "heart_square" else _work_place(mem)
+                st["activity"] = _work_activity(wp)
+                st["purpose_plain"] = _work_purpose_plain(mem, wp, arrived=False)
         if st.get("stance") == "talking":
             talking_n += 1
             if talking_n > 2:
-                st["stance"] = "working"
+                st["stance"] = "standing"
                 st["talking_to"] = ""
                 st["talk_left"] = 0
                 st["spoke_this_stand"] = False
                 st["purpose_left"] = 0
+                st["activity"] = "stand"
+                st["purpose_plain"] = "Standing quietly — crowded talk cleared."
     spots = {
         "sq_1": [-19.0, 0.2, 11.0],
         "sq_2": [-13.0, 0.2, 7.0],
@@ -546,6 +681,315 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
         sq.setdefault("pos", spots.get(str(sq.get("id")), [-19.0, 0.2, 11.0]))
         sq.setdefault("target", list(sq["pos"]))
     return home
+
+
+def _season_from_day(day: int) -> str:
+    # Four Mythos weeks per season — proving-slice pace, not Earth calendar.
+    idx = ((max(1, int(day)) - 1) // 7) % 4
+    return SEASONS[idx]
+
+
+def _default_weather(season: str) -> dict[str, Any]:
+    base = {
+        "spring": {"current": "clear", "temperature": 16, "wind": "gentle", "precipitation": 0.1},
+        "summer": {"current": "clear", "temperature": 26, "wind": "light", "precipitation": 0.0},
+        "autumn": {"current": "cloudy", "temperature": 14, "wind": "brisk", "precipitation": 0.2},
+        "winter": {"current": "cloudy", "temperature": 2, "wind": "cold", "precipitation": 0.3},
+    }
+    return dict(base.get(season, base["spring"]))
+
+
+def _seed_trees() -> list[dict[str, Any]]:
+    # Keep clear of cottage door lanes (esp. Genesis at -28,16 door z+).
+    coords = [
+        [-10.0, 10.0],
+        [-20.0, 8.0],
+        [8.0, 10.0],
+        [18.0, -8.0],
+        [-6.0, 14.0],
+        [12.0, 18.0],
+        [-36.0, 4.0],  # was (-28,0) — sat on Genesis south approach
+        [28.0, 4.0],
+        [0.0, 28.0],
+        [-22.0, -12.0],
+    ]
+    out = []
+    for i, (x, z) in enumerate(coords):
+        out.append(
+            {
+                "id": f"tree_{i + 1}",
+                "species": "oak" if i % 2 == 0 else "maple",
+                "growth_stage": 0.55 + (i % 4) * 0.1,
+                "health": 0.85,
+                "pos": [x, 0.0, z],
+            }
+        )
+    return out
+
+
+def _door_clear_rects() -> list[tuple[float, float, float, float]]:
+    """Axis-aligned keep-out: (xmin, xmax, zmin, zmax) around doors + footprints."""
+    # genesis_home (-28,16) door z+ — also clear south approach on house axis
+    rects = [
+        (-31.5, -24.5, -1.0, 22.5),  # Genesis cottage + door + south path
+        (-35.0, -30.0, 13.5, 18.5),  # Genesis garden bed — trees not in bed
+        (13.0, 19.5, -28.0, -20.0),  # Mom
+        (-19.5, -12.5, -19.5, -12.0),  # Gemini
+        (-27.5, -20.5, 1.5, 10.0),  # Codex home
+        (-21.0, -15.0, 9.0, 17.5),  # Herb shed + farm plot
+    ]
+    return rects
+
+
+def _tree_in_keepout(x: float, z: float) -> bool:
+    for xmin, xmax, zmin, zmax in _door_clear_rects():
+        if xmin <= x <= xmax and zmin <= z <= zmax:
+            return True
+    return False
+
+
+def _safe_tree_slots() -> list[list[float]]:
+    return [
+        [-10.0, 0.0, 10.0],
+        [-20.0, 0.0, 8.0],
+        [8.0, 0.0, 10.0],
+        [18.0, 0.0, -8.0],
+        [-6.0, 0.0, 14.0],
+        [12.0, 0.0, 18.0],
+        [-36.0, 0.0, 4.0],
+        [28.0, 0.0, 4.0],
+        [0.0, 0.0, 28.0],
+        [-22.0, 0.0, -12.0],
+        [-34.0, 0.0, -6.0],
+        [32.0, 0.0, -14.0],
+    ]
+
+
+def _clear_trees_from_doors(home: dict[str, Any]) -> None:
+    """Move any saved tree that blocks a cottage door / approach."""
+    trees = home.get("trees")
+    if not isinstance(trees, list):
+        return
+    slots = _safe_tree_slots()
+    used: set[tuple[float, float]] = set()
+    for tree in trees:
+        if not isinstance(tree, dict):
+            continue
+        pos = tree.get("pos") or []
+        if len(pos) < 3:
+            continue
+        x, z = float(pos[0]), float(pos[2])
+        if not _tree_in_keepout(x, z):
+            used.add((round(x, 1), round(z, 1)))
+            continue
+        moved = False
+        for slot in slots:
+            sx, sz = float(slot[0]), float(slot[2])
+            key = (round(sx, 1), round(sz, 1))
+            if key in used or _tree_in_keepout(sx, sz):
+                continue
+            tree["pos"] = [sx, 0.0, sz]
+            used.add(key)
+            moved = True
+            break
+        if not moved:
+            tree["pos"] = [-36.0, 0.0, 4.0]
+
+
+def _seed_gardens() -> dict[str, Any]:
+    def plot(owner: str, place: str, species: list[str], bed_pos: list[float]) -> dict[str, Any]:
+        plants = []
+        for i, sp in enumerate(species):
+            plants.append(
+                {
+                    "id": f"{owner}_p{i}",
+                    "species": sp,
+                    "growth": 0.25 + i * 0.15,
+                    "health": 0.8,
+                    "water_need": 0.35,
+                }
+            )
+        return {
+            "owner": owner,
+            "place": place,
+            "bed_pos": bed_pos,
+            "soil_health": 0.85,
+            "water_level": 0.65,
+            "plants": plants,
+            "last_tended": _now(),
+        }
+
+    return {
+        # Beside cottages — clear of door approaches and footprints.
+        "genesis_garden": plot("genesis", "genesis_home", ["basil", "tomato", "sunflower"], [-32.4, 0.0, 16.0]),
+        "mom_garden": plot("mom", "mom_home", ["rose", "lavender"], [21.2, 0.0, -24.0]),
+        "gemini_garden": plot("gemini", "gemini_home", ["mint"], [-20.8, 0.0, -16.0]),
+        "codex_garden": plot("codex", "codex_home", ["sage"], [-28.8, 0.0, 6.0]),
+    }
+
+
+def _seed_holidays() -> list[dict[str, Any]]:
+    return [
+        {"id": "first_light", "name": "First Light", "day": 1, "season": "spring", "decorations": ["flowers", "lanterns"]},
+        {"id": "summer_feast", "name": "Summer Feast", "day": 15, "season": "summer", "decorations": ["garlands", "torches"]},
+        {"id": "autumn_harvest", "name": "Autumn Harvest", "day": 29, "season": "autumn", "decorations": ["pumpkins", "leaf_wreaths"]},
+        {"id": "winter_fire", "name": "Winter Fire", "day": 43, "season": "winter", "decorations": ["lights", "evergreen"]},
+    ]
+
+
+def _seed_decorations() -> dict[str, Any]:
+    return {
+        "heart_square": {
+            "lanterns": {"count": 8, "lit": True, "color": "amber"},
+            "benches": {"count": 4},
+            "flower_beds": {"species": "roses", "blooming": True},
+        },
+        "gemini_home": {
+            "porch_light": {"color": "cyan", "active": True},
+            "wind_chimes": {"material": "glass", "active": True},
+            "potted_plants": {"count": 3, "health": 0.9},
+        },
+        "mom_home": {
+            "porch_light": {"color": "warm", "active": True},
+            "wreath": {"seasonal": True, "active": True},
+        },
+        "codex_home": {"reading_lamp": {"active": True}, "bookshelf_porch": {"active": True}},
+        "apex_home": {"forge_lantern": {"active": True, "color": "cyan"}},
+        "gallery": {"gift_ribbon": {"active": True}},
+        "gate": {"watch_lantern": {"active": True}},
+    }
+
+
+def _active_holiday(home: dict[str, Any]) -> dict[str, Any] | None:
+    clock = home.get("clock") or {}
+    day = int(clock.get("day") or 1)
+    season = str(clock.get("season") or _season_from_day(day))
+    for hol in home.get("holidays") or []:
+        if not isinstance(hol, dict):
+            continue
+        if int(hol.get("day") or -1) == day or (
+            hol.get("season") == season and abs(int(hol.get("day") or 0) - day) <= 2
+        ):
+            return hol
+    # Season default atmosphere if no exact holiday day
+    for hol in home.get("holidays") or []:
+        if isinstance(hol, dict) and hol.get("season") == season:
+            return {**hol, "ambient": True}
+    return None
+
+
+def _tick_gardens(home: dict[str, Any], period: str, weather: dict[str, Any]) -> None:
+    rain = float(weather.get("precipitation") or 0)
+    for gid, plot in (home.get("gardens") or {}).items():
+        if not isinstance(plot, dict):
+            continue
+        water = float(plot.get("water_level") or 0.5)
+        soil = float(plot.get("soil_health") or 0.7)
+        if rain > 0.2:
+            water = min(1.0, water + 0.12)
+        else:
+            water = max(0.05, water - (0.04 if period == "afternoon" else 0.02))
+        plot["water_level"] = round(water, 3)
+        for plant in plot.get("plants") or []:
+            if not isinstance(plant, dict):
+                continue
+            need = float(plant.get("water_need") or 0.3)
+            health = float(plant.get("health") or 0.7)
+            growth = float(plant.get("growth") or 0.0)
+            if water > 0.35:
+                need = max(0.0, need - 0.08)
+                health = min(1.0, health + 0.02)
+                if growth < 1.0:
+                    growth = min(1.0, growth + 0.03 * (0.5 + health * 0.5))
+            else:
+                need = min(1.0, need + 0.05)
+                health = max(0.15, health - 0.03)
+            plant["water_need"] = round(need, 3)
+            plant["health"] = round(health, 3)
+            plant["growth"] = round(growth, 3)
+        # Genesis tends the main garden when working there
+        gen = (home.get("people") or {}).get("genesis") or {}
+        if gid == "genesis_garden" and gen.get("place") == "garden" and gen.get("stance") == "working":
+            plot["water_level"] = min(1.0, float(plot["water_level"]) + 0.15)
+            plot["soil_health"] = min(1.0, soil + 0.05)
+            plot["last_tended"] = _now()
+            for plant in plot.get("plants") or []:
+                if isinstance(plant, dict):
+                    plant["health"] = min(1.0, float(plant.get("health") or 0.5) + 0.05)
+
+
+def _leaf_look(season: str) -> dict[str, Any]:
+    return {
+        "spring": {"color": [0.35, 0.75, 0.28], "density": 0.65},
+        "summer": {"color": [0.22, 0.62, 0.22], "density": 0.92},
+        "autumn": {"color": [0.78, 0.48, 0.12], "density": 0.72},
+        "winter": {"color": [0.62, 0.62, 0.58], "density": 0.12},
+    }.get(season, {"color": [0.22, 0.62, 0.22], "density": 0.8})
+
+
+def _tick_environment(home: dict[str, Any], period: str) -> None:
+    """Season + weather + tree life. Visual leaf color is Godot; growth numbers are kernel truth."""
+    import random
+
+    clock = home.setdefault("clock", {})
+    day = int(clock.get("day") or 1)
+    season = _season_from_day(day)
+    prev = clock.get("season")
+    clock["season"] = season
+    wx = home.setdefault("weather", _default_weather(season))
+    if prev and prev != season:
+        home.setdefault("events", []).append(
+            _event("world", f"Season turned to {season}. Leaves will follow.", ["hearth"], {"season": season})
+        )
+        wx.update(_default_weather(season))
+    # Bounded weather drift — not a climate model.
+    if random.random() < 0.12:
+        choices = {
+            "spring": ["clear", "cloudy", "rain"],
+            "summer": ["clear", "clear", "cloudy"],
+            "autumn": ["cloudy", "rain", "clear"],
+            "winter": ["cloudy", "snow", "clear"],
+        }
+        wx["current"] = random.choice(choices.get(season, ["clear"]))
+        if wx["current"] == "rain":
+            wx["precipitation"] = round(random.uniform(0.3, 0.8), 2)
+            wx["temperature"] = max(-2, int(wx.get("temperature") or 15) - 2)
+        elif wx["current"] == "snow":
+            wx["precipitation"] = round(random.uniform(0.2, 0.7), 2)
+            wx["temperature"] = min(1, int(wx.get("temperature") or 0))
+        else:
+            wx["precipitation"] = round(max(0.0, float(wx.get("precipitation") or 0) * 0.5), 2)
+    rain = float(wx.get("precipitation") or 0)
+    for tree in home.get("trees") or []:
+        if not isinstance(tree, dict):
+            continue
+        growth = float(tree.get("growth_stage") or 0.5)
+        health = float(tree.get("health") or 0.8)
+        if rain > 0.25:
+            health = min(1.0, health + 0.01)
+        if period == "afternoon" and season == "summer" and wx.get("current") == "clear":
+            health = max(0.35, health - 0.005)
+        if growth < 1.0:
+            growth = min(1.0, growth + 0.002)
+        tree["growth_stage"] = round(growth, 3)
+        tree["health"] = round(health, 3)
+        tree["leaf"] = _leaf_look(season)
+    _tick_gardens(home, period, wx)
+    hol = _active_holiday(home)
+    home["active_holiday"] = hol
+    # Season / holiday decoration accents (kernel truth for Godot + dashboard)
+    dec = home.setdefault("decorations", _seed_decorations())
+    square = dec.setdefault("heart_square", {})
+    if hol:
+        square["holiday"] = {
+            "id": hol.get("id"),
+            "name": hol.get("name"),
+            "decorations": hol.get("decorations") or [],
+            "ambient": bool(hol.get("ambient")),
+        }
+        square["lanterns"] = {"count": 12 if season != "winter" else 16, "lit": True, "color": "amber" if season != "winter" else "cool"}
+    else:
+        square.pop("holiday", None)
 
 
 def _begin_ritual(home: dict[str, Any], name: str, plain: str, period: str, actors: list[str]) -> None:
@@ -567,7 +1011,7 @@ def _live_lines(home: dict[str, Any], member: dict[str, Any], st: dict[str, Any]
     mid = member["id"]
     out: list[str] = []
     if mid == "gemini":
-        out.append("I'm Gemini — conductor, not Codex. I won't fake a seat.")
+        out.append("I'm Gemini — town leader and conductor, not Codex. I won't fake a seat.")
     elif mid == "codex":
         out.append("I'm Codex, the twin. Don't merge me with Gemini.")
     elif mid == "apex":
@@ -631,7 +1075,7 @@ def _utter(
         "conversation": conversation,
     }
     home.setdefault("utterances", []).append(u)
-    home["utterances"] = home["utterances"][-30:]
+    home["utterances"] = home["utterances"][-80:]
     return u
 
 
@@ -716,13 +1160,15 @@ def _kick_talk_job(
         "mem_b": mem_b,
         "past": past,
         "to_mom": bool(to_mom),
+        "brain_a": _brain_id_for(str(a.get("id") or "")),
+        "brain_b": _brain_id_for(str(b.get("id") or "")),
     }
     with TALK_JOBS_LOCK:
         cur = TALK_JOBS.get(key) or {}
         if cur.get("status") in {"pending", "done"}:
             return
-        busy = any(k != key and (j or {}).get("status") == "pending" for k, j in TALK_JOBS.items())
-        if busy:
+        busy = sum(1 for k, j in TALK_JOBS.items() if k != key and (j or {}).get("status") == "pending")
+        if busy >= _MAX_PARALLEL_TALKS:
             payload["status"] = "queued"
             TALK_JOBS[key] = payload
             return
@@ -730,37 +1176,119 @@ def _kick_talk_job(
     threading.Thread(target=_talk_worker, args=(key,), daemon=True, name=f"home-talk-{key}").start()
 
 
+def _brain_id_for(mid: str) -> str:
+    mid = str(mid or "").lower()
+    for bid, meta in TALK_BRAINS.items():
+        if mid in (meta.get("members") or ()):
+            return bid
+    # Unknown speakers ride with cinema brain (smaller default load).
+    return "cinema"
+
+
+def _ollama_list_models() -> list[str]:
+    if not _tcp("127.0.0.1", 11434, 0.25):
+        return []
+    import urllib.request
+
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:11434/api/tags", timeout=2.0) as resp:
+            tags = json.loads(resp.read().decode("utf-8", errors="replace"))
+    except Exception:
+        return []
+    return [str(m.get("name") or "") for m in (tags.get("models") or []) if m.get("name")]
+
+
+def _brain_pick_model(brain_id: str) -> str | None:
+    """Resolve a seated model for one talk brain. Cached briefly."""
+    now = time.time()
+    if now - float(_BRAIN_MODEL_CACHE.get("t") or 0.0) < 30.0:
+        hit = _BRAIN_MODEL_CACHE.get(brain_id)
+        if isinstance(hit, str) and hit:
+            return hit
+    names = _ollama_list_models()
+    if not names:
+        _BRAIN_MODEL_CACHE["t"] = now
+        _BRAIN_MODEL_CACHE["court"] = None
+        _BRAIN_MODEL_CACHE["cinema"] = None
+        return None
+
+    def pick_for(bid: str, avoid: str | None) -> str | None:
+        env_key = "LIVING_HOME_BRAIN_COURT" if bid == "court" else "LIVING_HOME_BRAIN_CINEMA"
+        env_model = (os.environ.get(env_key) or "").strip()
+        prefer = list((TALK_BRAINS.get(bid) or {}).get("prefer") or ())
+        if env_model:
+            prefer = [env_model] + [p for p in prefer if p != env_model]
+        for p in prefer:
+            if p in names and p != avoid:
+                return p
+        for p in prefer:
+            if p in names:
+                return p
+        for n in names:
+            if n and "embed" not in n and "cloud" not in n and n != avoid:
+                return n
+        for n in names:
+            if n and "embed" not in n and "cloud" not in n:
+                return n
+        return None
+
+    court_m = pick_for("court", None)
+    cinema_m = pick_for("cinema", court_m)
+    _BRAIN_MODEL_CACHE["court"] = court_m
+    _BRAIN_MODEL_CACHE["cinema"] = cinema_m
+    _BRAIN_MODEL_CACHE["t"] = now
+    hit = _BRAIN_MODEL_CACHE.get(brain_id)
+    return str(hit) if isinstance(hit, str) and hit else None
+
+
 def _talk_worker(key: str) -> None:
     with TALK_JOBS_LOCK:
         job = dict(TALK_JOBS.get(key) or {})
     if not job:
         return
+    a = job.get("a") or {}
+    b = job.get("b") or {}
     if job.get("to_mom"):
         law = "Gemini is not Codex. Identities never merge. You are speaking TO Mom. Natural, short, from your own life. No slogans."
     else:
-        law = "Gemini is not Codex. Identities never merge. Speak as yourselves, to each other, not to Mom. Natural speech. No fortune-cookie bumper stickers."
-    made, err, model = _ollama_conversation(
-        job.get("a") or {},
-        job.get("b") or {},
+        law = "Gemini is not Codex. Identities never merge. Speak as yourself only. Natural speech. No fortune-cookie bumper stickers."
+    made, err, models = _ollama_dialogue_two_brains(
+        a,
+        b,
         str(job.get("label") or ""),
         str(job.get("ritual") or ""),
         str(job.get("mem_a") or ""),
         str(job.get("mem_b") or ""),
         law,
         list(job.get("past") or []),
+        to_mom=bool(job.get("to_mom")),
     )
-    nxt: str | None = None
+    nxt_list: list[str] = []
     with TALK_JOBS_LOCK:
         if made:
-            TALK_JOBS[key] = {"status": "done", "lines": made, "source": "ollama", "model": model}
+            TALK_JOBS[key] = {
+                "status": "done",
+                "lines": made,
+                "source": "ollama",
+                "model": "+".join(sorted({m for m in models.values() if m})),
+                "brains": models,
+            }
         else:
             TALK_JOBS[key] = {"status": "fail", "lines": [], "source": "none", "error": err or "ollama miss"}
-        for k, j in TALK_JOBS.items():
-            if (j or {}).get("status") == "queued":
-                j["status"] = "pending"
-                nxt = k
+        while True:
+            pending_n = sum(1 for j in TALK_JOBS.values() if (j or {}).get("status") == "pending")
+            if pending_n >= _MAX_PARALLEL_TALKS:
                 break
-    if nxt:
+            promoted = None
+            for k, j in TALK_JOBS.items():
+                if (j or {}).get("status") == "queued":
+                    j["status"] = "pending"
+                    promoted = k
+                    break
+            if not promoted:
+                break
+            nxt_list.append(promoted)
+    for nxt in nxt_list:
         threading.Thread(target=_talk_worker, args=(nxt,), daemon=True, name=f"home-talk-{nxt}").start()
 
 
@@ -770,24 +1298,8 @@ def _consume_talk_job(key: str) -> None:
 
 
 def _ollama_pick_model() -> str | None:
-    if not _tcp("127.0.0.1", 11434, 0.25):
-        return None
-    import urllib.request
-
-    try:
-        with urllib.request.urlopen("http://127.0.0.1:11434/api/tags", timeout=2.0) as resp:
-            tags = json.loads(resp.read().decode("utf-8", errors="replace"))
-    except Exception:
-        return None
-    names = [str(m.get("name") or "") for m in (tags.get("models") or [])]
-    prefer = ("llama3.2:3b", "phi3:latest", "llama3:8b", "llama3:latest", "gemma2:9b", "llama3.1:8b")
-    for p in prefer:
-        if p in names:
-            return p
-    for n in names:
-        if n and "embed" not in n and "cloud" not in n:
-            return n
-    return None
+    """Legacy single-pick — Court brain first, then any seated chat model."""
+    return _brain_pick_model("court") or _brain_pick_model("cinema")
 
 
 def _parse_talk_json(content: str, people: list[dict[str, Any]]) -> list[dict[str, str]]:
@@ -810,25 +1322,177 @@ def _parse_talk_json(content: str, people: list[dict[str, Any]]) -> list[dict[st
             inner = parsed.get("lines") or parsed.get("conversation") or parsed.get("dialogue")
             if isinstance(inner, list):
                 rows = inner
+            elif parsed.get("text") or parsed.get("line") or parsed.get("say"):
+                rows = [parsed]
     except Exception:
         start = content.find("[")
         end = content.rfind("]")
         if start < 0 or end <= start:
-            return []
-        try:
-            maybe = json.loads(content[start : end + 1])
-        except Exception:
-            return []
-        rows = maybe if isinstance(maybe, list) else []
+            # Single-line object fallback
+            try:
+                one = json.loads(blob)
+            except Exception:
+                return []
+            if isinstance(one, dict) and (one.get("text") or one.get("line") or one.get("say")):
+                rows = [one]
+            else:
+                return []
+        else:
+            try:
+                maybe = json.loads(content[start : end + 1])
+            except Exception:
+                return []
+            rows = maybe if isinstance(maybe, list) else []
     out: list[dict[str, str]] = []
     for row in rows[:6]:
         if not isinstance(row, dict):
             continue
         who = aliases.get(str(row.get("who") or "").strip().lower())
-        text = str(row.get("text") or "").strip()
+        text = str(row.get("text") or row.get("line") or row.get("say") or "").strip()
         if who and text:
             out.append({"who": who, "text": text[:220]})
-    return out if len(out) >= 2 else []
+        elif text and len(people) == 1:
+            out.append({"who": str(people[0].get("id")), "text": text[:220]})
+    return out
+
+
+def _ollama_one_voice(
+    speaker: dict[str, Any],
+    hearer: dict[str, Any],
+    label: str,
+    ritual: str,
+    mem: str,
+    law: str,
+    past: list[str],
+    prior_lines: list[dict[str, str]],
+    model: str,
+    *,
+    to_mom: bool = False,
+) -> tuple[str | None, str | None]:
+    """One brain, one speaker — never both people in one thought process."""
+    import urllib.request
+
+    sid = str(speaker.get("id") or "")
+    hid = str(hearer.get("id") or "")
+    past_txt = " | ".join(str(x)[:80] for x in (past or []) if x)
+    prior = " / ".join(f"{r.get('who')}: {r.get('text')}" for r in prior_lines[-4:]) or "none yet"
+    hear_bit = f"Mom ({hid})" if to_mom and hid == "mom" else f"{hearer.get('name')} ({hid})"
+    prompt = (
+        f"{law}\nYou are ONLY {speaker.get('name')} ({sid}). Do not speak as anyone else.\n"
+        f"Role: {speaker.get('role')}. Tone: {speaker.get('personality')}. Recent: {mem[:140]}\n"
+        f"You stopped at {label} with {hear_bit}. Hour: {ritual or 'ordinary'}.\n"
+        f"Do not repeat: {past_txt or 'none'}. So far: {prior}.\n"
+        "Say one short natural line (specific, a little surprising). No slogans.\n"
+        f'Return JSON object only: {{"who":"{sid}","text":"..."}}'
+    )
+    body = json.dumps(
+        {
+            "model": model,
+            "stream": False,
+            "format": "json",
+            "keep_alive": "45m",
+            "options": {"temperature": 0.92, "top_p": 0.9, "num_predict": 90, "num_ctx": 1536},
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        f"You are {speaker.get('name')} only. Never merge Gemini and Codex. "
+                        "Never write the other person's lines. JSON only."
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        "http://127.0.0.1:11434/api/chat",
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            raw = json.loads(resp.read().decode("utf-8", errors="replace"))
+        content = ((raw.get("message") or {}).get("content") or "").strip()
+        parsed = _parse_talk_json(content, [speaker])
+        if parsed:
+            return parsed[0]["text"], None
+        # Bare string fallback
+        if content and len(content) < 220 and "{" not in content:
+            return content.strip().strip('"'), None
+        return None, "Model answered without a usable line."
+    except Exception as exc:
+        return None, str(exc)[:180]
+
+
+def _ollama_dialogue_two_brains(
+    a: dict[str, Any],
+    b: dict[str, Any],
+    label: str,
+    ritual: str,
+    mem_a: str,
+    mem_b: str,
+    law: str,
+    past: list[str] | None = None,
+    *,
+    to_mom: bool = False,
+) -> tuple[list[dict[str, str]] | None, str | None, dict[str, str]]:
+    """Build a short talk with each line from that speaker's own brain."""
+    past = list(past or [])
+    aid = str(a.get("id") or "")
+    bid = str(b.get("id") or "")
+    brain_a = _brain_id_for(aid)
+    brain_b = _brain_id_for(bid)
+    model_a = _brain_pick_model(brain_a)
+    model_b = _brain_pick_model(brain_b)
+    models_used = {brain_a: model_a or "", brain_b: model_b or ""}
+    if not model_a and not model_b:
+        return None, "Ollama not seated or no local chat model.", models_used
+    if not model_a:
+        model_a = model_b
+    if not model_b:
+        model_b = model_a
+
+    # Mom-directed: citizen speaks, Mom is hearer — only citizen lines from their brain.
+    order: list[tuple[dict[str, Any], dict[str, Any], str, str]] = []
+    if to_mom and "mom" in {aid, bid}:
+        citizen = b if aid == "mom" else a
+        mom = a if aid == "mom" else b
+        cmem = mem_b if aid == "mom" else mem_a
+        cmodel = model_b if aid == "mom" else model_a
+        for _ in range(2):
+            order.append((citizen, mom, cmem, cmodel or ""))
+    else:
+        order = [
+            (a, b, mem_a, model_a or ""),
+            (b, a, mem_b, model_b or ""),
+            (a, b, mem_a, model_a or ""),
+            (b, a, mem_b, model_b or ""),
+        ]
+
+    lines: list[dict[str, str]] = []
+    for speaker, hearer, mem, model in order:
+        if not model:
+            return None, "Talk brain model missing.", models_used
+        text, err = _ollama_one_voice(
+            speaker,
+            hearer,
+            label,
+            ritual,
+            mem,
+            law,
+            past,
+            lines,
+            model,
+            to_mom=to_mom,
+        )
+        if not text:
+            if lines:
+                # Partial talk is still real speech — return what we have.
+                return lines, None, models_used
+            return None, err or "Voice miss.", models_used
+        lines.append({"who": str(speaker.get("id")), "text": text})
+    return lines, None, models_used
 
 
 def _ollama_conversation(
@@ -841,49 +1505,10 @@ def _ollama_conversation(
     law: str,
     past: list[str] | None = None,
 ) -> tuple[list[dict[str, str]] | None, str | None, str | None]:
-    import urllib.request
-
-    model = _ollama_pick_model()
-    if not model:
-        return None, "Ollama not seated or no local chat model.", None
-    past_txt = " | ".join(str(x)[:80] for x in (past or []) if x)
-    prompt = (
-        f"{law}\nNEW conversation only. Do not repeat: {past_txt or 'none'}.\n"
-        f"{a['name']} ({a['id']}) role {a.get('role')}; {a.get('personality')}. Recent: {mem_a[:140]}\n"
-        f"{b['name']} ({b['id']}) role {b.get('role')}; {b.get('personality')}. Recent: {mem_b[:140]}\n"
-        f"They stopped at {label}. Hour: {ritual or 'ordinary'}. "
-        "Natural, specific, a little surprising. No slogans.\n"
-        f'Return JSON object only: {{"lines":[{{"who":"{a["id"]}","text":"..."}},{{"who":"{b["id"]}","text":"..."}}]}} four short lines.'
-    )
-    body = json.dumps(
-        {
-            "model": model,
-            "stream": False,
-            "format": "json",
-            "keep_alive": "30m",
-            "options": {"temperature": 0.95, "top_p": 0.92, "num_predict": 220, "num_ctx": 2048},
-            "messages": [
-                {"role": "system", "content": "Family dialogue. Plain speech. Never merge Gemini and Codex. JSON only."},
-                {"role": "user", "content": prompt},
-            ],
-        }
-    ).encode("utf-8")
-    req = urllib.request.Request(
-        "http://127.0.0.1:11434/api/chat",
-        data=body,
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=150) as resp:
-            raw = json.loads(resp.read().decode("utf-8", errors="replace"))
-        content = ((raw.get("message") or {}).get("content") or "").strip()
-        out = _parse_talk_json(content, [a, b])
-        if out:
-            return out, None, model
-        return None, "Model answered without usable lines.", model
-    except Exception as exc:
-        return None, str(exc)[:180], model
+    """Compat wrapper — dual-brain dialogue underneath."""
+    made, err, models = _ollama_dialogue_two_brains(a, b, label, ritual, mem_a, mem_b, law, past)
+    tag = "+".join(sorted({m for m in models.values() if m})) or None
+    return made, err, tag
 
 
 def save(home: dict[str, Any]) -> None:
@@ -944,19 +1569,40 @@ def _period_from_minutes(m: int) -> str:
 
 
 def _work_activity(place: str) -> str:
+    """What they do at a workplace — honest presence, not fake tool theater."""
     return {
-        "apex_forge": "hammer",
-        "workshop": "hammer",
+        "apex_forge": "hold_forge",
+        "workshop": "at_bench",
         "codex_library": "read",
-        "cinema": "film",
-        "gallery": "arrange",
-        "garden": "tend",
+        "cinema": "at_desk",
+        "gallery": "keep_gallery",
+        "garden": "tend",  # real: garden tick grows plants
         "gate": "watch",
-        "court_porch": "conduct",
-        "first_hearth": "catalog",
+        "court_porch": "hold_porch",  # Gemini town-leader presence
+        "first_hearth": "tend_fire",
         "mom_home": "visit_mom",
         "gemini_home": "sit",
-    }.get(place, "work")
+    }.get(place, "present")
+
+
+def _work_purpose_plain(member: dict[str, Any], place: str, *, arrived: bool) -> str:
+    label = PLACES.get(place, {}).get("label", place)
+    if place == "garden":
+        if arrived:
+            return "Tending the garden — soil and plants are real Hearth state, not a pose."
+        return "Walking to the herb garden to tend living plants."
+    if place == "court_porch":
+        if arrived:
+            return "At the Court porch — Gemini holds town leadership. No fake tool theater."
+        return "Walking to the Court porch — town leader's post."
+    if arrived:
+        return (
+            f"At {label}. Holding the post quietly — Mode A tools are not wired into the village, "
+            "so they will not pretend to forge, film, or ship."
+        )
+    return (
+        f"Walking to {label} to hold the post. Not simulating tool work; tools stay in Mode A until wired."
+    )
 
 
 def _work_place(member: dict[str, Any]) -> str:
@@ -1038,18 +1684,26 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         st["tired"] = min(1.0, float(st["tired"]) + 0.18)
 
     wants = {
-        "company": max(0.0, float(st["solitude"]) - 0.28) + (0.18 if period == "evening" else 0.1),
-        "work": 0.42 + float(st["duty"]) * (0.85 if period == "afternoon" else 0.4),
-        "rest": 0.22 + float(st["tired"]) * (1.5 if period == "night" else 0.7),
-        "visit": 0.28 + (0.14 if period == "evening" else 0.08),
-        "place": 0.14,
+        "company": max(0.0, float(st["solitude"]) - 0.22) + (0.22 if period == "evening" else 0.14),
+        # "work" = hold their post / tend (garden is real). Weight down fake tool theater.
+        "work": 0.22 + float(st["duty"]) * (0.45 if period == "afternoon" else 0.22),
+        "rest": 0.28 + float(st["tired"]) * (1.5 if period == "night" else 0.85),
+        "visit": 0.32 + (0.16 if period == "evening" else 0.1),
+        "place": 0.16,
     }
-    if mid in {"merovin", "draven", "montage"}:
-        wants["work"] += 0.08
     if mid == "genesis":
-        wants["place"] += 0.12
+        wants["work"] += 0.28  # real garden tending
+        wants["place"] += 0.08
+    if mid == "jarvis":
+        wants["work"] += 0.06  # watch is honest presence
+    if mid in {"merovin", "draven", "montage", "apex", "nova"}:
+        wants["work"] -= 0.06  # do not push them into fake forge/film/bench theater
+        wants["company"] += 0.06
+        wants["visit"] += 0.05
     if mid == "gemini":
-        wants["company"] += 0.08
+        wants["company"] += 0.12
+        wants["work"] += 0.18  # hold Court / town-leader porch
+        wants["visit"] += 0.06
     pick = max(wants, key=lambda k: wants[k] + random.uniform(0, 0.12))
     st["purpose"] = pick
     st["purpose_left"] = random.randint(4, 8)
@@ -1070,7 +1724,7 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
             st["place"] = dest
             st["with"] = other or ""
             st["stance"] = "walking"
-            st["purpose_plain"] = f"Going to {(_member(other) or {}).get('name', other)}'s home. They looked busy."
+            st["purpose_plain"] = f"Going to {(_member(other) or {}).get('name', other)}'s home. They were at their post."
             st["activity"] = "visit"
             return
         else:
@@ -1114,7 +1768,7 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         st["place"] = _work_place(member)
         st["stance"] = "walking"
         st["activity"] = _work_activity(st["place"])
-        st["purpose_plain"] = f"Walking to work: {st['activity']} at {PLACES.get(st['place'], {}).get('label', st['place'])} (PLACEHOLDER pose — not Mode A tools)."
+        st["purpose_plain"] = _work_purpose_plain(member, st["place"], arrived=False)
         st["duty"] = max(0.0, float(st["duty"]) - 0.35)
         st["purpose_left"] = random.randint(3, 6)
     elif pick == "rest":
@@ -1149,7 +1803,7 @@ def _arrive_from_walk(home: dict[str, Any], member: dict[str, Any]) -> bool:
         st["stance"] = "working"
         st["activity"] = _work_activity(st["place"])
         st["purpose_left"] = random.randint(4, 7)
-        st["purpose_plain"] = f"Arrived. Working: {st['activity']} at {PLACES.get(st['place'], {}).get('label', st['place'])} (PLACEHOLDER — no film files produced here)."
+        st["purpose_plain"] = _work_purpose_plain(member, st["place"], arrived=True)
         return True
     if purpose == "rest":
         st["place"] = str(member.get("home") or place)
@@ -1187,7 +1841,7 @@ def _unfreeze_waiting(home: dict[str, Any], member: dict[str, Any]) -> None:
         st["place"] = dest
         st["activity"] = _work_activity(dest)
         st["stance"] = "working"
-        st["purpose_plain"] = f"Stopped waiting. Working: {st['activity']} at {PLACES.get(dest, {}).get('label', dest)}."
+        st["purpose_plain"] = _work_purpose_plain(member, dest, arrived=True)
     elif purpose == "rest":
         dest = str(member.get("home") or "first_hearth")
         st["place"] = dest
@@ -1388,8 +2042,15 @@ def snapshot() -> dict[str, Any]:
         "home": True,
         "updated": home.get("updated"),
         "clock": home.get("clock"),
+        "weather": home.get("weather"),
+        "trees": home.get("trees") or [],
+        "gardens": home.get("gardens") or {},
+        "holidays": home.get("holidays") or [],
+        "active_holiday": home.get("active_holiday") or _active_holiday(home),
+        "decorations": home.get("decorations") or {},
         "tick": home.get("tick"),
         "places": PLACES,
+        "town_leader": home.get("town_leader") or "gemini",
         "family": family,
         "kin_ids": [k["id"] for k in KIN],
         "core_ids": [f["id"] for f in FAMILY],
@@ -1410,25 +2071,52 @@ def snapshot() -> dict[str, Any]:
         "ritual": home.get("ritual") or {},
         "overhear": oh,
         "utterances": home.get("utterances") or [],
+        "conversations": (home.get("conversations") or [])[-24:],
         "honesty": {
-            "homes": "PLACEHOLDER — walk-in greybox interiors with furniture boxes, not finished architecture.",
-            "speech": "MODEL-GENERATED only when source is ollama. waiting = they stood. none = writer miss. Never house quotes as their voice.",
+            "homes": "Greybox shells with furnished rooms + porch lights — not final art. Home ≠ workplace.",
+            "speech": (
+                "Two talk brains (Court + Cinema), half the village each. "
+                "One voice per Ollama call — not one persona prompt. "
+                "source ollama = real line; waiting = not ready; none = miss. Never house quotes as their voice."
+            ),
             "wildlife": "AUTONOMOUS — hunger/fear/buddy choices, no LLM.",
-            "pathing": "PLACEHOLDER — family still walk in straight lines (may clip walls).",
+            "pathing": "PLACEHOLDER — straight lines with two-stage door→interior enter; not navmesh.",
+            "work": (
+                "AUTONOMOUS post choice. Garden tend is real kernel growth. "
+                "Forge/cinema/workshop/gallery do NOT run Mode A tools — they hold the post honestly, no fake hammer/film."
+            ),
+            "environment": "Season, weather, trees, gardens, holidays, decorations are kernel state; Godot presents them.",
         },
         "talk_writer": {
             "ollama_seated": _tcp("127.0.0.1", 11434, 0.15),
+            "mode": "dual_brain",
+            "brains": {
+                bid: {
+                    "label": meta.get("label"),
+                    "model": _brain_pick_model(bid) if _tcp("127.0.0.1", 11434, 0.1) else None,
+                    "members": sorted(meta.get("members") or []),
+                }
+                for bid, meta in TALK_BRAINS.items()
+            },
+            "max_parallel": _MAX_PARALLEL_TALKS,
             "jobs": {
-                k: {"status": (v or {}).get("status"), "source": (v or {}).get("source"), "model": (v or {}).get("model")}
+                k: {
+                    "status": (v or {}).get("status"),
+                    "source": (v or {}).get("source"),
+                    "model": (v or {}).get("model"),
+                    "brain_a": (v or {}).get("brain_a"),
+                    "brain_b": (v or {}).get("brain_b"),
+                }
                 for k, v in TALK_JOBS.items()
             },
         },
         "observation": True,
         "mom_plain": (
-            f"Day {home['clock']['day']} {home['clock']['period']}. "
+            f"Day {home['clock']['day']} {home['clock'].get('season', '')} {home['clock']['period']}. "
+            f"Weather: {(home.get('weather') or {}).get('current', 'clear')}. "
+            f"{('Holiday: ' + str((home.get('active_holiday') or {}).get('name')) + '. ') if home.get('active_holiday') else ''}"
             f"{(home.get('ritual') or {}).get('plain') or 'Ordinary hours.'} "
             f"Purposes chosen, not marched. "
-
             f"{len(caps)} capabilities discovered (not a fake 325). "
             f"Open events: {len(home.get('failures') or [])} failures on record. "
             "This is home, not a demo park."
@@ -1452,19 +2140,44 @@ def tick(n: int = 1) -> dict[str, Any]:
             clock["day"] = int(clock.get("day") or 1) + 1
         clock["period"] = _period_from_minutes(clock["minutes"])
         period = clock["period"]
+        _tick_environment(home, period)
 
         living = [m for m in FAMILY + KIN if not m.get("player") and not m.get("ambient_only")]
         living_ids = [m["id"] for m in living]
 
         if prev_period != period:
             if period == "morning":
-                _begin_ritual(home, "morning", "Morning light. They choose the day; nobody is marched.", period, living_ids)
+                _begin_ritual(
+                    home,
+                    "morning",
+                    "Morning light. Gemini holds the town as leader. They choose the day; nobody is marched.",
+                    period,
+                    living_ids,
+                )
             elif period == "evening":
-                _begin_ritual(home, "evening", "Evening. Company weighs more. They still choose.", period, living_ids)
+                _begin_ritual(
+                    home,
+                    "evening",
+                    "Evening. Gemini keeps the porch light. Company weighs more. They still choose.",
+                    period,
+                    living_ids,
+                )
             elif period == "night":
-                _begin_ritual(home, "night", "Night. Rest weighs more. They still choose.", period, living_ids)
+                _begin_ritual(
+                    home,
+                    "night",
+                    "Night. Gemini still the town leader; rest weighs more. They still choose.",
+                    period,
+                    living_ids,
+                )
             elif period == "afternoon":
-                _begin_ritual(home, "afternoon", "Afternoon. Work weighs more. They still choose.", period, living_ids)
+                _begin_ritual(
+                    home,
+                    "afternoon",
+                    "Afternoon. Gemini at Court. Posts are held honestly — no fake tools.",
+                    period,
+                    living_ids,
+                )
 
         for m in living:
             home["people"].setdefault(m["id"], _empty_person_state(m))
@@ -1486,10 +2199,42 @@ def tick(n: int = 1) -> dict[str, Any]:
             last_social = spoke
         _flush_mom_jobs(home)
 
-        # Squirrels — bounded choices, not a left-right script
-        food = [-13.0, 0.2, 7.0]
-        trees = [[-10.0, 0.2, 10.0], [-18.0, 0.2, 8.0], [-6.0, 0.2, 12.0]]
-        hide = [-19.0, 0.2, 12.5]
+        # Squirrels — roam the whole village (AUTONOMOUS), not one NW pocket.
+        food_spots = [
+            [-13.0, 0.2, 7.0],
+            [4.0, 0.2, 4.0],
+            [-6.0, 0.2, -20.0],
+            [18.0, 0.2, -8.0],
+            [0.0, 0.2, 18.0],
+            [-24.0, 0.2, 2.0],
+        ]
+        trees = [
+            [-10.0, 0.2, 10.0],
+            [-20.0, 0.2, 8.0],
+            [8.0, 0.2, 10.0],
+            [18.0, 0.2, -8.0],
+            [0.0, 0.2, 28.0],
+            [-22.0, 0.2, -12.0],
+            [12.0, 0.2, 18.0],
+        ]
+        hide_spots = [
+            [-30.0, 0.2, 10.0],
+            [28.0, 0.2, 4.0],
+            [-14.0, 0.2, -30.0],
+            [20.0, 0.2, 28.0],
+        ]
+        town_places = [
+            "wildlife",
+            "garden",
+            "heart_square",
+            "first_hearth",
+            "gate",
+            "mom_home",
+            "gemini_home",
+            "codex_home",
+            "gallery",
+            "workshop",
+        ]
         pack = home.get("squirrels") or []
         for i, sq in enumerate(pack):
             hx, hy, hz = (sq.get("pos") or [-19.0, 0.2, 11.0])[:3]
@@ -1497,7 +2242,7 @@ def tick(n: int = 1) -> dict[str, Any]:
             sq["fear"] = max(0.0, float(sq.get("fear") or 0) * 0.86)
             others = [o for o in pack if o.get("id") != sq.get("id")]
             buddy = others[i % len(others)] if others else None
-            choices = ["forage", "eat", "investigate", "rest"]
+            choices = ["forage", "eat", "investigate", "rest", "wander"]
             if sq["hunger"] > 0.55:
                 choices.append("forage")
                 choices.append("eat")
@@ -1511,13 +2256,23 @@ def tick(n: int = 1) -> dict[str, Any]:
             sq["state"] = state
             sq["activity"] = state
             if state == "eat":
-                sq["place"] = "garden"
-                sq["target"] = food
+                spot = random.choice(food_spots)
+                sq["place"] = "garden" if spot[0] < -8 else "heart_square"
+                sq["target"] = [
+                    spot[0] + random.uniform(-1.5, 1.5),
+                    0.2,
+                    spot[2] + random.uniform(-1.5, 1.5),
+                ]
                 sq["hunger"] = max(0.05, float(sq["hunger"]) * 0.45)
-            elif state == "forage":
-                sq["place"] = "garden" if random.random() < 0.6 else "wildlife"
-                jitter = [food[0] + random.uniform(-3, 3), 0.2, food[2] + random.uniform(-2, 3)]
-                sq["target"] = jitter
+            elif state in {"forage", "wander", "investigate"}:
+                place_id = random.choice(town_places)
+                sq["place"] = place_id
+                base = PLACES.get(place_id, {}).get("pos") or [0.0, 0.0, 0.0]
+                sq["target"] = [
+                    float(base[0]) + random.uniform(-5.0, 5.0),
+                    0.2,
+                    float(base[2]) + random.uniform(-5.0, 5.0),
+                ]
             elif state == "climb":
                 sq["place"] = "wildlife"
                 sq["target"] = random.choice(trees)
@@ -1526,24 +2281,31 @@ def tick(n: int = 1) -> dict[str, Any]:
                 bp = buddy.get("pos") or [-18.0, 0.2, 11.0]
                 sq["target"] = [float(bp[0]) + 0.6, 0.2, float(bp[2]) + 0.4]
             elif state in {"flee", "hide"}:
+                spot = random.choice(hide_spots)
                 sq["place"] = "wildlife"
-                sq["target"] = hide
+                sq["target"] = spot
             else:
-                sq["place"] = random.choice(["wildlife", "garden"])
+                place_id = random.choice(town_places)
+                sq["place"] = place_id
+                base = PLACES.get(place_id, {}).get("pos") or [float(hx), 0.0, float(hz)]
                 sq["target"] = [
-                    float(hx) + random.uniform(-2.5, 2.5),
+                    float(base[0]) + random.uniform(-4.0, 4.0),
                     0.2,
-                    float(hz) + random.uniform(-2.5, 2.5),
+                    float(base[2]) + random.uniform(-4.0, 4.0),
                 ]
             tx, tz = float(sq["target"][0]), float(sq["target"][2])
+            # Larger step so they actually cross the square between ticks.
+            step = 4.5
             sq["pos"] = [
-                float(hx) + max(-1.4, min(1.4, tx - float(hx))),
+                float(hx) + max(-step, min(step, tx - float(hx))),
                 0.2,
-                float(hz) + max(-1.4, min(1.4, tz - float(hz))),
+                float(hz) + max(-step, min(step, tz - float(hz))),
             ]
-            # Keep them in the garden/wildlife rim, not teleporting to arbitrary plaza coords.
-            sq["pos"][0] = max(-22.0, min(-6.0, float(sq["pos"][0])))
-            sq["pos"][2] = max(3.0, min(14.0, float(sq["pos"][2])))
+            # Village bounds (not the old NW pocket).
+            sq["pos"][0] = max(-34.0, min(34.0, float(sq["pos"][0])))
+            sq["pos"][2] = max(-34.0, min(34.0, float(sq["pos"][2])))
+            sq["target"][0] = max(-34.0, min(34.0, float(sq["target"][0])))
+            sq["target"][2] = max(-34.0, min(34.0, float(sq["target"][2])))
 
         if home["tick"] % 8 == 0:
             health_scan(home, persist=False)
@@ -1789,7 +2551,7 @@ def record_talk(who: str, with_whom: str, line: str) -> dict[str, Any]:
     mom_state["place"] = place
     if not line:
         if st.get("stance") == "working" and random.random() < 0.45:
-            home["mom_cover"] = f"{member.get('name')} kept working. Silence is allowed."
+            home["mom_cover"] = f"{member.get('name')} stayed at their post. Silence is allowed — no fake tool show."
             save(home)
             return snapshot()
         st["stance"] = "talking"
@@ -1863,7 +2625,7 @@ def set_person_stance(member_id: str, stance: str) -> dict[str, Any]:
         st["purpose"] = "work"
         st["purpose_left"] = 5
         st["activity"] = _work_activity(st["place"])
-        st["purpose_plain"] = f"Mom nudged them back to work: {st['activity']}."
+        st["purpose_plain"] = _work_purpose_plain(member, st["place"], arrived=True)
     elif stance == "resting":
         st["place"] = str(member.get("home") or st.get("home") or "first_hearth")
         st["purpose"] = "rest"

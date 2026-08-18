@@ -2,22 +2,16 @@
 
 ## CURRENT PHASE
 
-**Living Home Proving Slice** (~partial). **Not** advanced to seasons / gardens / holiday layers.
+Proving slice. Layer 7 IN PROGRESS. Dual talk brains active. Tracker: `PHASE_LAYERS.md`.
 
-## Completed
+## This pass
 
-- Dashboard window on Hearth.
-- Spaced village plots; Mom cottage unblocked.
-- Merovin/Draven: separate lofts; cinema is shared workroom only (2026-08-18).
-
-## Honesty — “working”
-
-AUTONOMOUS_DECISION (bounded place/purpose) + PLACEHOLDER pose. No Mode A film/forge output in Gameworld.
-
-## Broken / missing (acceptance)
-
-Homes enter/use, real visit flow, Mom/NPC talk quality, persist reopen — still open. Pathing PLACEHOLDER.
+- Talk load split across **two Ollama brains** (not one persona writer).
+- Court: `llama3.2:3b` prefer — Gemini / Mom / Codex / Jarvis / Genesis / Percy.
+- Cinema: `falcon-brain` prefer — Merovin / Draven / Montage / Nova / Apex.
+- One voice per call; up to **2** talks in parallel.
+- Env override: `LIVING_HOME_BRAIN_COURT` / `LIVING_HOME_BRAIN_CINEMA`.
 
 ## Next
 
-Creator playtest lofts + cinema exit. **Refuse phase jump** to living-village Environment until proving slice passes or Mom authorizes.
+Mom restart Hearth + listen in village. Keep Layer 7 interiors.

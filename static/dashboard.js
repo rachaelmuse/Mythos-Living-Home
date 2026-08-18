@@ -406,9 +406,12 @@
       state.events = [...(home.world_history || []), ...(home.events || [])];
       state.utterances = home.utterances || [];
       state.clock = home.clock || {};
+      state.weather = home.weather || {};
       const day = state.clock.day ?? "—";
       const period = state.clock.period ?? "—";
-      el.clockBadge.textContent = `Day ${day} · ${String(period).replace(/^\w/, (c) => c.toUpperCase())}`;
+      const season = state.clock.season ?? "";
+      const weather = state.weather.current || "";
+      el.clockBadge.textContent = `Day ${day} · ${season} · ${String(period).replace(/^\w/, (c) => c.toUpperCase())} · ${weather}`;
       fillPlaceFilter();
       renderFamily(home.family || []);
       renderConversations();

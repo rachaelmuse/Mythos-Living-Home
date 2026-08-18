@@ -28,6 +28,11 @@ var _bubble_left := 0.0
 var _tool: MeshInstance3D
 var _sit_y := 0.0
 var _hearth_applied := false
+var _enter_stage := 0
+var _want_inside := false
+var _door_xz := Vector2.ZERO
+var _inside_xz := Vector2.ZERO
+var _has_structure := false
 
 
 func _ready() -> void:
@@ -130,26 +135,77 @@ func _field_str(d: Dictionary, key: String, fallback: String = "") -> String:
 	return str(v)
 
 
-func _door_approach(place_id: String, x: float, z: float) -> Vector2:
-	## Outdoor point in front of the door (matches heart_square building door faces).
-	## Vector2 = (x, z). Walkers use this so they leave interiors and cross the plaza.
+func _door_spec(place_id: String) -> Dictionary:
+	## Half-extents match Godot _build_open_building sizes. face = door wall.
 	match place_id:
 		"mom_home":
-			return Vector2(x, z + 3.8)  # door z+
+			return {"face": "z+", "hw": 3.1, "hd": 2.6}
+		"montage_home", "genesis_home", "percy_home":
+			return {"face": "z+", "hw": 2.5, "hd": 2.2}
+		"nova_home", "jarvis_home", "codex_home":
+			return {"face": "z-", "hw": 2.5, "hd": 2.2}
+		"apex_home", "merovin_loft", "draven_loft":
+			return {"face": "x-", "hw": 2.5, "hd": 2.2}
+		"gemini_home":
+			return {"face": "z+", "hw": 2.6, "hd": 2.3}
+		"gallery":
+			return {"face": "z+", "hw": 2.4, "hd": 2.2}
+		"court_porch":
+			return {"face": "z+", "hw": 2.2, "hd": 1.9}
 		"first_hearth":
-			return Vector2(x, z + 3.6)
-		"gemini_home", "gallery", "court_porch":
-			return Vector2(x, z + 3.2)
+			return {"face": "z+", "hw": 3.5, "hd": 2.75}
 		"gate":
-			return Vector2(x, z - 3.4)  # door z-
-		"apex_forge", "workshop", "cinema", "merovin_loft", "draven_loft":
-			return Vector2(x - 3.6, z)  # door x-
+			return {"face": "z-", "hw": 3.0, "hd": 2.1}
+		"apex_forge":
+			return {"face": "x-", "hw": 3.1, "hd": 2.7}
+		"workshop":
+			return {"face": "x-", "hw": 2.6, "hd": 2.3}
+		"cinema":
+			return {"face": "x-", "hw": 3.5, "hd": 3.1}
 		"codex_library":
-			return Vector2(x + 3.6, z)  # door x+
+			return {"face": "x+", "hw": 3.1, "hd": 2.9}
 		"garden", "wildlife", "heart_square":
-			return Vector2(x, z)
+			return {"face": "none", "hw": 0.0, "hd": 0.0}
 		_:
-			return Vector2(x, z + 2.5)
+			return {"face": "z+", "hw": 2.5, "hd": 2.2}
+
+
+func _door_approach(place_id: String, x: float, z: float) -> Vector2:
+	## Stand on the gold door glow — outside, on the door axis, never beside a blank wall.
+	var spec := _door_spec(place_id)
+	var face := str(spec.get("face", "z+"))
+	var hw := float(spec.get("hw", 2.5))
+	var hd := float(spec.get("hd", 2.2))
+	var pad := 0.95  # clear of the wall plane
+	match face:
+		"z+":
+			return Vector2(x, z + hd + pad)
+		"z-":
+			return Vector2(x, z - hd - pad)
+		"x-":
+			return Vector2(x - hw - pad, z)
+		"x+":
+			return Vector2(x + hw + pad, z)
+		_:
+			return Vector2(x, z)
+
+
+func _interior_stand(place_id: String, x: float, z: float, member_hash: int) -> Vector2:
+	## Inside on the door axis (center of the room along the entry line).
+	var spec := _door_spec(place_id)
+	var face := str(spec.get("face", "z+"))
+	var j := float(member_hash % 3) * 0.2 - 0.2
+	match face:
+		"z+":
+			return Vector2(x + j, z + 0.35)  # past the threshold toward center
+		"z-":
+			return Vector2(x + j, z - 0.35)
+		"x-":
+			return Vector2(x - 0.35, z + j)
+		"x+":
+			return Vector2(x + 0.35, z + j)
+		_:
+			return Vector2(x + j, z)
 
 
 func apply_home(person: Dictionary, places: Dictionary) -> void:
@@ -172,35 +228,61 @@ func apply_home(person: Dictionary, places: Dictionary) -> void:
 	var dest_x := INF
 	var dest_z := INF
 	var raw_place: Variant = person["place"] if person.has("place") else null
-	# 1) places dictionary — walkers aim at the DOOR outside so they cross the square
+	var place_x := INF
+	var place_z := INF
 	if places.has(pl) and typeof(places[pl]) == TYPE_DICTIONARY:
 		var rec: Dictionary = places[pl]
 		var pos: Variant = rec["pos"] if rec.has("pos") else null
 		if pos is Array and (pos as Array).size() >= 3:
-			var arr: Array = pos
-			var door := _door_approach(pl, float(arr[0]), float(arr[2]))
-			var h: int = absi(hash(member_id))
-			var jx := float(h % 9) * 0.35 - 1.4
-			var jz := float((h / 9) % 9) * 0.35 - 1.4
-			if stance == "walking" or stance == "talking" or stance == "waiting":
-				dest_x = door.x + jx * 0.35
-				dest_z = door.y + jz * 0.35
-			else:
-				# Arrived / working / resting — stand inside near center
-				dest_x = float(arr[0]) + jx * 0.5
-				dest_z = float(arr[2]) + jz * 0.5
-	# 2) fallback — snapshot row already carries world pos
-	if dest_x == INF and person.has("pos"):
+			place_x = float((pos as Array)[0])
+			place_z = float((pos as Array)[2])
+	elif person.has("pos"):
 		var pos2: Variant = person["pos"]
 		if pos2 is Array and (pos2 as Array).size() >= 3:
-			var arr2: Array = pos2
-			var door2 := _door_approach(pl, float(arr2[0]), float(arr2[2]))
-			if stance == "walking":
-				dest_x = door2.x
-				dest_z = door2.y
+			place_x = float((pos2 as Array)[0])
+			place_z = float((pos2 as Array)[2])
+
+	_has_structure = place_x != INF and pl not in ["garden", "wildlife", "heart_square"]
+	if place_x != INF:
+		var h: int = absi(hash(member_id))
+		_door_xz = _door_approach(pl, place_x, place_z)
+		_inside_xz = _interior_stand(pl, place_x, place_z, h)
+		var here_xz := Vector2(global_position.x, global_position.z)
+		var to_door := here_xz.distance_to(_door_xz)
+		var to_inside := here_xz.distance_to(_inside_xz)
+		var to_center := here_xz.distance_to(Vector2(place_x, place_z))
+		_want_inside = stance in ["working", "resting", "standing"] or activity in [
+			"sit", "sleep", "read", "tend", "watch", "hold_forge", "at_bench", "at_desk",
+			"keep_gallery", "hold_porch", "tend_fire", "present",
+		]
+		if stance in ["talking", "waiting"]:
+			# Meet at the door threshold only.
+			dest_x = _door_xz.x
+			dest_z = _door_xz.y
+			_enter_stage = 1
+			_want_inside = false
+		elif not _has_structure:
+			dest_x = place_x
+			dest_z = place_z
+			_enter_stage = 0
+		elif _want_inside:
+			# Engaged with the structure → get inside. If already near the building, skip porch linger.
+			if to_inside < 2.8 or to_center < 3.2:
+				dest_x = _inside_xz.x
+				dest_z = _inside_xz.y
+				_enter_stage = 2
+			elif to_door < 2.0:
+				dest_x = _inside_xz.x
+				dest_z = _inside_xz.y
+				_enter_stage = 2
 			else:
-				dest_x = float(arr2[0])
-				dest_z = float(arr2[2])
+				dest_x = _door_xz.x
+				dest_z = _door_xz.y
+				_enter_stage = 1
+		else:
+			dest_x = _door_xz.x
+			dest_z = _door_xz.y
+			_enter_stage = 1
 
 	if dest_x == INF:
 		print(
@@ -218,17 +300,36 @@ func apply_home(person: Dictionary, places: Dictionary) -> void:
 		return
 
 	set_target_xz(dest_x, dest_z)
-	# Must walk to place before posing as resting/working in place.
 	var gap := Vector3(target.x - global_position.x, 0.0, target.z - global_position.z)
-	if gap.length() > 1.8 and stance not in ["talking", "waiting"]:
+	if gap.length() > 1.5 and stance not in ["talking", "waiting"]:
 		stance = "walking"
 		if activity in ["sit", "sleep", "idle", ""]:
 			activity = "walk"
+	# If they're stuck beside the building (off the door axis), pull back onto the door line.
+	if _has_structure and place_x != INF:
+		var lateral := _beside_building_error(place_x, place_z, pl)
+		var near_box := Vector2(global_position.x, global_position.z).distance_to(Vector2(place_x, place_z)) < 6.5
+		if lateral > 1.55 and near_box and _enter_stage != 2:
+			set_target_xz(_door_xz.x, _door_xz.y)
+			_enter_stage = 1
+			stance = "walking"
 	if stance == "talking" or stance == "waiting":
 		_kernel_fresh = 90.0
 	else:
 		_kernel_fresh = 40.0 if _standing() else 12.0
-	print("[Citizen] ", member_id, " -> ", pl, " target=", dest_x, ",", dest_z, " stance=", stance)
+	print("[Citizen] ", member_id, " -> ", pl, " stage=", _enter_stage, " door=", _door_xz, " in=", _inside_xz, " stance=", stance)
+
+
+func _beside_building_error(cx: float, cz: float, place_id: String) -> float:
+	## How far off the door axis we are (high = standing beside a blank wall).
+	var spec := _door_spec(place_id)
+	var face := str(spec.get("face", "z+"))
+	var p := global_position
+	if face.begins_with("z"):
+		return absf(p.x - cx)
+	if face.begins_with("x"):
+		return absf(p.z - cz)
+	return 0.0
 
 
 func test_walk_to_heart_square() -> void:
@@ -259,6 +360,18 @@ func speak(text: String, source: String = "ollama") -> void:
 
 func _physics_process(delta: float) -> void:
 	var here := global_position
+	# Promote door → interior without waiting for the next Hearth poll.
+	if _hearth_applied and _want_inside and _has_structure:
+		var to_door_now := Vector2(here.x, here.z).distance_to(_door_xz)
+		var to_in_now := Vector2(here.x, here.z).distance_to(_inside_xz)
+		if _enter_stage == 1 and to_door_now < 1.85:
+			set_target_xz(_inside_xz.x, _inside_xz.y)
+			_enter_stage = 2
+			stance = "walking"
+		elif _enter_stage == 2 and to_in_now < 0.9 and stance == "walking":
+			# Arrived inside — stop fighting the walk loop.
+			stance = "standing"
+			velocity = Vector3.ZERO
 	if talking_to != "":
 		if talking_to == "mom":
 			var players := get_tree().get_nodes_in_group("player")
@@ -287,8 +400,10 @@ func _physics_process(delta: float) -> void:
 	var dest := Vector3(target.x, here.y, target.z)
 	var to := dest - here
 	to.y = 0
-	var stop_now := _standing() and to.length() < 1.15
-	if to.length() > 0.7 and not stop_now:
+	# Tighter stop so they finish on the door / inside point, not a meter beside it.
+	var stop_r := 0.55 if _has_structure else 1.15
+	var stop_now := _standing() and to.length() < stop_r
+	if to.length() > 0.35 and not stop_now:
 		var dir := to.normalized()
 		velocity.x = dir.x * 3.4
 		velocity.z = dir.z * 3.4
@@ -335,7 +450,8 @@ func _process(delta: float) -> void:
 			_bubble.text = ""
 	var moving := Vector2(velocity.x, velocity.z).length() > 0.2
 	if _tool:
-		_tool.visible = activity in ["hammer", "work", "film", "arrange"] and not moving
+		# No fake hammer/film props — Mode A tools are not wired into the village.
+		_tool.visible = false
 	if _body == null:
 		return
 	if stance == "resting" or activity in ["sit", "sleep", "read"]:
@@ -357,12 +473,13 @@ func _process(delta: float) -> void:
 			_leg_l.rotation.x = 0.0
 		if _leg_r:
 			_leg_r.rotation.x = 0.0
-		if activity in ["hammer", "work"] and _arm_r:
-			_arm_r.rotation.x = sin(_t * 9.0) * 0.85
-			if _tool:
-				_tool.rotation.x = sin(_t * 9.0) * 0.7
-		elif activity in ["read", "catalog", "conduct"] and _arm_r:
-			_arm_r.rotation.x = -0.55
+		# Honest presence poses only — tend/watch/read/hold post. No hammer theater.
+		if activity == "tend" and _arm_r:
+			_arm_r.rotation.x = sin(_t * 2.2) * 0.25 - 0.2
+		elif activity in ["read", "at_desk", "keep_gallery"] and _arm_r:
+			_arm_r.rotation.x = -0.45
+		elif activity in ["watch", "hold_forge", "at_bench", "hold_porch", "tend_fire", "present"] and _arm_r:
+			_arm_r.rotation.x = lerpf(_arm_r.rotation.x, -0.15, delta * 4.0)
 		elif _arm_r:
 			_arm_r.rotation.x = lerpf(_arm_r.rotation.x, 0.0, delta * 5.0)
 
