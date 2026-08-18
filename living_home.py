@@ -47,7 +47,9 @@ PLACES: dict[str, dict[str, Any]] = {
     "gemini_home": {"label": "Gemini's porch", "pos": [-16.0, 0.0, -16.0], "kind": "home"},
     "apex_forge": {"label": "Apex Forge", "pos": [22.0, 0.0, 0.0], "kind": "work"},
     "codex_library": {"label": "Codex Library", "pos": [-24.0, 0.0, -4.0], "kind": "archive"},
-    "cinema": {"label": "Cinema", "pos": [26.0, 0.0, 14.0], "kind": "create"},
+    "cinema": {"label": "Cinema (shared workroom)", "pos": [26.0, 0.0, 14.0], "kind": "create"},
+    "merovin_loft": {"label": "Merovin's loft", "pos": [32.0, 0.0, 8.0], "kind": "home"},
+    "draven_loft": {"label": "Draven's loft", "pos": [32.0, 0.0, 20.0], "kind": "home"},
     "gallery": {"label": "Gift Gallery", "pos": [-6.0, 0.0, -24.0], "kind": "remember"},
     "garden": {"label": "Herb Garden", "pos": [-18.0, 0.0, 12.0], "kind": "nature"},
     "workshop": {"label": "Nova's workshop", "pos": [14.0, 0.0, 12.0], "kind": "work"},
@@ -121,7 +123,7 @@ FAMILY: list[dict[str, Any]] = [
         "root": str(MEROVIN),
         "role": "movie-style vision, shot lists",
         "personality": "art direction; Mom greenlight before Hollywood sprawl",
-        "home": "cinema",
+        "home": "merovin_loft",
         "place": "cinema",
         "color": [0.92, 0.55, 0.72],
         "permissions": "CINEMA",
@@ -134,7 +136,7 @@ FAMILY: list[dict[str, Any]] = [
         "root": str(MEROVIN),
         "role": "continuity, honest delivery",
         "personality": "locks look across cuts",
-        "home": "cinema",
+        "home": "draven_loft",
         "place": "cinema",
         "color": [0.55, 0.52, 0.82],
         "permissions": "CINEMA",
@@ -147,7 +149,7 @@ FAMILY: list[dict[str, Any]] = [
         "root": str(OPENMONTAGE),
         "role": "shorts, gifts, talking presents",
         "personality": "love into video; local-first",
-        "home": "cinema",
+        "home": "gallery",
         "place": "gallery",
         "color": [0.95, 0.62, 0.42],
         "permissions": "CINEMA",
@@ -500,6 +502,25 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
     mom = (home.get("people") or {}).get("mom")
     if isinstance(mom, dict):
         mom["home"] = "mom_home"
+    # Cinema is shared WORK, not a merged home. Keep identities + beds separate.
+    for mid, loft in (("merovin", "merovin_loft"), ("draven", "draven_loft"), ("montage", "gallery")):
+        st = (home.get("people") or {}).get(mid)
+        if isinstance(st, dict):
+            if st.get("home") in {None, "", "cinema"}:
+                st["home"] = loft
+            # If they were resting/standing forever inside the shared workroom as "home", send them out.
+            if st.get("place") == "cinema" and st.get("stance") in {"resting", "standing"} and st.get("purpose") in {
+                "rest",
+                "place",
+                None,
+                "",
+                "arrive",
+            }:
+                st["place"] = loft
+                st["stance"] = "walking"
+                st["purpose"] = "rest"
+                st["purpose_left"] = 3
+                st["purpose_plain"] = f"Leaving the shared cinema workroom for {PLACES.get(loft, {}).get('label', loft)}."
     talking_n = 0
     for st in (home.get("people") or {}).values():
         if not isinstance(st, dict):
@@ -1093,7 +1114,7 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         st["place"] = _work_place(member)
         st["stance"] = "walking"
         st["activity"] = _work_activity(st["place"])
-        st["purpose_plain"] = f"Walking to work: {st['activity']} at {PLACES.get(st['place'], {}).get('label', st['place'])}."
+        st["purpose_plain"] = f"Walking to work: {st['activity']} at {PLACES.get(st['place'], {}).get('label', st['place'])} (PLACEHOLDER pose — not Mode A tools)."
         st["duty"] = max(0.0, float(st["duty"]) - 0.35)
         st["purpose_left"] = random.randint(3, 6)
     elif pick == "rest":
@@ -1128,7 +1149,7 @@ def _arrive_from_walk(home: dict[str, Any], member: dict[str, Any]) -> bool:
         st["stance"] = "working"
         st["activity"] = _work_activity(st["place"])
         st["purpose_left"] = random.randint(4, 7)
-        st["purpose_plain"] = f"Arrived. Working: {st['activity']} at {PLACES.get(st['place'], {}).get('label', st['place'])}."
+        st["purpose_plain"] = f"Arrived. Working: {st['activity']} at {PLACES.get(st['place'], {}).get('label', st['place'])} (PLACEHOLDER — no film files produced here)."
         return True
     if purpose == "rest":
         st["place"] = str(member.get("home") or place)

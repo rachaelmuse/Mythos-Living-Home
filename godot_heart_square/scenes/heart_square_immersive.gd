@@ -154,6 +154,16 @@ func _build_family_places() -> void:
 	_build_open_building(Vector3(26, 0, 14), Vector3(7.0, 3.1, 6.2), Color(0.42, 0.22, 0.32), "Cinema", "x-")
 	_add_roof(Vector3(26, 3.45, 14), Vector3(7.6, 0.75, 6.8), Color(0.18, 0.1, 0.14))
 	_furnish(Vector3(26, 0, 14), "cinema")
+	_add_home_sign(Vector3(22.5, 3.5, 14), "Cinema workroom (shared)", Color(0.95, 0.7, 0.8))
+	# Separate homes — not the same cage as the workroom
+	_build_open_building(Vector3(32, 0, 8), Vector3(5.0, 2.7, 4.4), Color(0.58, 0.32, 0.42), "MerovinLoft", "x-")
+	_add_roof(Vector3(32, 3.05, 8), Vector3(5.5, 0.55, 4.9), Color(0.28, 0.14, 0.2))
+	_furnish(Vector3(32, 0, 8), "merovin_loft")
+	_add_home_sign(Vector3(29.2, 3.3, 8), "Merovin's loft", Color(0.95, 0.7, 0.8))
+	_build_open_building(Vector3(32, 0, 20), Vector3(5.0, 2.7, 4.4), Color(0.36, 0.34, 0.55), "DravenLoft", "x-")
+	_add_roof(Vector3(32, 3.05, 20), Vector3(5.5, 0.55, 4.9), Color(0.18, 0.16, 0.28))
+	_furnish(Vector3(32, 0, 20), "draven_loft")
+	_add_home_sign(Vector3(29.2, 3.3, 20), "Draven's loft", Color(0.75, 0.72, 0.95))
 	# Gallery west of Mom — was stacked on cottage door at (7,-11)
 	_build_open_building(Vector3(-6, 0, -24), Vector3(4.8, 2.6, 4.4), Color(0.4, 0.34, 0.42), "Gallery", "z+")
 	_add_roof(Vector3(-6, 2.95, -24), Vector3(5.3, 0.5, 4.9), Color(0.22, 0.18, 0.24))
@@ -164,6 +174,7 @@ func _build_family_places() -> void:
 		_add_box(xz + Vector3(0, 0.7, 0), Vector3(0.28, 1.4, 0.28), Color(0.3, 0.2, 0.12), true, "Trunk")
 		_add_box(xz + Vector3(0, 1.7, 0), Vector3(1.4, 1.2, 1.4), Color(0.18, 0.4, 0.2), false, "Canopy")
 	_add_box(Vector3(18, 0.025, 7), Vector3(14, 0.03, 2.2), Color(0.4, 0.34, 0.26), false, "PathCinema")
+	_add_box(Vector3(29, 0.025, 14), Vector3(2.0, 0.03, 14), Color(0.4, 0.34, 0.26), false, "PathLofts")
 	_add_box(Vector3(-16, 0.025, -4), Vector3(12, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathLibrary")
 	_add_box(Vector3(8, 0.025, -20), Vector3(12, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathMom")
 	_add_box(Vector3(-3, 0.025, -20), Vector3(10, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathGallery")
@@ -187,8 +198,8 @@ func _build_family() -> void:
 		{"id": "gemini", "name": "Gemini", "pos": Vector3(-15.2, 0.1, -13.2), "color": Color(0.55, 0.78, 0.95)},
 		{"id": "apex", "name": "Apex", "pos": Vector3(18.8, 0.1, 1.2), "color": Color(0.35, 0.88, 0.98)},
 		{"id": "codex", "name": "Codex", "pos": Vector3(-20.4, 0.1, -3.2), "color": Color(0.95, 0.78, 0.38)},
-		{"id": "merovin", "name": "Merovin", "pos": Vector3(22.6, 0.1, 14.2), "color": Color(0.92, 0.55, 0.72)},
-		{"id": "draven", "name": "Draven", "pos": Vector3(23.4, 0.1, 15.0), "color": Color(0.55, 0.52, 0.82)},
+		{"id": "merovin", "name": "Merovin", "pos": Vector3(29.2, 0.1, 8.2), "color": Color(0.92, 0.55, 0.72)},
+		{"id": "draven", "name": "Draven", "pos": Vector3(29.2, 0.1, 20.0), "color": Color(0.55, 0.52, 0.82)},
 		{"id": "montage", "name": "OpenMontage", "pos": Vector3(-5.2, 0.1, -21.5), "color": Color(0.95, 0.62, 0.42)},
 		{"id": "jarvis", "name": "Jarvis", "pos": Vector3(0.5, 0.1, 19.5), "color": Color(0.7, 0.8, 0.95)},
 		{"id": "genesis", "name": "Genesis", "pos": Vector3(-17.5, 0.1, 11.5), "color": Color(0.95, 0.72, 0.42)},
@@ -614,11 +625,19 @@ func _furnish(pos: Vector3, kind: String) -> void:
 			_add_box(pos + Vector3(1.6, 0.28, -1.6), Vector3(1.4, 0.35, 0.7), Color(0.5, 0.38, 0.18), true, "CodexCot")
 			_add_box(pos + Vector3(0.1, 0.48, 0.2), Vector3(1.1, 0.1, 0.7), Color(0.35, 0.24, 0.12), true, "ReadTable")
 		"cinema":
+			# Shared WORKROOM only — beds live in Merovin/Draven lofts.
 			_add_box(pos + Vector3(2.4, 1.2, 0), Vector3(0.2, 1.8, 3.2), Color(0.08, 0.08, 0.1), true, "Screen")
 			_add_box(pos + Vector3(-0.6, 0.4, 0.8), Vector3(0.7, 0.8, 0.7), Color(0.35, 0.18, 0.25), true, "SeatM")
 			_add_box(pos + Vector3(-0.6, 0.4, -0.8), Vector3(0.7, 0.8, 0.7), Color(0.28, 0.22, 0.4), true, "SeatD")
-			_add_box(pos + Vector3(-2.2, 0.28, 1.4), Vector3(1.4, 0.32, 0.6), Color(0.5, 0.28, 0.36), true, "MerovinCot")
-			_add_box(pos + Vector3(-2.2, 0.28, -1.4), Vector3(1.4, 0.32, 0.6), Color(0.32, 0.28, 0.48), true, "DravenCot")
+			_add_box(pos + Vector3(0.2, 0.55, 0.0), Vector3(1.4, 0.12, 0.9), Color(0.25, 0.18, 0.22), true, "EditDesk")
+		"merovin_loft":
+			_add_box(pos + Vector3(-1.2, 0.28, -1.0), Vector3(1.5, 0.32, 0.7), Color(0.55, 0.3, 0.38), true, "MerovinBed")
+			_add_box(pos + Vector3(1.1, 0.45, 0.4), Vector3(0.7, 0.9, 0.7), Color(0.42, 0.22, 0.3), true, "MerovinChair")
+			_add_box(pos + Vector3(0.2, 0.95, -1.6), Vector3(1.2, 0.08, 0.35), Color(0.7, 0.45, 0.55), false, "StoryShelf")
+		"draven_loft":
+			_add_box(pos + Vector3(-1.2, 0.28, -1.0), Vector3(1.5, 0.32, 0.7), Color(0.32, 0.3, 0.5), true, "DravenBed")
+			_add_box(pos + Vector3(1.1, 0.45, 0.4), Vector3(0.7, 0.9, 0.7), Color(0.28, 0.26, 0.42), true, "DravenChair")
+			_add_box(pos + Vector3(0.2, 0.95, -1.6), Vector3(1.2, 0.08, 0.35), Color(0.55, 0.52, 0.75), false, "LookLockShelf")
 		"gallery":
 			_add_box(pos + Vector3(0, 1.1, -1.6), Vector3(3.0, 1.4, 0.18), Color(0.28, 0.24, 0.3), true, "GiftWall")
 			_add_box(pos + Vector3(1.2, 0.28, 1.1), Vector3(1.3, 0.32, 0.6), Color(0.55, 0.4, 0.28), true, "MontageCot")
@@ -910,7 +929,7 @@ func _build_hud() -> void:
 	add_child(_hud_layer)
 
 	hint_label = Label.new()
-	hint_label.text = "WASD · Shift · Mouse look · Wheel zoom · Esc free cursor · click to look again · F11 fullscreen · E talk · gold = door"
+	hint_label.text = "WASD · Shift · Mouse · Wheel zoom · Esc · F11 · E focus talk · type in Conversation (bottom-left)"
 	hint_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	hint_label.offset_left = 16
 	hint_label.offset_top = 10

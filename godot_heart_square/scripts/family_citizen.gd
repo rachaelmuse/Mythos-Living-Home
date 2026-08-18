@@ -142,7 +142,7 @@ func _door_approach(place_id: String, x: float, z: float) -> Vector2:
 			return Vector2(x, z + 3.2)
 		"gate":
 			return Vector2(x, z - 3.4)  # door z-
-		"apex_forge", "workshop", "cinema":
+		"apex_forge", "workshop", "cinema", "merovin_loft", "draven_loft":
 			return Vector2(x - 3.6, z)  # door x-
 		"codex_library":
 			return Vector2(x + 3.6, z)  # door x+
