@@ -33,6 +33,13 @@ var _want_inside := false
 var _door_xz := Vector2.ZERO
 var _inside_xz := Vector2.ZERO
 var _has_structure := false
+## Layer 8B — PLACEHOLDER AABB detour (not navmesh).
+var _obstacles: Array[Rect2] = []
+var _waypoints: Array[Vector2] = []
+var _wp_i := 0
+var _route_goal := Vector2(INF, INF)
+var _route_place := ""
+var _route_stage := -1
 
 
 func _ready() -> void:
@@ -106,6 +113,158 @@ func _ensure_tool() -> void:
 func set_target_xz(x: float, z: float) -> void:
 	target = Vector3(x, global_position.y, z)
 	_hold = 0.0
+
+
+func _rebuild_obstacles(places: Dictionary) -> void:
+	## Footprints from Hearth PLACES + door_spec half-extents (padded).
+	_obstacles.clear()
+	var pad := 0.75
+	for k in places.keys():
+		var pl := str(k)
+		var spec := _door_spec(pl)
+		if str(spec.get("face", "none")) == "none":
+			continue
+		var rec: Variant = places[k]
+		if not (rec is Dictionary):
+			continue
+		var pos: Variant = (rec as Dictionary).get("pos")
+		if not (pos is Array) or (pos as Array).size() < 3:
+			continue
+		var cx := float((pos as Array)[0])
+		var cz := float((pos as Array)[2])
+		var hw := float(spec.get("hw", 2.5)) + pad
+		var hd := float(spec.get("hd", 2.2)) + pad
+		_obstacles.append(Rect2(cx - hw, cz - hd, hw * 2.0, hd * 2.0))
+
+
+func _seg_hits_rect(a: Vector2, b: Vector2, r: Rect2) -> bool:
+	if r.has_point(a) or r.has_point(b):
+		return true
+	var p0 := r.position
+	var p1 := Vector2(r.end.x, r.position.y)
+	var p2 := r.end
+	var p3 := Vector2(r.position.x, r.end.y)
+	if Geometry2D.segment_intersects_segment(a, b, p0, p1) != null:
+		return true
+	if Geometry2D.segment_intersects_segment(a, b, p1, p2) != null:
+		return true
+	if Geometry2D.segment_intersects_segment(a, b, p2, p3) != null:
+		return true
+	if Geometry2D.segment_intersects_segment(a, b, p3, p0) != null:
+		return true
+	return false
+
+
+func _corner_candidates(r: Rect2) -> Array[Vector2]:
+	var o := 0.55
+	return [
+		Vector2(r.position.x - o, r.position.y - o),
+		Vector2(r.end.x + o, r.position.y - o),
+		Vector2(r.end.x + o, r.end.y + o),
+		Vector2(r.position.x - o, r.end.y + o),
+	]
+
+
+func _first_hit_obstacle(a: Vector2, b: Vector2, exclude: Rect2) -> Rect2:
+	var empty := Rect2()
+	var best := empty
+	var best_d := INF
+	for r in _obstacles:
+		if exclude.size.x > 0.0 and absf(r.position.x - exclude.position.x) < 0.01 and absf(r.position.y - exclude.position.y) < 0.01:
+			continue
+		if not _seg_hits_rect(a, b, r):
+			continue
+		var mid := (a + b) * 0.5
+		var d := mid.distance_squared_to(r.get_center())
+		if d < best_d:
+			best_d = d
+			best = r
+	return best
+
+
+func _rect_for_place(places: Dictionary, place_id: String) -> Rect2:
+	if place_id == "" or not places.has(place_id):
+		return Rect2()
+	var spec := _door_spec(place_id)
+	if str(spec.get("face", "none")) == "none":
+		return Rect2()
+	var rec: Variant = places[place_id]
+	if not (rec is Dictionary):
+		return Rect2()
+	var pos: Variant = (rec as Dictionary).get("pos")
+	if not (pos is Array) or (pos as Array).size() < 3:
+		return Rect2()
+	var pad := 0.75
+	var cx := float((pos as Array)[0])
+	var cz := float((pos as Array)[2])
+	var hw := float(spec.get("hw", 2.5)) + pad
+	var hd := float(spec.get("hd", 2.2)) + pad
+	return Rect2(cx - hw, cz - hd, hw * 2.0, hd * 2.0)
+
+
+func _route_around(from: Vector2, to: Vector2, exclude: Rect2) -> Array[Vector2]:
+	## One or two AABB corner detours. Still PLACEHOLDER — not navmesh.
+	var path: Array[Vector2] = []
+	var cur := from
+	for _i in range(3):
+		var hit := _first_hit_obstacle(cur, to, exclude)
+		if hit.size == Vector2.ZERO:
+			break
+		var best := to
+		var best_cost := INF
+		for c in _corner_candidates(hit):
+			if _seg_hits_rect(cur, c, hit):
+				continue
+			var cost := cur.distance_to(c) + c.distance_to(to)
+			if cost < best_cost:
+				best_cost = cost
+				best = c
+		if best.is_equal_approx(to):
+			break
+		path.append(best)
+		cur = best
+	path.append(to)
+	return path
+
+
+func _set_route(to: Vector2, place_id: String, stage: int, places: Dictionary) -> void:
+	var from := Vector2(global_position.x, global_position.z)
+	if (
+		to.distance_to(_route_goal) < 1.15
+		and place_id == _route_place
+		and stage == _route_stage
+		and not _waypoints.is_empty()
+		and _wp_i < _waypoints.size()
+	):
+		# Keep existing detour; only refresh immediate target.
+		var wp: Vector2 = _waypoints[_wp_i]
+		target = Vector3(wp.x, global_position.y, wp.y)
+		return
+	_rebuild_obstacles(places)
+	var exclude := _rect_for_place(places, place_id) if stage >= 1 else Rect2()
+	_waypoints = _route_around(from, to, exclude)
+	_wp_i = 0
+	_route_goal = to
+	_route_place = place_id
+	_route_stage = stage
+	var first: Vector2 = _waypoints[0] if not _waypoints.is_empty() else to
+	target = Vector3(first.x, global_position.y, first.y)
+	_hold = 0.0
+
+
+func _advance_route(delta: float) -> void:
+	if _waypoints.is_empty():
+		return
+	var here := Vector2(global_position.x, global_position.z)
+	var arrive := 0.95
+	while _wp_i < _waypoints.size() and here.distance_to(_waypoints[_wp_i]) < arrive:
+		_wp_i += 1
+	if _wp_i >= _waypoints.size():
+		# Snap goal as final target.
+		target = Vector3(_route_goal.x, global_position.y, _route_goal.y)
+		return
+	var wp: Vector2 = _waypoints[_wp_i]
+	target = Vector3(wp.x, global_position.y, wp.y)
 
 
 func _standing() -> bool:
@@ -299,7 +458,16 @@ func apply_home(person: Dictionary, places: Dictionary) -> void:
 		)
 		return
 
-	set_target_xz(dest_x, dest_z)
+	# Layer 8B: route around building AABBs when walking; talk meets stay direct.
+	if stance in ["talking", "waiting"]:
+		_waypoints.clear()
+		_wp_i = 0
+		_route_goal = Vector2(dest_x, dest_z)
+		_route_place = pl
+		_route_stage = _enter_stage
+		set_target_xz(dest_x, dest_z)
+	else:
+		_set_route(Vector2(dest_x, dest_z), pl, _enter_stage, places)
 	var gap := Vector3(target.x - global_position.x, 0.0, target.z - global_position.z)
 	if gap.length() > 1.5 and stance not in ["talking", "waiting"]:
 		stance = "walking"
@@ -310,14 +478,14 @@ func apply_home(person: Dictionary, places: Dictionary) -> void:
 		var lateral := _beside_building_error(place_x, place_z, pl)
 		var near_box := Vector2(global_position.x, global_position.z).distance_to(Vector2(place_x, place_z)) < 6.5
 		if lateral > 1.55 and near_box and _enter_stage != 2:
-			set_target_xz(_door_xz.x, _door_xz.y)
+			_set_route(_door_xz, pl, 1, places)
 			_enter_stage = 1
 			stance = "walking"
 	if stance == "talking" or stance == "waiting":
 		_kernel_fresh = 90.0
 	else:
 		_kernel_fresh = 40.0 if _standing() else 12.0
-	print("[Citizen] ", member_id, " -> ", pl, " stage=", _enter_stage, " door=", _door_xz, " in=", _inside_xz, " stance=", stance)
+	print("[Citizen] ", member_id, " -> ", pl, " stage=", _enter_stage, " door=", _door_xz, " in=", _inside_xz, " stance=", stance, " wps=", _waypoints.size())
 
 
 func _beside_building_error(cx: float, cz: float, place_id: String) -> float:
@@ -365,13 +533,18 @@ func _physics_process(delta: float) -> void:
 		var to_door_now := Vector2(here.x, here.z).distance_to(_door_xz)
 		var to_in_now := Vector2(here.x, here.z).distance_to(_inside_xz)
 		if _enter_stage == 1 and to_door_now < 1.85:
-			set_target_xz(_inside_xz.x, _inside_xz.y)
 			_enter_stage = 2
+			# Local promote — places cache may be empty; direct inside is fine past the door.
+			_waypoints.clear()
+			_route_goal = _inside_xz
+			_route_stage = 2
+			set_target_xz(_inside_xz.x, _inside_xz.y)
 			stance = "walking"
 		elif _enter_stage == 2 and to_in_now < 0.9 and stance == "walking":
 			# Arrived inside — stop fighting the walk loop.
 			stance = "standing"
 			velocity = Vector3.ZERO
+			_waypoints.clear()
 	if talking_to != "":
 		if talking_to == "mom":
 			var players := get_tree().get_nodes_in_group("player")
@@ -383,6 +556,7 @@ func _physics_process(delta: float) -> void:
 					target = here
 				elif stance == "talking" or stance == "waiting":
 					var meet: Vector3 = (them.global_position + here) * 0.5
+					_waypoints.clear()
 					set_target_xz(meet.x, meet.z)
 		else:
 			for other in get_tree().get_nodes_in_group("family_citizen"):
@@ -395,8 +569,11 @@ func _physics_process(delta: float) -> void:
 						if gap2.length() < 1.6:
 							target = here
 						else:
+							_waypoints.clear()
 							set_target_xz(meet2.x, meet2.z)
 					break
+	elif stance == "walking":
+		_advance_route(delta)
 	var dest := Vector3(target.x, here.y, target.z)
 	var to := dest - here
 	to.y = 0
