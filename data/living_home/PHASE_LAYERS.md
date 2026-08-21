@@ -12,11 +12,11 @@
 | 8B | Pathing (AABB detours) | DONE (Mom OK) | Corner routes; still PLACEHOLDER — not navmesh. |
 | 8C | Evening gather | DONE (Mom OK) | Gemini soft-calls Heart Square. |
 | 9 | Sound (Eden Phase 1 thin) | DONE | Forest bed in Audio/nature (OGA). |
-| 9b–9d | Harbor / well / far shore | DONE | Edge water + utilities + thin travel/build. Pool behind town. |
+| 9b–9d | Harbor / well / far shore | DONE | Edge water + utilities + thin travel/build. Pool removed for now. |
 | 10 | Mom Interface + Community Memory | DONE (Mom OK) | Persist Mom voice; nearby Ollama; Storage hall. |
-| 11 | Eden TV/Media (thin) | IN PROGRESS | Cinema watch; media/watch stills seated. |
-| 12 | Richer harbor | NEXT | Fish catch + destination builder after 11. |
-| 14 | Living Economy & Self-Expression | QUEUED | Stores, Axiom ⨁, inventory, avatar thin, town projects, trade. |
+| 11 | Eden TV/Media (thin) | DONE | Cinema watch; media/watch stills seated. |
+| 12 | Richer harbor | DONE | Pier catch → inventory; far-shore builds persist. |
+| 14 | Living Economy & Self-Expression | IN PROGRESS | **14B** shops now; 14A wallets DONE. |
 | 13 | Final polish (Phase 13) | LAST | Do not jump here. |
 
 ## Standing choice
@@ -26,10 +26,28 @@
 ## Standing order
 
 1. Sound — DONE  
-2. TV/Media — finish Mom OK  
-3. Richer harbor (12) — after 11  
-4. **Living Economy (14)** — after harbor; thin slices 14A–14F, not one mega-drop  
+2. TV/Media — DONE  
+3. Richer harbor (12) — DONE  
+4. **Living Economy (14)** — 14A DONE · **14B now** · then 14C–14F  
 5. Final Phase 13 — last  
+
+## Layer 14B verify
+
+1. The Harvest + The Wardrobe visible near the square.
+2. [E] buy spends Axiom; stock drops; item in inventory.
+3. Store owner (Genesis / Montage) earns the sale.
+
+## Layer 14A verify
+
+1. HUD shows Mom Axiom ⨁ balance.
+2. Fish +⨁2 · family work arrive +⨁3.
+3. Near someone **[G]** gifts ⨁5 (balance drops / theirs rises).
+
+## Layer 12 verify
+
+1. Pier **[E] Fish** — named catch in inventory; cooldown.
+2. Sail to far shore → **[E]** place hut/crates/garden/beacon — still there after restart.
+3. Honest if Hearth down (local-only note).
 
 ## Layer 14 — Living Economy (queued detail)
 
@@ -50,7 +68,7 @@ Currency: **Axiom (⨁)**. Storage hall already exists. Hearth is truth; dashboa
 
 1. Cinema **[E] Watch** — screen live / still from `media/watch/`.
 2. Honest idle if no file.
-3. Pool south behind cottages (not on Gemini/Apex square path).
+3. Does not pretend Mode A Resolve/Blender is running.
 
 ## Later (not now)
 

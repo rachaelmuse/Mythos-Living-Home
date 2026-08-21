@@ -13,6 +13,7 @@ var dialogue_label: Label
 var hint_label: Label
 var place_label: Label
 var life_label: Label
+var axiom_label: Label
 var debug_label: Label
 var _hearth_door: Area3D
 var _inside_hearth := false
@@ -65,10 +66,16 @@ var _cinema_screen_mat: StandardMaterial3D
 var _cinema_title: Label3D
 var _watching := false
 var _watch_pulse := 0.0
+var _far_builds_root: Node3D
+var _far_builds_synced := 0
+var _fish_cd := 0.0
+var _last_seen_catches := -1
+var _shop_offer: Dictionary = {"grocery": 0, "clothing_store": 0}
 const FAR_SHORE := Vector3(8.0, 0.2, 68.0)
 const HARBOR_SHIP := Vector3(-6.5, 0.2, 52.5)
 const VILLAGE_WELL := Vector3(-8.5, 0.0, 7.5)
-const VILLAGE_POOL := Vector3(4.0, 0.0, -36.0)
+const STORE_GROCERY := Vector3(10.0, 0.0, 8.0)
+const STORE_CLOTHING := Vector3(-6.0, 0.0, -12.0)
 
 
 func _ready() -> void:
@@ -276,9 +283,10 @@ func _build_family_places() -> void:
 	_add_box(Vector3(0, 0.025, 34), Vector3(2.8, 0.03, 16), Color(0.4, 0.34, 0.26), false, "PathHarbor")
 	_build_gardens_and_holiday()
 	_build_harbor_edge()
-	_build_well_and_pool()
+	_build_well()
 	_build_far_shore_destination()
 	_build_storage_hall()
+	_build_village_shops()
 
 
 func _add_porch_light(pos: Vector3, color: Color) -> void:
@@ -703,6 +711,8 @@ func _on_home_updated(data: Dictionary) -> void:
 	_play_overhear(data)
 	_sync_family_chat_room(data)
 	_apply_media_state(data)
+	_sync_far_shore_builds(data)
+	_apply_axiom_hud(data)
 	var gifts_for_wall: Variant = data.get("gifts")
 	_refresh_gifts(gifts_for_wall if gifts_for_wall is Array else [])
 	var clock_v: Variant = data.get("clock")
@@ -744,6 +754,43 @@ func _on_home_updated(data: Dictionary) -> void:
 		]
 		if fail_n and debug_label and _debug:
 			debug_label.text = "Open health notes: %d (F1 hides). No silent hide." % fail_n
+
+
+func _apply_axiom_hud(data: Dictionary) -> void:
+	## Layer 14A — Mom's Axiom ⨁ balance (Hearth truth).
+	if axiom_label == null:
+		return
+	var bal := -1
+	var fam_v: Variant = data.get("family")
+	if fam_v is Array:
+		for person in fam_v:
+			if person is Dictionary and str(person.get("id")) == "mom":
+				bal = int(person.get("axiom", -1))
+				break
+	if bal < 0:
+		axiom_label.text = "Axiom ⨁ — seeding…"
+		return
+	axiom_label.text = "Your Axiom ⨁%d  ·  near someone: [G] gift ⨁5" % bal
+
+
+func _gift_axiom_near() -> void:
+	## Thin gift — Mom sends ⨁5 to the citizen she's standing next to.
+	var who := ""
+	for child in get_tree().get_nodes_in_group("family_citizen"):
+		if bool(child.get("player_near")):
+			who = str(child.get("member_id"))
+			if who == "" or who == "true" or who == "false":
+				if child.has_meta("family_id"):
+					who = str(child.get_meta("family_id"))
+			break
+	if who == "" or who == "mom":
+		_log_convo("Axiom", "Stand next to someone to gift ⨁5.", "system")
+		return
+	if _home and _home.has_method("axiom_transfer"):
+		_home.axiom_transfer(who, 5, "gift")
+		_log_convo("Axiom", "Sending ⨁5 to %s…" % who, "system")
+	else:
+		_log_convo("Axiom", "Hearth offline — gift not saved.", "system")
 
 
 func _play_overhear(data: Dictionary) -> void:
@@ -1186,21 +1233,24 @@ func _build_harbor_edge() -> void:
 	# Ships: one in dry dock, one tied at pier
 	_add_greybox_ship(Vector3(12, 0.55, 43.5), 0.0, "ShipDryDock")
 	_add_greybox_ship(Vector3(-6.5, -0.05, 52.5), 18.0, "ShipMoored")
-	_add_home_sign(Vector3(0, 3.2, 42.0), "Harbor · edge of town (PLACEHOLDER)", Color(0.65, 0.85, 1.0))
+	_add_home_sign(Vector3(0, 3.2, 42.0), "Harbor · edge of town · [E] fish", Color(0.65, 0.85, 1.0))
 	_add_home_sign(Vector3(12, 2.8, 40.5), "Dry dock", Color(0.85, 0.75, 0.55))
-	_add_home_sign(Vector3(-6.5, 2.6, 50.5), "Moored ship · travel", Color(0.75, 0.85, 0.95))
+	_add_home_sign(Vector3(-6.5, 2.6, 50.5), "Moored ship · sail to far shore", Color(0.75, 0.85, 0.95))
 
 
 func _build_far_shore_destination() -> void:
-	## First travel destination across the water — family can place thin builds here.
+	## First travel destination across the water — builds persist via Hearth.
 	var spit := FAR_SHORE
 	_add_box(spit + Vector3(0, 0.04, 0), Vector3(16, 0.1, 10), Color(0.34, 0.42, 0.28), false, "FarShoreLand")
 	_add_box(spit + Vector3(0, 0.28, -4.2), Vector3(4.0, 0.22, 3.5), Color(0.45, 0.32, 0.18), true, "FarShorePier")
 	_add_greybox_ship(spit + Vector3(-3.5, -0.05, -3.0), -12.0, "ShipFarShore")
 	_add_box(spit + Vector3(2.5, 0.55, 1.0), Vector3(1.2, 1.0, 1.2), Color(0.5, 0.42, 0.3), true, "BuildPlotMarker")
-	_add_home_sign(spit + Vector3(0, 3.0, 0), "Far shore · first destination (build here)", Color(0.7, 0.95, 0.75))
-	_add_home_sign(spit + Vector3(2.5, 2.4, 1.0), "[E] Place a build (PLACEHOLDER)", Color(0.95, 0.88, 0.55))
+	_add_home_sign(spit + Vector3(0, 3.0, 0), "Far shore · destination · build together", Color(0.7, 0.95, 0.75))
+	_add_home_sign(spit + Vector3(2.5, 2.4, 1.0), "[E] Place a build (persists)", Color(0.95, 0.88, 0.55))
 	_add_home_sign(spit + Vector3(-3.5, 2.4, -3.0), "[E] Sail home", Color(0.75, 0.85, 1.0))
+	_far_builds_root = Node3D.new()
+	_far_builds_root.name = "FarShoreBuilds"
+	add_child(_far_builds_root)
 
 
 func _add_greybox_ship(pos: Vector3, yaw_deg: float, node_name: String) -> void:
@@ -1220,10 +1270,8 @@ func _add_greybox_ship(pos: Vector3, yaw_deg: float, node_name: String) -> void:
 	root.add_child(sail)
 
 
-func _build_well_and_pool() -> void:
-	## Inland utilities near the square — not under homes, not the edge harbor.
-	## PLACEHOLDER: walk/look now; draw-water / swim actions later.
-	# Commons well — between plaza and garden path
+func _build_well() -> void:
+	## Commons well between plaza and garden — pool removed for now.
 	var well := Vector3(-8.5, 0, 7.5)
 	_add_box(well + Vector3(0, 0.08, 0), Vector3(3.2, 0.12, 3.2), Color(0.32, 0.3, 0.26), true, "WellPad")
 	_add_box(well + Vector3(0, 0.55, 0), Vector3(2.0, 0.9, 2.0), Color(0.42, 0.4, 0.36), true, "WellStone")
@@ -1237,19 +1285,6 @@ func _build_well_and_pool() -> void:
 	_add_box(well + Vector3(0, 1.9, 0), Vector3(0.08, 0.9, 0.08), Color(0.25, 0.2, 0.12), false, "WellRope")
 	_add_box(well + Vector3(0, 1.35, 0.15), Vector3(0.45, 0.35, 0.45), Color(0.35, 0.28, 0.18), false, "WellBucket")
 	_add_home_sign(well + Vector3(0, 3.1, 0), "Village well · [E] draw water", Color(0.75, 0.9, 1.0))
-
-	# Village pool — BEHIND the town (south of cottages), community amenity — not on square / Gemini–Apex paths.
-	var pool := Vector3(4.0, 0, -36.0)
-	_add_box(pool + Vector3(0, 0.06, 0), Vector3(5.6, 0.12, 4.2), Color(0.4, 0.38, 0.34), true, "PoolDeck")
-	_add_box(pool + Vector3(0, 0.32, -1.95), Vector3(5.6, 0.45, 0.35), Color(0.55, 0.52, 0.48), true, "PoolWallN")
-	_add_box(pool + Vector3(0, 0.32, 1.95), Vector3(5.6, 0.45, 0.35), Color(0.55, 0.52, 0.48), true, "PoolWallS")
-	_add_box(pool + Vector3(-2.7, 0.32, 0), Vector3(0.35, 0.45, 3.6), Color(0.55, 0.52, 0.48), true, "PoolWallW")
-	_add_box(pool + Vector3(2.7, 0.32, 0), Vector3(0.35, 0.45, 3.6), Color(0.55, 0.52, 0.48), true, "PoolWallE")
-	var pool_water := _add_box(pool + Vector3(0, 0.2, 0), Vector3(4.8, 0.24, 3.4), Color(0.18, 0.52, 0.68), false, "PoolWater")
-	if pool_water and pool_water.material_override:
-		(pool_water.material_override as StandardMaterial3D).roughness = 0.12
-	_add_box(Vector3(4.0, 0.025, -30.0), Vector3(2.4, 0.04, 10.0), Color(0.4, 0.34, 0.26), false, "PathPool")
-	_add_home_sign(pool + Vector3(0, 2.4, -2.2), "Community pool · behind town · [E] swim", Color(0.65, 0.9, 1.0))
 
 
 func _build_storage_hall() -> void:
@@ -1266,6 +1301,27 @@ func _build_storage_hall() -> void:
 	_add_porch_light(pos + Vector3(3.2, 2.2, 0), Color(1.0, 0.85, 0.55))
 	_add_home_sign(pos + Vector3(3.4, 3.2, 0), "Village Storage — goods & keeps", Color(0.95, 0.85, 0.6))
 	_add_box(Vector3(-10, 0.025, 2), Vector3(8, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathStorage")
+
+
+func _build_village_shops() -> void:
+	## Layer 14B — The Harvest + The Wardrobe (greybox shops; buy via Hearth).
+	var g := STORE_GROCERY
+	_build_open_building(g, Vector3(5.5, 2.6, 4.8), Color(0.48, 0.42, 0.28), "GroceryShop", "z-")
+	_add_roof(g + Vector3(0, 2.95, 0), Vector3(6.0, 0.55, 5.3), Color(0.32, 0.38, 0.22))
+	_add_box(g + Vector3(-1.4, 0.55, 0.6), Vector3(1.4, 1.0, 0.7), Color(0.55, 0.35, 0.2), true, "GroceryCrate")
+	_add_box(g + Vector3(1.2, 0.7, 0.4), Vector3(1.6, 0.15, 0.8), Color(0.7, 0.55, 0.3), true, "GroceryTable")
+	_add_porch_light(g + Vector3(0, 2.4, -2.6), Color(1.0, 0.9, 0.55))
+	_add_home_sign(g + Vector3(0, 3.1, -2.7), "The Harvest · grocery · [E] buy", Color(0.85, 0.95, 0.55))
+	_add_box(Vector3(5.0, 0.025, 4.0), Vector3(8.0, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathGrocery")
+
+	var c := STORE_CLOTHING
+	_build_open_building(c, Vector3(5.2, 2.7, 4.6), Color(0.45, 0.38, 0.48), "ClothingShop", "z+")
+	_add_roof(c + Vector3(0, 3.05, 0), Vector3(5.8, 0.55, 5.1), Color(0.35, 0.28, 0.4))
+	_add_box(c + Vector3(-1.2, 0.9, -0.5), Vector3(0.2, 1.6, 1.2), Color(0.55, 0.65, 0.85), false, "ClothRackA")
+	_add_box(c + Vector3(1.3, 0.9, -0.3), Vector3(0.2, 1.6, 1.2), Color(0.75, 0.45, 0.4), false, "ClothRackB")
+	_add_porch_light(c + Vector3(0, 2.5, 2.5), Color(0.95, 0.8, 1.0))
+	_add_home_sign(c + Vector3(0, 3.2, 2.6), "The Wardrobe · clothing · [E] buy", Color(0.9, 0.75, 1.0))
+	_add_box(Vector3(-3.0, 0.025, -6.0), Vector3(6.0, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathClothing")
 
 
 func _build_hearth_interior() -> void:
@@ -1306,7 +1362,7 @@ func _make_box_mesh(pos: Vector3, size: Vector3, color: Color, collide: bool, no
 	if collide:
 		var body := StaticBody3D.new()
 		# Ground + room floors = layer 1 (walkable). Walls/furniture = layer 2.
-		# Well/Pool solids also layer 1 so wildlife (mask 1) cannot walk through them.
+		# Well solids also layer 1 so wildlife (mask 1) cannot walk through them.
 		# Family citizens mask only layer 1 so PLACEHOLDER pathing is not trapped in cubes.
 		# Mom/player masks 1|2 so walls still matter, but doors must stay wide enough.
 		var walkable := (
@@ -1317,7 +1373,6 @@ func _make_box_mesh(pos: Vector3, size: Vector3, color: Color, collide: bool, no
 		)
 		var blocks_wildlife := (
 			node_name.begins_with("Well")
-			or node_name.begins_with("Pool")
 		) and not node_name.ends_with("Water")
 		body.collision_layer = 1 if (walkable or blocks_wildlife) else 2
 		body.collision_mask = 0
@@ -1530,47 +1585,73 @@ func _build_hud() -> void:
 	_hud_layer.layer = 20
 	add_child(_hud_layer)
 
+	# Top-left stack — spaced so lines never overlap (≈22px steps).
+	# Darker text for readability over bright sky/ground.
 	hint_label = Label.new()
 	hint_label.text = "WASD · Mouse · Tab/Open Chat · Esc menu · Leave World exits"
 	hint_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	hint_label.offset_left = 16
-	hint_label.offset_top = 10
-	hint_label.offset_right = -16
-	hint_label.offset_bottom = 36
-	hint_label.add_theme_font_size_override("font_size", 14)
+	hint_label.offset_top = 8
+	hint_label.offset_right = -180
+	hint_label.offset_bottom = 28
+	hint_label.add_theme_font_size_override("font_size", 13)
+	hint_label.add_theme_color_override("font_color", Color(0.22, 0.24, 0.2, 1.0))
+	hint_label.add_theme_color_override("font_outline_color", Color(0.92, 0.93, 0.88, 0.85))
+	hint_label.add_theme_constant_override("outline_size", 4)
 	_hud_layer.add_child(hint_label)
 
 	place_label = Label.new()
-	place_label.position = Vector2(16, 40)
-	place_label.add_theme_font_size_override("font_size", 18)
-	place_label.modulate = Color(0.75, 0.9, 0.85)
+	place_label.position = Vector2(16, 32)
+	place_label.add_theme_font_size_override("font_size", 17)
+	place_label.add_theme_color_override("font_color", Color(0.18, 0.28, 0.24, 1.0))
+	place_label.add_theme_color_override("font_outline_color", Color(0.92, 0.95, 0.9, 0.9))
+	place_label.add_theme_constant_override("outline_size", 5)
 	place_label.text = "Place: Mom's cottage door — walk into the gold glow"
 	_hud_layer.add_child(place_label)
 
 	life_label = Label.new()
-	life_label.position = Vector2(16, 64)
-	life_label.add_theme_font_size_override("font_size", 14)
-	life_label.modulate = Color(0.85, 0.82, 0.7, 0.9)
+	life_label.position = Vector2(16, 56)
+	life_label.add_theme_font_size_override("font_size", 13)
+	life_label.add_theme_color_override("font_color", Color(0.28, 0.26, 0.18, 1.0))
+	life_label.add_theme_color_override("font_outline_color", Color(0.94, 0.93, 0.88, 0.88))
+	life_label.add_theme_constant_override("outline_size", 4)
 	life_label.text = "Cottages ≠ workplaces. Look for named home signs."
 	_hud_layer.add_child(life_label)
 
+	axiom_label = Label.new()
+	axiom_label.position = Vector2(16, 76)
+	axiom_label.add_theme_font_size_override("font_size", 14)
+	axiom_label.add_theme_color_override("font_color", Color(0.32, 0.26, 0.08, 1.0))
+	axiom_label.add_theme_color_override("font_outline_color", Color(0.96, 0.94, 0.82, 0.92))
+	axiom_label.add_theme_constant_override("outline_size", 5)
+	axiom_label.text = "Axiom ⨁ — waiting for Hearth…"
+	_hud_layer.add_child(axiom_label)
+
 	_season_label = Label.new()
-	_season_label.position = Vector2(16, 86)
-	_season_label.add_theme_font_size_override("font_size", 13)
-	_season_label.modulate = Color(0.75, 0.88, 0.82, 0.9)
+	_season_label.position = Vector2(16, 98)
+	_season_label.add_theme_font_size_override("font_size", 12)
+	_season_label.add_theme_color_override("font_color", Color(0.2, 0.28, 0.24, 1.0))
+	_season_label.add_theme_color_override("font_outline_color", Color(0.92, 0.95, 0.9, 0.88))
+	_season_label.add_theme_constant_override("outline_size", 4)
 	_season_label.text = "Season: — · Weather: —"
 	_hud_layer.add_child(_season_label)
 
+	# Holiday name rides on season_label — no extra overlapping line.
+	_holiday_label = null
+
 	debug_label = Label.new()
-	debug_label.position = Vector2(16, 88)
-	debug_label.add_theme_font_size_override("font_size", 13)
-	debug_label.modulate = Color(0.8, 0.7, 0.6, 0.0)
+	debug_label.position = Vector2(16, 120)
+	debug_label.add_theme_font_size_override("font_size", 12)
+	debug_label.add_theme_color_override("font_color", Color(0.35, 0.28, 0.2, 1.0))
+	debug_label.modulate = Color(1, 1, 1, 0.0)
 	_hud_layer.add_child(debug_label)
 
 	prompt_label = Label.new()
-	prompt_label.position = Vector2(16, 108)
-	prompt_label.add_theme_font_size_override("font_size", 17)
-	prompt_label.modulate = Color(1.0, 0.9, 0.55)
+	prompt_label.position = Vector2(16, 142)
+	prompt_label.add_theme_font_size_override("font_size", 16)
+	prompt_label.add_theme_color_override("font_color", Color(0.28, 0.22, 0.06, 1.0))
+	prompt_label.add_theme_color_override("font_outline_color", Color(0.97, 0.95, 0.82, 0.95))
+	prompt_label.add_theme_constant_override("outline_size", 5)
 	_hud_layer.add_child(prompt_label)
 
 	# Bottom-left shared conversation — log + Mom type line always available.
@@ -1620,11 +1701,13 @@ func _build_hud() -> void:
 	dialogue_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	dialogue_label.offset_left = 12
 	dialogue_label.offset_top = -372
-	dialogue_label.offset_right = 520
+	dialogue_label.offset_right = 440
 	dialogue_label.offset_bottom = -344
 	dialogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	dialogue_label.add_theme_font_size_override("font_size", 14)
-	dialogue_label.modulate = Color(0.85, 0.9, 0.82, 0.85)
+	dialogue_label.add_theme_font_size_override("font_size", 13)
+	dialogue_label.add_theme_color_override("font_color", Color(0.2, 0.24, 0.18, 1.0))
+	dialogue_label.add_theme_color_override("font_outline_color", Color(0.92, 0.94, 0.88, 0.9))
+	dialogue_label.add_theme_constant_override("outline_size", 4)
 	_hud_layer.add_child(dialogue_label)
 
 	talk_target = OptionButton.new()
@@ -1666,41 +1749,47 @@ func _build_hud() -> void:
 	chat_open_btn.pressed.connect(_open_chat_room)
 	_hud_layer.add_child(chat_open_btn)
 
-	exit_btn = Button.new()
-	exit_btn.text = "Leave World"
-	exit_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	exit_btn.offset_left = -150
-	exit_btn.offset_top = 48
-	exit_btn.offset_right = -16
-	exit_btn.offset_bottom = 84
-	exit_btn.pressed.connect(_open_pause_menu)
-	_hud_layer.add_child(exit_btn)
-
 	_build_pause_menu()
 
+	# Honesty strip sits above Open Chat / Leave — not on top of them.
 	honest_label = Label.new()
 	honest_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	honest_label.offset_left = 440
-	honest_label.offset_top = -48
+	honest_label.offset_left = 460
+	honest_label.offset_top = -96
 	honest_label.offset_right = -16
-	honest_label.offset_bottom = -8
+	honest_label.offset_bottom = -62
 	honest_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	honest_label.add_theme_font_size_override("font_size", 12)
-	honest_label.modulate = Color(0.72, 0.78, 0.7, 0.85)
+	honest_label.add_theme_font_size_override("font_size", 11)
+	honest_label.add_theme_color_override("font_color", Color(0.22, 0.26, 0.2, 1.0))
+	honest_label.add_theme_color_override("font_outline_color", Color(0.9, 0.92, 0.86, 0.9))
+	honest_label.add_theme_constant_override("outline_size", 4)
 	honest_label.text = "Homes≠jobs · Garden tend real · Ambiance: wind/birds/crickets · Posts honest"
 	_hud_layer.add_child(honest_label)
 
 	var title := Label.new()
 	title.text = "Heart Square"
 	title.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	title.offset_left = -220
-	title.offset_top = 12
+	title.offset_left = -200
+	title.offset_top = 10
 	title.offset_right = -16
-	title.offset_bottom = 40
+	title.offset_bottom = 36
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	title.add_theme_font_size_override("font_size", 20)
-	title.modulate = Color(0.9, 0.88, 0.78, 0.75)
+	title.add_theme_font_size_override("font_size", 18)
+	title.add_theme_color_override("font_color", Color(0.22, 0.22, 0.18, 1.0))
+	title.add_theme_color_override("font_outline_color", Color(0.94, 0.93, 0.88, 0.9))
+	title.add_theme_constant_override("outline_size", 5)
 	_hud_layer.add_child(title)
+
+	# Leave World below title (no overlap with title or Open Chat).
+	exit_btn = Button.new()
+	exit_btn.text = "Leave World"
+	exit_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	exit_btn.offset_left = -150
+	exit_btn.offset_top = 44
+	exit_btn.offset_right = -16
+	exit_btn.offset_bottom = 78
+	exit_btn.pressed.connect(_open_pause_menu)
+	_hud_layer.add_child(exit_btn)
 
 	var amb := AudioStreamPlayer.new()
 	amb.name = "AmbientPeriod"
@@ -1956,6 +2045,8 @@ func _on_hearth_exit(body: Node3D) -> void:
 
 
 func _process(delta: float) -> void:
+	if _fish_cd > 0.0:
+		_fish_cd = max(0.0, _fish_cd - delta)
 	if _watching and _cinema_screen_mat:
 		_watch_pulse += delta
 		var glow := 0.55 + 0.35 * sin(_watch_pulse * 2.2)
@@ -2008,13 +2099,18 @@ func _process(delta: float) -> void:
 		elif harbor_act == "travel":
 			prompt_label.text = "[E] Sail to far shore (first destination)"
 		elif harbor_act == "build":
-			prompt_label.text = "[E] Place a build on far shore (PLACEHOLDER)"
+			prompt_label.text = "[E] Place a build on far shore"
 		elif harbor_act == "fish":
-			prompt_label.text = "[E] Fish from the pier (PLACEHOLDER)"
+			if _fish_cd > 0.0:
+				prompt_label.text = "Fishing… line settling (%.0fs)" % ceil(_fish_cd)
+			else:
+				prompt_label.text = "[E] Fish from the pier"
 		elif harbor_act == "well":
 			prompt_label.text = "[E] Draw water from the well"
-		elif harbor_act == "swim":
-			prompt_label.text = "[E] Swim in the pool (PLACEHOLDER)"
+		elif harbor_act == "buy_grocery":
+			prompt_label.text = _shop_prompt("grocery")
+		elif harbor_act == "buy_clothing":
+			prompt_label.text = _shop_prompt("clothing_store")
 		elif _inside_hearth:
 			prompt_label.text = "Inside First Hearth. Tab / Open Chat anytime. Leave World (top-right) to exit."
 		else:
@@ -2113,13 +2209,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _player and _player.has_method("_capture_mouse"):
 			_player.call_deferred("_capture_mouse")
 		get_viewport().set_input_as_handled()
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_G:
+		if _paused_world or _talking_to != "" or (talk_input and talk_input.has_focus()):
+			return
+		_gift_axiom_near()
+		get_viewport().set_input_as_handled()
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_E:
 		if _paused_world or _talking_to != "" or (talk_input and talk_input.has_focus()):
 			return
 		var act := _world_action_near_player()
 		match act:
 			"fish":
-				_log_convo("Harbor", "You cast a line. Water ripples — catch stock still PLACEHOLDER.", "system")
+				_try_fish()
 				get_viewport().set_input_as_handled()
 			"travel":
 				_sail_to_far_shore()
@@ -2134,8 +2235,11 @@ func _unhandled_input(event: InputEvent) -> void:
 				_water_bucket += 1
 				_log_convo("Well", "Drew a bucket of water. (carried: %d — PLACEHOLDER inventory)" % _water_bucket, "system")
 				get_viewport().set_input_as_handled()
-			"swim":
-				_log_convo("Pool", "You splash in the village pool. Swim anim / cooldown still PLACEHOLDER.", "system")
+			"buy_grocery":
+				_try_shop_buy("grocery")
+				get_viewport().set_input_as_handled()
+			"buy_clothing":
+				_try_shop_buy("clothing_store")
 				get_viewport().set_input_as_handled()
 			"watch":
 				_toggle_cinema_watch(true)
@@ -2146,7 +2250,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _world_action_near_player() -> String:
-	## Pier / ship / far shore / well / pool / cinema — priority order for [E].
+	## Pier / ship / far shore / well / shops / cinema — priority order for [E].
 	if _player == null or not is_instance_valid(_player):
 		return ""
 	var p: Vector3 = _player.global_position
@@ -2154,7 +2258,8 @@ func _world_action_near_player() -> String:
 	var d_far := Vector2(p.x - FAR_SHORE.x, p.z - FAR_SHORE.z).length()
 	var d_pier := Vector2(p.x - 0.0, p.z - 48.5).length()
 	var d_well := Vector2(p.x - VILLAGE_WELL.x, p.z - VILLAGE_WELL.z).length()
-	var d_pool := Vector2(p.x - VILLAGE_POOL.x, p.z - VILLAGE_POOL.z).length()
+	var d_grocery := Vector2(p.x - STORE_GROCERY.x, p.z - STORE_GROCERY.z).length()
+	var d_clothing := Vector2(p.x - STORE_CLOTHING.x, p.z - STORE_CLOTHING.z).length()
 	var d_cinema := Vector2(p.x - 26.0, p.z - 14.0).length()
 	_at_far_shore = d_far < 9.0
 	if _at_far_shore:
@@ -2170,11 +2275,65 @@ func _world_action_near_player() -> String:
 		return "fish"
 	if d_cinema < 4.5:
 		return "watch_stop" if _watching else "watch"
+	if d_grocery < 3.6:
+		return "buy_grocery"
+	if d_clothing < 3.6:
+		return "buy_clothing"
 	if d_well < 2.8:
 		return "well"
-	if d_pool < 4.5:
-		return "swim"
 	return ""
+
+
+func _shop_offer_item(store_id: String) -> Dictionary:
+	## Current offered shelf item (cycles after each buy).
+	if _home == null or not (_home.data is Dictionary):
+		return {}
+	var stores_v: Variant = _home.data.get("stores")
+	if not (stores_v is Dictionary):
+		return {}
+	var store_v: Variant = (stores_v as Dictionary).get(store_id)
+	if not (store_v is Dictionary):
+		return {}
+	var inv_v: Variant = (store_v as Dictionary).get("inventory")
+	if not (inv_v is Array) or (inv_v as Array).is_empty():
+		return {}
+	var inv: Array = inv_v
+	var stocked: Array = []
+	for row in inv:
+		if row is Dictionary and int(row.get("stock", 0)) > 0:
+			stocked.append(row)
+	if stocked.is_empty():
+		return {}
+	var idx := int(_shop_offer.get(store_id, 0)) % stocked.size()
+	return stocked[idx]
+
+
+func _shop_prompt(store_id: String) -> String:
+	var item := _shop_offer_item(store_id)
+	var shop_name := "Shop"
+	if store_id == "grocery":
+		shop_name = "The Harvest"
+	elif store_id == "clothing_store":
+		shop_name = "The Wardrobe"
+	if item.is_empty():
+		return "%s — sold out for now" % shop_name
+	return "[E] Buy %s · ⨁%d  (stock %d)" % [str(item.get("name", "?")), int(item.get("price", 0)), int(item.get("stock", 0))]
+
+
+func _try_shop_buy(store_id: String) -> void:
+	var item := _shop_offer_item(store_id)
+	if item.is_empty():
+		_log_convo("Shop", "Nothing left on this shelf.", "system")
+		return
+	var item_id := str(item.get("id", ""))
+	var name := str(item.get("name", item_id))
+	var price := int(item.get("price", 0))
+	_log_convo("Shop", "Buying %s for ⨁%d…" % [name, price], "system")
+	if _home and _home.has_method("store_buy"):
+		_home.store_buy(store_id, item_id, 1)
+		_shop_offer[store_id] = int(_shop_offer.get(store_id, 0)) + 1
+	else:
+		_log_convo("Shop", "Hearth offline — purchase not saved.", "system")
 
 
 func _scan_watch_media() -> Dictionary:
@@ -2271,7 +2430,9 @@ func _sail_to_far_shore() -> void:
 	_player.global_position = FAR_SHORE + Vector3(0, 0.1, -2.5)
 	_player.velocity = Vector3.ZERO
 	_at_far_shore = true
-	_log_convo("Harbor", "Sailed to far shore — first destination. [E] near the marker to place a build, or at the ship to sail home.", "system")
+	_log_convo("Harbor", "Sailed to far shore. [E] at the plot to build (persists), or at the ship to sail home.", "system")
+	if _home and _home.has_method("harbor_action"):
+		_home.harbor_action("sail", "", "far_shore")
 
 
 func _sail_home_to_harbor() -> void:
@@ -2281,17 +2442,107 @@ func _sail_home_to_harbor() -> void:
 	_player.velocity = Vector3.ZERO
 	_at_far_shore = false
 	_log_convo("Harbor", "Sailed home to the village harbor.", "system")
+	if _home and _home.has_method("harbor_action"):
+		_home.harbor_action("sail", "", "harbor")
+
+
+func _try_fish() -> void:
+	if _fish_cd > 0.0:
+		_log_convo("Harbor", "Line still settling — wait a moment.", "system")
+		return
+	_fish_cd = 6.0
+	_log_convo("Harbor", "You cast a line…", "system")
+	if _home and _home.has_method("harbor_action"):
+		_home.harbor_action("fish")
+	else:
+		_log_convo("Harbor", "Hearth offline — catch not saved.", "system")
 
 
 func _place_far_shore_build() -> void:
-	## Thin destination building — drops a greybox prop on the spit.
-	_dest_builds += 1
-	var n: int = _dest_builds
-	var offset := Vector3(float((n % 3) - 1) * 1.6, 0.35, float((n / 3) % 3) * 1.4)
+	## Destination builder — Hearth stores builds; Godot syncs greybox props.
+	if _home and _home.has_method("harbor_action"):
+		_home.harbor_action("build")
+		_log_convo("Far shore", "Placing a build — waiting for Hearth to seat it…", "system")
+	else:
+		_dest_builds += 1
+		var n: int = _dest_builds
+		var offset := Vector3(float((n % 3) - 1) * 1.6, 0.35, float((n / 3) % 3) * 1.4)
+		var pos := FAR_SHORE + Vector3(2.5, 0, 1.0) + offset
+		_spawn_shore_build_visual(n, "hut", "Build %d" % n, offset)
+		_log_convo("Far shore", "Hearth offline — local build %d only (won't persist)." % n, "system")
+
+
+func _sync_far_shore_builds(data: Dictionary) -> void:
+	var dests_v: Variant = data.get("destinations")
+	if not (dests_v is Dictionary):
+		return
+	var shore_v: Variant = (dests_v as Dictionary).get("far_shore")
+	if not (shore_v is Dictionary):
+		return
+	var builds_v: Variant = (shore_v as Dictionary).get("builds")
+	if not (builds_v is Array):
+		return
+	var builds: Array = builds_v
+	if builds.size() == _far_builds_synced and _far_builds_root != null and _far_builds_root.get_child_count() == builds.size():
+		return
+	if _far_builds_root == null:
+		_far_builds_root = Node3D.new()
+		_far_builds_root.name = "FarShoreBuilds"
+		add_child(_far_builds_root)
+	for c in _far_builds_root.get_children():
+		c.queue_free()
+	_dest_builds = builds.size()
+	_far_builds_synced = builds.size()
+	for rec in builds:
+		if not (rec is Dictionary):
+			continue
+		var d: Dictionary = rec
+		var n := int(d.get("n", 0))
+		var kind := str(d.get("kind", "hut"))
+		var label := str(d.get("label", "Build"))
+		var off_v: Variant = d.get("offset")
+		var offset := Vector3.ZERO
+		if off_v is Array and (off_v as Array).size() >= 3:
+			var a: Array = off_v
+			offset = Vector3(float(a[0]), float(a[1]), float(a[2]))
+		_spawn_shore_build_visual(n, kind, label, offset)
+	var harb_v: Variant = data.get("harbor")
+	if harb_v is Dictionary:
+		var last_catch := str((harb_v as Dictionary).get("last_catch", ""))
+		var catches := int((harb_v as Dictionary).get("catches", 0))
+		if catches > _last_seen_catches and _last_seen_catches >= 0 and last_catch != "":
+			_log_convo("Harbor", "Caught a %s! (inventory · total %d)" % [last_catch, catches], "system")
+		_last_seen_catches = catches
+
+
+func _spawn_shore_build_visual(n: int, kind: String, label: String, offset: Vector3) -> void:
+	if _far_builds_root == null:
+		return
 	var pos := FAR_SHORE + Vector3(2.5, 0, 1.0) + offset
-	_add_box(pos, Vector3(1.1, 0.7, 1.1), Color(0.55, 0.4, 0.28), true, "FarBuild%d" % n)
-	_add_home_sign(pos + Vector3(0, 1.2, 0), "Build %d" % n, Color(0.95, 0.85, 0.55))
-	_log_convo("Far shore", "Placed build %d. Destinations grow here — richer builder later." % n, "system")
+	var col := Color(0.55, 0.4, 0.28)
+	var size := Vector3(1.1, 0.7, 1.1)
+	match kind:
+		"crates":
+			col = Color(0.48, 0.34, 0.2)
+			size = Vector3(1.2, 0.9, 1.0)
+		"garden_box":
+			col = Color(0.35, 0.48, 0.28)
+			size = Vector3(1.4, 0.45, 1.4)
+		"beacon":
+			col = Color(0.7, 0.55, 0.25)
+			size = Vector3(0.35, 1.8, 0.35)
+		_:
+			col = Color(0.55, 0.4, 0.28)
+			size = Vector3(1.3, 1.0, 1.3)
+	var mi := _make_box_mesh(pos, size, col, true, "FarBuild%d" % n)
+	_far_builds_root.add_child(mi)
+	var sign := Label3D.new()
+	sign.text = label
+	sign.font_size = 28
+	sign.modulate = Color(0.95, 0.88, 0.55)
+	sign.position = pos + Vector3(0, size.y * 0.5 + 0.55, 0)
+	sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_far_builds_root.add_child(sign)
 
 
 func _on_squirrel_chatter(line: String) -> void:

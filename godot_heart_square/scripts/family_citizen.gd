@@ -323,7 +323,7 @@ func _door_spec(place_id: String) -> Dictionary:
 			return {"face": "x-", "hw": 3.5, "hd": 3.1}
 		"codex_library":
 			return {"face": "x+", "hw": 3.1, "hd": 2.9}
-		"garden", "wildlife", "heart_square", "harbor", "well", "pool", "far_shore", "storage":
+		"garden", "wildlife", "heart_square", "harbor", "well", "far_shore", "storage", "grocery", "clothing_store":
 			return {"face": "none", "hw": 0.0, "hd": 0.0}
 		_:
 			return {"face": "z+", "hw": 2.5, "hd": 2.2}
@@ -401,7 +401,7 @@ func apply_home(person: Dictionary, places: Dictionary) -> void:
 			place_x = float((pos2 as Array)[0])
 			place_z = float((pos2 as Array)[2])
 
-	_has_structure = place_x != INF and pl not in ["garden", "wildlife", "heart_square", "harbor", "well", "pool", "far_shore", "storage"]
+	_has_structure = place_x != INF and pl not in ["garden", "wildlife", "heart_square", "harbor", "well", "far_shore", "storage", "grocery", "clothing_store"]
 	if place_x != INF:
 		var h: int = absi(hash(member_id))
 		_door_xz = _door_approach(pl, place_x, place_z)

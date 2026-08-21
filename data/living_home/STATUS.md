@@ -2,17 +2,16 @@
 
 ## CURRENT PHASE
 
-**Layer 11 TV/Media IN PROGRESS.** Layer 14 Living Economy **QUEUED** (after 11–12). Final Phase 13 last.
+**Layer 14B shops IN PROGRESS.** 14A wallets **DONE**.
 
 ## Closed
 
-- 8A–8C · Harbor/well/far shore · Mom memory · Sound · Storage  
-- Pool moved behind town (Mom request)
+- Through Layer 12 harbor · 14A Axiom wallets · HUD readable
 
 ## Standing order
 
-11 TV → 12 richer harbor → **14 Living Economy** → final Phase 13 last.
+**14B grocery/clothing** → 14C pet/electronics → 14D avatar → … → Phase 13 last.
 
 ## Next
 
-Mom OK on cinema watch, then harbor, then economy slices.
+Mom: restart Hearth + Enter; buy bread / tunic.
