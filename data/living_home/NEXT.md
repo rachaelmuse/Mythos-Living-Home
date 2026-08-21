@@ -7,14 +7,16 @@ Tracker: `data/living_home/PHASE_LAYERS.md`
 
 ## CURRENT PHASE
 
-**Layer 14B — Grocery + clothing shops.**  
-14A wallets **DONE**. Next after OK: **14C** electronics + pet store.
+**Layer 15 — Connection** (15A prove → 15B choice → 15C growth → 15D dash).  
+**Layer 16 — Integration & Autonomous Life (Phase 6)** is **QUEUED** after 15 closes.
 
 ## Next task
 
-1. Restart Hearth + Enter.
-2. **The Harvest** (east of square, ~10,8) — [E] buy food.
-3. **The Wardrobe** (near court, ~-6,-12) — [E] buy clothes.
-4. Balance drops; item in Mom inventory; owner earns sale.
+1. Finish proving **15A** in the village (gift / talk / bond / mood).
+2. Then **15B** (weighted who-to-be-with choices).
+3. Then **15C–15D**.
+4. Only then open **16A** (tick integration — no mega background engine).
+
+Ops: shops live on **Market Lane** north of the Gate — restart Hearth + Enter if you have not since the move.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.

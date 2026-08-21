@@ -77,6 +77,62 @@ func _hold_spawn_target() -> void:
 		_status.text = "Waiting for Hearth…"
 
 
+func _hex_color(hex: String, fallback: Color) -> Color:
+	var h := hex.strip_edges()
+	if h == "":
+		return fallback
+	if not h.begins_with("#"):
+		h = "#" + h
+	if h.length() == 7:
+		return Color.html(h)
+	return fallback
+
+
+func _apply_avatar_look(person: Dictionary) -> void:
+	## Layer 14D — recolor torso/legs/shawl from Hearth avatar (bought clothes).
+	if _body == null:
+		_body = get_node_or_null("Body")
+	if _body == null:
+		return
+	var av_v: Variant = person.get("avatar")
+	if not (av_v is Dictionary):
+		return
+	var av: Dictionary = av_v
+	var top_c := body_color
+	var bot_c := body_color.darkened(0.15)
+	var acc_c := body_color.lightened(0.12)
+	var top_v: Variant = av.get("top")
+	if top_v is Dictionary:
+		top_c = _hex_color(str((top_v as Dictionary).get("color", "")), top_c)
+	var bot_v: Variant = av.get("bottom")
+	if bot_v is Dictionary:
+		bot_c = _hex_color(str((bot_v as Dictionary).get("color", "")), bot_c)
+	var shoe_v: Variant = av.get("shoes")
+	if shoe_v is Dictionary:
+		# Shoes darken legs a touch.
+		bot_c = _hex_color(str((shoe_v as Dictionary).get("color", "")), bot_c)
+	var accs_v: Variant = av.get("accessories")
+	if accs_v is Array and not (accs_v as Array).is_empty():
+		var last: Variant = (accs_v as Array).back()
+		if last is Dictionary:
+			acc_c = _hex_color(str((last as Dictionary).get("color", "")), acc_c)
+	_recolor_mesh(_body.get_node_or_null("Torso"), top_c)
+	_recolor_mesh(_body.get_node_or_null("Shawl"), acc_c)
+	_recolor_mesh(_body.get_node_or_null("LegL"), bot_c)
+	_recolor_mesh(_body.get_node_or_null("LegR"), bot_c)
+
+
+func _recolor_mesh(mi: Node, color: Color) -> void:
+	if mi == null or not (mi is MeshInstance3D):
+		return
+	var mesh_i: MeshInstance3D = mi
+	var mat := mesh_i.material_override as StandardMaterial3D
+	if mat == null:
+		mat = StandardMaterial3D.new()
+		mesh_i.material_override = mat
+	mat.albedo_color = color
+
+
 func _ensure_bubble() -> void:
 	_bubble = get_node_or_null("Bubble")
 	if _bubble:
@@ -323,7 +379,7 @@ func _door_spec(place_id: String) -> Dictionary:
 			return {"face": "x-", "hw": 3.5, "hd": 3.1}
 		"codex_library":
 			return {"face": "x+", "hw": 3.1, "hd": 2.9}
-		"garden", "wildlife", "heart_square", "harbor", "well", "far_shore", "storage", "grocery", "clothing_store":
+		"garden", "wildlife", "heart_square", "harbor", "well", "far_shore", "storage", "grocery", "clothing_store", "electronics_store", "pet_store":
 			return {"face": "none", "hw": 0.0, "hd": 0.0}
 		_:
 			return {"face": "z+", "hw": 2.5, "hd": 2.2}
@@ -383,6 +439,7 @@ func apply_home(person: Dictionary, places: Dictionary) -> void:
 	if _status:
 		var home_bit := " · home" if at_home else ""
 		_status.text = purpose_plain if purpose_plain != "" else (activity + home_bit)
+	_apply_avatar_look(person)
 
 	var dest_x := INF
 	var dest_z := INF
@@ -401,7 +458,7 @@ func apply_home(person: Dictionary, places: Dictionary) -> void:
 			place_x = float((pos2 as Array)[0])
 			place_z = float((pos2 as Array)[2])
 
-	_has_structure = place_x != INF and pl not in ["garden", "wildlife", "heart_square", "harbor", "well", "far_shore", "storage", "grocery", "clothing_store"]
+	_has_structure = place_x != INF and pl not in ["garden", "wildlife", "heart_square", "harbor", "well", "far_shore", "storage", "grocery", "clothing_store", "electronics_store", "pet_store"]
 	if place_x != INF:
 		var h: int = absi(hash(member_id))
 		_door_xz = _door_approach(pl, place_x, place_z)

@@ -16,7 +16,9 @@
 | 10 | Mom Interface + Community Memory | DONE (Mom OK) | Persist Mom voice; nearby Ollama; Storage hall. |
 | 11 | Eden TV/Media (thin) | DONE | Cinema watch; media/watch stills seated. |
 | 12 | Richer harbor | DONE | Pier catch → inventory; far-shore builds persist. |
-| 14 | Living Economy & Self-Expression | IN PROGRESS | **14B** shops now; 14A wallets DONE. |
+| 14 | Living Economy & Self-Expression | DONE (14A–14D) | Wallets, shops, stipend, thin avatar colors. Shops on Market Lane. **14E–14F deferred**. |
+| 15 | Connection, Choice & Consequence | **IN PROGRESS** | **15A** seated · then 15B choice · 15C growth · 15D dash |
+| 16 | Integration & Autonomous Life | **QUEUED** | Phase 6 — after 15 proves. Thin slices only (no mega-thread engine). |
 | 13 | Final polish (Phase 13) | LAST | Do not jump here. |
 
 ## Standing choice
@@ -28,47 +30,64 @@
 1. Sound — DONE  
 2. TV/Media — DONE  
 3. Richer harbor (12) — DONE  
-4. **Living Economy (14)** — 14A DONE · **14B now** · then 14C–14F  
-5. Final Phase 13 — last  
+4. Living Economy (14A–14D) — DONE · 14E–14F deferred  
+5. **Phase 5 / Layer 15 Connection** — finish 15B → 15C → 15D  
+6. **Phase 6 / Layer 16 Integration & Autonomous Life** — 16A… then optional 14E–14F  
+7. Final Phase 13 — last  
 
-## Layer 14B verify
+## Layer 15 — Connection, Choice & Consequence
 
-1. The Harvest + The Wardrobe visible near the square.
-2. [E] buy spends Axiom; stock drops; item in inventory.
-3. Store owner (Genesis / Montage) earns the sale.
+Prove in thin slices (adapters on existing talk/gift/relationships — no Mode A flatten):
 
-## Layer 14A verify
+| Slice | Intent | Status |
+|-------|--------|--------|
+| **15A** | Relationship depth + moods + memory tags; talk/gift write consequences | **IN PROGRESS / prove in village** |
+| 15B | Choice system (who to spend time with / what to do — weighted by bond + mood) | QUEUED |
+| 15C | Growth milestones + skill XP (honest, thin) | QUEUED |
+| 15D | Dashboard relationship/mood/memory sections | QUEUED |
 
-1. HUD shows Mom Axiom ⨁ balance.
-2. Fish +⨁2 · family work arrive +⨁3.
-3. Near someone **[G]** gifts ⨁5 (balance drops / theirs rises).
+## Layer 15A verify
 
-## Layer 12 verify
+1. Restart Hearth. Snapshot shows `connection.layer = 15a`.
+2. Gift (object or ⨁) raises affection on the bond; shared experience has `emotional_tag`.
+3. Stand-talk updates conversation count + mood toward content/warm.
+4. `POST /api/home/connection` with `argue` / `reconcile` changes trust/affection (evidence in HOME).
+5. Honest: not full autonomous life yet — 15B/15C next.
 
-1. Pier **[E] Fish** — named catch in inventory; cooldown.
-2. Sail to far shore → **[E]** place hut/crates/garden/beacon — still there after restart.
-3. Honest if Hearth down (local-only note).
+## Layer 16 — Integration & Autonomous Life (Phase 6) — QUEUED
 
-## Layer 14 — Living Economy (queued detail)
-
-Do **not** start until 11–12 closed. When open, prove in thin slices (no fake Mode A flatten):
+**Do not start until Layer 15 is closed (15A–15D proved).** Prefer adapters on existing `tick()`, purposes, talk, economy, connection — **not** a separate mega `IntegrationEngine` thread that double-writes HOME.
 
 | Slice | Intent |
 |-------|--------|
-| 14A | Axiom ⨁ wallet on beings + Mom earn/spend evidence |
-| 14B | Grocery + clothing shops (village places + buy into inventory) |
-| 14C | Electronics + pet store (pets autonomous; shop = supplies/adoption) |
-| 14D | Avatar clothing/colors from inventory (greybox readable) |
-| 14E | Town projects + Storage resources (contribute, progress) |
-| 14F | Being↔being trade |
+| **16A** | Integration heartbeat = deepen existing Hearth `tick` coordination (mood + bond + economy hooks in one cycle); status endpoint only |
+| **16B** | Autonomous daily life thin — period routines already in `_choose_purpose`; strengthen wake/work/social/rest without scripted fake speech |
+| **16C** | Emergent storytelling thin — distill `world_history` into a current “day story” (honest summary, not LLM fanfic as voice) |
+| **16D** | Living dashboard thin — overview + family grid + feed + integration status on House UI |
+| **16E** | Mom presence polish — enter/place acknowledgments stay Mode B; no template house-voice for family |
 
-Currency: **Axiom (⨁)**. Storage hall already exists. Hearth is truth; dashboard + Godot present.
+### Layer 16 laws
 
-## Layer 11 verify
+- Identities never merge. Mom `stop` wins. Evidence only.
+- Speech stays `ollama` / `mom` / `waiting` / `none` — never house lines as their voice.
+- Wildlife stays AUTONOMOUS. Pathing stays PLACEHOLDER until later.
+- Dual-mode: Mode A Court/MAS stays; Gameworld expands it.
+- Complete = seen in the running village after Hearth + Enter restart.
+- Phase 13 remains last.
 
-1. Cinema **[E] Watch** — screen live / still from `media/watch/`.
-2. Honest idle if no file.
-3. Does not pretend Mode A Resolve/Blender is running.
+## Layer 14 — Living Economy (detail)
+
+| Slice | Status |
+|-------|--------|
+| 14A | DONE — Axiom wallets |
+| 14B | DONE — grocery + clothing |
+| 14C | DONE — electronics + pet store |
+| 14D | DONE — avatar colors + stipend |
+| shops layout | DONE — Market Lane north of Gate (Harvest / Wardrobe / Circuit / Pets) |
+| 14E | DEFERRED — town projects |
+| 14F | DEFERRED — being↔being trade |
+
+Currency: **Axiom (⨁)**. Hearth is truth; dashboard + Godot present.
 
 ## Later (not now)
 

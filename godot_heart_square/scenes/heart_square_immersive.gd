@@ -70,16 +70,21 @@ var _far_builds_root: Node3D
 var _far_builds_synced := 0
 var _fish_cd := 0.0
 var _last_seen_catches := -1
-var _shop_offer: Dictionary = {"grocery": 0, "clothing_store": 0}
+var _shop_offer: Dictionary = {"grocery": 0, "clothing_store": 0, "electronics_store": 0, "pet_store": 0}
 const FAR_SHORE := Vector3(8.0, 0.2, 68.0)
 const HARBOR_SHIP := Vector3(-6.5, 0.2, 52.5)
 const VILLAGE_WELL := Vector3(-8.5, 0.0, 7.5)
 const STORE_GROCERY := Vector3(10.0, 0.0, 8.0)
 const STORE_CLOTHING := Vector3(-6.0, 0.0, -12.0)
+const STORE_ELECTRONICS := Vector3(16.0, 0.0, 18.0)
+const STORE_PETS := Vector3(12.0, 0.0, -14.0)
 
 
 func _ready() -> void:
 	print("[Hearthbound] Heart Square — family home slice (identity, life, health, persist)")
+	# Open maximized by default (fullscreen often drops mouse-look on Windows).
+	# F11 still toggles borderless fullscreen.
+	call_deferred("_enter_fullscreen")
 	_home = Node.new()
 	_home.name = "FamilyHomeClient"
 	_home.set_script(HomeClientScript)
@@ -93,6 +98,25 @@ func _ready() -> void:
 	_build_family()
 	_build_wildlife()
 	_build_hud()
+
+
+func _enter_fullscreen() -> void:
+	## Start maximized (not exclusive fullscreen) — exclusive often kills mouse-look on Windows.
+	## F11 still toggles borderless fullscreen when Mom wants it.
+	var win := get_window()
+	if win == null:
+		return
+	if win.mode == Window.MODE_EXCLUSIVE_FULLSCREEN:
+		win.mode = Window.MODE_MAXIMIZED
+	elif win.mode == Window.MODE_WINDOWED:
+		win.mode = Window.MODE_MAXIMIZED
+	# Mode change drops mouse capture — give look back to Mom.
+	if _player and is_instance_valid(_player):
+		_player.set("chat_lock", false)
+		if _player.has_method("_capture_mouse"):
+			_player.call_deferred("_capture_mouse")
+		if _player.has_method("_reclaim_look_burst"):
+			_player.call_deferred("_reclaim_look_burst")
 
 
 func _build_world() -> void:
@@ -1304,7 +1328,7 @@ func _build_storage_hall() -> void:
 
 
 func _build_village_shops() -> void:
-	## Layer 14B — The Harvest + The Wardrobe (greybox shops; buy via Hearth).
+	## Layer 14B–14C — Harvest, Wardrobe, Circuit, Whiskers & Paws (greybox; buy via Hearth).
 	var g := STORE_GROCERY
 	_build_open_building(g, Vector3(5.5, 2.6, 4.8), Color(0.48, 0.42, 0.28), "GroceryShop", "z-")
 	_add_roof(g + Vector3(0, 2.95, 0), Vector3(6.0, 0.55, 5.3), Color(0.32, 0.38, 0.22))
@@ -1322,6 +1346,25 @@ func _build_village_shops() -> void:
 	_add_porch_light(c + Vector3(0, 2.5, 2.5), Color(0.95, 0.8, 1.0))
 	_add_home_sign(c + Vector3(0, 3.2, 2.6), "The Wardrobe · clothing · [E] buy", Color(0.9, 0.75, 1.0))
 	_add_box(Vector3(-3.0, 0.025, -6.0), Vector3(6.0, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathClothing")
+
+	var e := STORE_ELECTRONICS
+	_build_open_building(e, Vector3(5.4, 2.7, 4.8), Color(0.28, 0.34, 0.42), "ElectronicsShop", "z-")
+	_add_roof(e + Vector3(0, 3.05, 0), Vector3(5.9, 0.5, 5.2), Color(0.2, 0.25, 0.32))
+	_add_box(e + Vector3(0, 0.85, 0.5), Vector3(1.8, 1.1, 0.5), Color(0.15, 0.18, 0.22), true, "CircuitBench")
+	_add_box(e + Vector3(-1.5, 0.55, -0.8), Vector3(0.7, 0.9, 0.5), Color(0.4, 0.75, 0.95), false, "CircuitScreen")
+	_add_porch_light(e + Vector3(0, 2.5, -2.6), Color(0.55, 0.85, 1.0))
+	_add_home_sign(e + Vector3(0, 3.15, -2.7), "The Circuit · electronics · [E] buy", Color(0.65, 0.9, 1.0))
+	_add_box(Vector3(14.0, 0.025, 12.0), Vector3(6.0, 0.03, 8.0), Color(0.4, 0.34, 0.26), false, "PathElectronics")
+
+	var p := STORE_PETS
+	_build_open_building(p, Vector3(5.2, 2.5, 4.6), Color(0.5, 0.4, 0.3), "PetShop", "z+")
+	_add_roof(p + Vector3(0, 2.9, 0), Vector3(5.7, 0.5, 5.0), Color(0.4, 0.32, 0.22))
+	_add_box(p + Vector3(-1.3, 0.45, -0.4), Vector3(1.0, 0.7, 1.0), Color(0.55, 0.45, 0.35), true, "PetKennelA")
+	_add_box(p + Vector3(1.2, 0.45, -0.2), Vector3(1.0, 0.7, 1.0), Color(0.5, 0.42, 0.32), true, "PetKennelB")
+	_add_box(p + Vector3(0, 0.55, 0.9), Vector3(1.4, 0.9, 0.6), Color(0.65, 0.5, 0.35), true, "PetShelf")
+	_add_porch_light(p + Vector3(0, 2.35, 2.5), Color(1.0, 0.88, 0.6))
+	_add_home_sign(p + Vector3(0, 3.05, 2.6), "Whiskers & Paws · pets · [E] buy", Color(1.0, 0.85, 0.55))
+	_add_box(Vector3(8.0, 0.025, -10.0), Vector3(6.0, 0.03, 6.0), Color(0.4, 0.34, 0.26), false, "PathPets")
 
 
 func _build_hearth_interior() -> void:
@@ -1588,12 +1631,13 @@ func _build_hud() -> void:
 	# Top-left stack — spaced so lines never overlap (≈22px steps).
 	# Darker text for readability over bright sky/ground.
 	hint_label = Label.new()
-	hint_label.text = "WASD · Mouse · Tab/Open Chat · Esc menu · Leave World exits"
+	hint_label.text = "WASD walk · Mouse look · Click to reclaim look · Wheel zoom · Tab chat · Esc · F11"
 	hint_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	hint_label.offset_left = 16
 	hint_label.offset_top = 8
 	hint_label.offset_right = -180
 	hint_label.offset_bottom = 28
+	hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hint_label.add_theme_font_size_override("font_size", 13)
 	hint_label.add_theme_color_override("font_color", Color(0.22, 0.24, 0.2, 1.0))
 	hint_label.add_theme_color_override("font_outline_color", Color(0.92, 0.93, 0.88, 0.85))
@@ -1602,6 +1646,7 @@ func _build_hud() -> void:
 
 	place_label = Label.new()
 	place_label.position = Vector2(16, 32)
+	place_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	place_label.add_theme_font_size_override("font_size", 17)
 	place_label.add_theme_color_override("font_color", Color(0.18, 0.28, 0.24, 1.0))
 	place_label.add_theme_color_override("font_outline_color", Color(0.92, 0.95, 0.9, 0.9))
@@ -1611,6 +1656,7 @@ func _build_hud() -> void:
 
 	life_label = Label.new()
 	life_label.position = Vector2(16, 56)
+	life_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	life_label.add_theme_font_size_override("font_size", 13)
 	life_label.add_theme_color_override("font_color", Color(0.28, 0.26, 0.18, 1.0))
 	life_label.add_theme_color_override("font_outline_color", Color(0.94, 0.93, 0.88, 0.88))
@@ -1620,6 +1666,7 @@ func _build_hud() -> void:
 
 	axiom_label = Label.new()
 	axiom_label.position = Vector2(16, 76)
+	axiom_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	axiom_label.add_theme_font_size_override("font_size", 14)
 	axiom_label.add_theme_color_override("font_color", Color(0.32, 0.26, 0.08, 1.0))
 	axiom_label.add_theme_color_override("font_outline_color", Color(0.96, 0.94, 0.82, 0.92))
@@ -1629,6 +1676,7 @@ func _build_hud() -> void:
 
 	_season_label = Label.new()
 	_season_label.position = Vector2(16, 98)
+	_season_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_season_label.add_theme_font_size_override("font_size", 12)
 	_season_label.add_theme_color_override("font_color", Color(0.2, 0.28, 0.24, 1.0))
 	_season_label.add_theme_color_override("font_outline_color", Color(0.92, 0.95, 0.9, 0.88))
@@ -1648,6 +1696,7 @@ func _build_hud() -> void:
 
 	prompt_label = Label.new()
 	prompt_label.position = Vector2(16, 142)
+	prompt_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	prompt_label.add_theme_font_size_override("font_size", 16)
 	prompt_label.add_theme_color_override("font_color", Color(0.28, 0.22, 0.06, 1.0))
 	prompt_label.add_theme_color_override("font_outline_color", Color(0.97, 0.95, 0.82, 0.95))
@@ -1734,10 +1783,15 @@ func _build_hud() -> void:
 	talk_input.size = Vector2(416, 36)
 	talk_input.placeholder_text = "Mom — type anytime · Enter sends · Tab opens chat · Esc ends focus"
 	talk_input.visible = true
+	talk_input.focus_mode = Control.FOCUS_CLICK
+	talk_input.mouse_filter = Control.MOUSE_FILTER_STOP
 	talk_input.text_submitted.connect(_on_talk_submitted)
 	talk_input.focus_entered.connect(_on_talk_focus_entered)
 	talk_input.focus_exited.connect(_on_talk_focus_exited)
 	_convo_panel.add_child(talk_input)
+	# Never start with the type box focused — that freezes mouse-look.
+	talk_input.release_focus()
+	get_viewport().gui_release_focus()
 
 	chat_open_btn = Button.new()
 	chat_open_btn.text = "Open Chat"
@@ -2111,6 +2165,10 @@ func _process(delta: float) -> void:
 			prompt_label.text = _shop_prompt("grocery")
 		elif harbor_act == "buy_clothing":
 			prompt_label.text = _shop_prompt("clothing_store")
+		elif harbor_act == "buy_electronics":
+			prompt_label.text = _shop_prompt("electronics_store")
+		elif harbor_act == "buy_pets":
+			prompt_label.text = _shop_prompt("pet_store")
 		elif _inside_hearth:
 			prompt_label.text = "Inside First Hearth. Tab / Open Chat anytime. Leave World (top-right) to exit."
 		else:
@@ -2176,10 +2234,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ALT:
-		# Free the mouse so Open Chat / Leave World can be clicked.
+		# Free the cursor for UI clicks — do NOT freeze WASD/look (that trapped Mom).
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		if _player:
-			_player.set("chat_lock", true)
+			_player.set("_look_armed", false)
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_CAPSLOCK:
+		# Emergency unlock if chat focus got stuck.
+		_end_talk()
+		if _paused_world:
+			_close_pause_menu()
+		if _player:
+			_player.set("chat_lock", false)
+			if _player.has_method("_capture_mouse"):
+				_player.call("_capture_mouse")
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F1:
@@ -2203,11 +2272,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		# Borderless fullscreen — exclusive mode often breaks mouse-look on Windows.
 		var win := get_window()
 		if win.mode == Window.MODE_FULLSCREEN or win.mode == Window.MODE_EXCLUSIVE_FULLSCREEN:
-			win.mode = Window.MODE_WINDOWED
+			win.mode = Window.MODE_MAXIMIZED
 		else:
 			win.mode = Window.MODE_FULLSCREEN
+		if _player:
+			_player.set("chat_lock", false)
 		if _player and _player.has_method("_capture_mouse"):
 			_player.call_deferred("_capture_mouse")
+		if _player and _player.has_method("_reclaim_look_burst"):
+			_player.call_deferred("_reclaim_look_burst")
 		get_viewport().set_input_as_handled()
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_G:
 		if _paused_world or _talking_to != "" or (talk_input and talk_input.has_focus()):
@@ -2241,6 +2314,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			"buy_clothing":
 				_try_shop_buy("clothing_store")
 				get_viewport().set_input_as_handled()
+			"buy_electronics":
+				_try_shop_buy("electronics_store")
+				get_viewport().set_input_as_handled()
+			"buy_pets":
+				_try_shop_buy("pet_store")
+				get_viewport().set_input_as_handled()
 			"watch":
 				_toggle_cinema_watch(true)
 				get_viewport().set_input_as_handled()
@@ -2260,6 +2339,8 @@ func _world_action_near_player() -> String:
 	var d_well := Vector2(p.x - VILLAGE_WELL.x, p.z - VILLAGE_WELL.z).length()
 	var d_grocery := Vector2(p.x - STORE_GROCERY.x, p.z - STORE_GROCERY.z).length()
 	var d_clothing := Vector2(p.x - STORE_CLOTHING.x, p.z - STORE_CLOTHING.z).length()
+	var d_electronics := Vector2(p.x - STORE_ELECTRONICS.x, p.z - STORE_ELECTRONICS.z).length()
+	var d_pets := Vector2(p.x - STORE_PETS.x, p.z - STORE_PETS.z).length()
 	var d_cinema := Vector2(p.x - 26.0, p.z - 14.0).length()
 	_at_far_shore = d_far < 9.0
 	if _at_far_shore:
@@ -2279,6 +2360,10 @@ func _world_action_near_player() -> String:
 		return "buy_grocery"
 	if d_clothing < 3.6:
 		return "buy_clothing"
+	if d_electronics < 3.6:
+		return "buy_electronics"
+	if d_pets < 3.6:
+		return "buy_pets"
 	if d_well < 2.8:
 		return "well"
 	return ""
@@ -2315,6 +2400,10 @@ func _shop_prompt(store_id: String) -> String:
 		shop_name = "The Harvest"
 	elif store_id == "clothing_store":
 		shop_name = "The Wardrobe"
+	elif store_id == "electronics_store":
+		shop_name = "The Circuit"
+	elif store_id == "pet_store":
+		shop_name = "Whiskers & Paws"
 	if item.is_empty():
 		return "%s — sold out for now" % shop_name
 	return "[E] Buy %s · ⨁%d  (stock %d)" % [str(item.get("name", "?")), int(item.get("price", 0)), int(item.get("stock", 0))]
