@@ -46,6 +46,32 @@ html, body {
   border-bottom: 1px solid var(--line);
 }
 
+.world-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.world-item {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.world-item strong {
+  display: block;
+  color: var(--amber);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.world-item span {
+  color: var(--text);
+}
+
 .eyebrow {
   margin: 0 0 0.25rem;
   color: var(--muted);
@@ -430,6 +456,118 @@ dialog textarea {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
+}
+
+/* Layer 15D — connection panels */
+.mood-pill {
+  display: inline-block;
+  margin-left: 0.55rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(122, 184, 212, 0.18);
+  color: var(--cyan);
+  font-size: 0.78rem;
+  vertical-align: middle;
+}
+
+.meter {
+  display: inline-block;
+  width: 110px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  vertical-align: middle;
+  border: 1px solid var(--line);
+}
+
+.meter-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber), var(--cyan));
+}
+
+.meter-num {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: 0.25rem;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.28rem 0;
+}
+
+.skill-name {
+  width: 5.5rem;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: lowercase;
+}
+
+.rel-card {
+  padding: 0.55rem 0.65rem;
+  margin: 0.45rem 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(18, 14, 11, 0.45);
+}
+
+.rel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.tiny {
+  font-size: 0.78rem;
+  margin: 0.25rem 0 0;
+}
+
+.subhead {
+  margin: 0.7rem 0 0.3rem;
+  font-size: 0.82rem;
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.milestone-list,
+.memory-list,
+.choice-list {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--text);
+  font-size: 0.86rem;
+}
+
+.milestone-list time,
+.memory-list .muted {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.05rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(212, 165, 116, 0.18);
+  color: var(--amber);
+  font-size: 0.72rem;
+  margin-right: 0.25rem;
+}
+
+.xp {
+  font-size: 0.72rem;
+}
+
+@media (max-width: 1100px) {
+  .world-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 900px) {

@@ -128,6 +128,14 @@ Axiom `limbs/` inventory (modules on disk, callers UNVERIFIED this session): `fa
 
 ---
 
+## Research limbs (not wired — build memory)
+
+| Limb | Source | Intended Mode B use | Status |
+|------|--------|---------------------|--------|
+| Matrix Dream View (Layer 17) | [SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game) | Optional neural cinema: Heart Square still + look/WASD → stream panel at Cinema / cottage `[V]`; Esc → greybox | **ORIGINAL MODE — RESEARCH** · after Layer 16 · never writes `HOME.json` · never replaces Godot or identities |
+
+---
+
 ## Last live-listen snapshot (not e2e)
 
 | Port | Service | This session |
