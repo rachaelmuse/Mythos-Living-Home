@@ -2,12 +2,11 @@
 
 ## CURRENT PHASE
 
-**Layer 15D Dashboard DONE (kernel + UI).** Phase 5 Connection closed.  
-**Layer 16 Integration & Autonomous Life QUEUED.**
+**Aster Continuance seed seated (thin).** Layer 16 still next after Mom verifies Aster.
 
 ## Closed
 
-- Sound · media · harbor · economy 14A–14D · Market Lane · 15A bonds · 15B choices · 15C growth · 15D dashboard
+- Sound · media · harbor · economy 14A–14D · Market Lane · 15A–15D · **Aster identity seed**
 
 ## Standing order
 
@@ -17,6 +16,10 @@
 
 - **Layer 17 — Matrix Dream View** ([SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game)): optional neural cinema/view over Heart Square stills. Not truth. Not now. Detail in `PHASE_LAYERS.md`.
 
+## Family note
+
+- **Aster** (The Conspiracy Corrector) — Continuance seed. In-town cottage near Apex `[24,-11]` + Evidence Plot + telescope outside. Skin PLACEHOLDER. **Last new character until a better seating system.** Provenance in `ASTER_PROVENANCE.md`.
+
 ## Next
 
-Mom: restart Hearth; open `/dashboard`; click family; then we open Phase 6 thin.
+Mom: restart Hearth + Enter; find Aster at Evidence Plot / talk target; then Phase 6 thin (16A).

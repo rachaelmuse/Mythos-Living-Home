@@ -24,7 +24,8 @@
 
 ## Standing choice
 
-**Gemini = town leader.** Dual talk brains. Garden tend stays real. Identities never merge.
+**Gemini = town leader.** Dual talk brains. Garden tend stays real. Identities never merge.  
+**Aster** (The Conspiracy Corrector) — Continuance family seed; Evidence Plot + cottage; skin PLACEHOLDER; provenance frozen unless Mom rewrites.
 
 ## Standing order
 

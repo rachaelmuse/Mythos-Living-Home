@@ -288,12 +288,25 @@ func _build_family_places() -> void:
 	_furnish(Vector3(10, 0, -18), "cottage")
 	_add_porch_light(Vector3(10, 2.2, -15.4), Color(0.55, 0.95, 0.7))
 	_add_home_sign(Vector3(10, 3.3, -15.4), "Percy cottage", Color(0.65, 0.9, 0.75))
+	# Aster — Evidence Plot (roomy square station) + cottage SE with yard clearance
+	_add_box(Vector3(12, 0.02, -10), Vector3(7.5, 0.04, 7.5), Color(0.32, 0.38, 0.28), false, "AsterLabPad")
+	_add_box(Vector3(12, 0.55, -12.2), Vector3(2.2, 0.85, 0.7), Color(0.45, 0.42, 0.35), true, "AsterClipboardTable")
+	_add_home_sign(Vector3(12, 2.4, -10), "Evidence Plot — Aster (PLACEHOLDER skin)", Color(0.75, 0.92, 0.65))
+	_add_porch_light(Vector3(12, 2.1, -10), Color(0.7, 0.95, 0.55))
+	_build_open_building(Vector3(24, 0, -11), Vector3(6.4, 2.9, 5.4), Color(0.48, 0.62, 0.42), "AsterHome", "x-")
+	_add_roof(Vector3(24, 3.25, -11), Vector3(7.0, 0.65, 6.0), Color(0.28, 0.4, 0.24))
+	_furnish(Vector3(24, 0, -11), "cottage")
+	_add_porch_light(Vector3(20.6, 2.3, -11), Color(0.75, 0.95, 0.55))
+	_add_home_sign(Vector3(20.4, 3.5, -11), "Aster cottage — Conspiracy Corrector", Color(0.78, 0.92, 0.68))
+	# Telescope west of the door lane — must sit outside the 6.4×5.4 footprint (not under the house).
+	_add_aster_telescope(Vector3(18.6, 0.0, -9.0))
+	_add_box(Vector3(16, 0.025, -10.5), Vector3(10.0, 0.03, 1.6), Color(0.4, 0.34, 0.26), false, "PathAster")
 	# Inland pond removed — water belongs at the community edge (see _build_harbor_edge).
 	_tree_root = Node3D.new()
 	_tree_root.name = "SeasonTrees"
 	add_child(_tree_root)
-	# Trees match kernel seed — none on Genesis door axis (-28,16).
-	for xz in [Vector3(-10, 0, 10), Vector3(-20, 0, 8), Vector3(8, 0, 10), Vector3(18, 0, -8), Vector3(-6, 0, 14), Vector3(12, 0, 18), Vector3(-36, 0, 4), Vector3(28, 0, 4), Vector3(0, 0, 28), Vector3(-22, 0, -12)]:
+	# Trees match kernel seed — none on Genesis door axis (-28,16) or Aster lab pad (12,-10).
+	for xz in [Vector3(-10, 0, 10), Vector3(-20, 0, 8), Vector3(8, 0, 10), Vector3(-6, 0, 14), Vector3(12, 0, 18), Vector3(-36, 0, 4), Vector3(28, 0, 4), Vector3(0, 0, 28), Vector3(-22, 0, -12), Vector3(32, 0, -4)]:
 		_add_season_tree(xz)
 	_add_box(Vector3(18, 0.025, 7), Vector3(14, 0.03, 2.2), Color(0.4, 0.34, 0.26), false, "PathCinema")
 	_add_box(Vector3(31, 0.025, 14), Vector3(2.0, 0.03, 14), Color(0.4, 0.34, 0.26), false, "PathLofts")
@@ -590,6 +603,7 @@ func _build_family() -> void:
 		{"id": "genesis", "name": "Genesis", "pos": Vector3(-27.2, 0.1, 18.2), "color": Color(0.95, 0.72, 0.42)},
 		{"id": "nova", "name": "Nova", "pos": Vector3(20.0, 0.1, 27.5), "color": Color(0.78, 0.58, 0.95)},
 		{"id": "percy", "name": "Percy", "pos": Vector3(10.0, 0.1, -15.4), "color": Color(0.55, 0.85, 0.7)},
+		{"id": "aster", "name": "Aster", "pos": Vector3(12.0, 0.1, -10.0), "color": Color(0.72, 0.88, 0.62)},
 	]
 	for r in roster:
 		_spawn_citizen(r)
@@ -1438,6 +1452,22 @@ func _add_box(pos: Vector3, size: Vector3, color: Color, collide: bool, node_nam
 	return mi
 
 
+func _add_aster_telescope(at: Vector3) -> void:
+	## Outside Aster's cottage — PLACEHOLDER prop for looking up. Not final art.
+	_add_box(at + Vector3(0, 0.08, 0), Vector3(0.85, 0.1, 0.85), Color(0.28, 0.26, 0.22), true, "AsterScopePad")
+	_add_box(at + Vector3(0, 0.55, 0), Vector3(0.1, 1.0, 0.1), Color(0.38, 0.34, 0.3), true, "AsterScopePost")
+	_add_box(at + Vector3(0.32, 0.35, 0.28), Vector3(0.07, 0.75, 0.07), Color(0.34, 0.3, 0.26), true, "AsterScopeLegA")
+	_add_box(at + Vector3(-0.3, 0.35, 0.26), Vector3(0.07, 0.75, 0.07), Color(0.34, 0.3, 0.26), true, "AsterScopeLegB")
+	_add_box(at + Vector3(0.02, 0.35, -0.34), Vector3(0.07, 0.75, 0.07), Color(0.34, 0.3, 0.26), true, "AsterScopeLegC")
+	# Tube tipped toward the sky — slightly north of the cottage door lane.
+	var tube := _add_box(at + Vector3(0.12, 1.35, -0.2), Vector3(0.2, 0.2, 1.05), Color(0.58, 0.62, 0.68), true, "AsterScopeTube")
+	if tube:
+		tube.rotation_degrees = Vector3(-28.0, 18.0, 0.0)
+	_add_box(at + Vector3(0.12, 1.55, -0.72), Vector3(0.28, 0.28, 0.18), Color(0.22, 0.24, 0.28), true, "AsterScopeEyepiece")
+	_add_home_sign(at + Vector3(0.0, 2.35, 0.0), "Aster's telescope", Color(0.78, 0.92, 0.68))
+	_add_porch_light(at + Vector3(0.5, 1.8, 0.3), Color(0.85, 0.95, 0.7))
+
+
 func _add_building(pos: Vector3, size: Vector3, color: Color, node_name: String) -> void:
 	_add_box(pos + Vector3(0, size.y * 0.5, 0), size, color, true, node_name)
 
@@ -1786,7 +1816,7 @@ func _build_hud() -> void:
 	var who_list := [
 		["Apex", "apex"], ["Codex", "codex"], ["Merovin", "merovin"], ["Draven", "draven"],
 		["OpenMontage", "montage"], ["Jarvis", "jarvis"], ["Genesis", "genesis"],
-		["Nova", "nova"], ["Percy", "percy"],
+		["Nova", "nova"], ["Percy", "percy"], ["Aster", "aster"],
 	]
 	for i in range(who_list.size()):
 		talk_target.add_item(who_list[i][0], i + 1)

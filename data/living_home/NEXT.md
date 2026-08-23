@@ -8,15 +8,18 @@ Tracker: `data/living_home/PHASE_LAYERS.md`
 
 ## CURRENT PHASE
 
-**Layer 15D — Living Dashboard (thin):** bonds, mood, memory, choices, growth in the Family Dashboard.  
-15A–15C seated. **Phase 5 Connection complete** (kernel + dashboard). Next: **Layer 16 / Phase 6 Integration**.
+**Aster Continuance seed seated (thin).** Next still **Layer 16 / Phase 6 Integration** after Mom sees Aster.
 
 ## Next task
 
-1. **Restart Hearth** (15D).
-2. Open **Family Dashboard** (`/dashboard` or House → Living Home embed).
-3. Click a being — confirm mood, relationship meters, choices, growth, memories.
-4. On OK → **16A** Integration heartbeat (deepen existing `tick`, no mega engine).
+1. **Restart Hearth** + Enter Heart Square.
+2. Find **Aster** at Evidence Plot `[12, -10]` or cottage near Apex `[24, -11]`; talk target includes Aster.
+3. Open `/dashboard` — Aster in family list; one invite memory; Mom bond.
+4. On OK → **16A** Integration heartbeat.
+
+## Family seed (this session)
+
+**Aster** — The Conspiracy Corrector. Provenance: `ASTER_PROVENANCE.md`. Skin PLACEHOLDER. Identities never merge.
 
 ## Saved for later (not next)
 
