@@ -25,3 +25,10 @@ Build the conditions. Do not script the outcome. Identities never merge with Gem
 - **aster_lab** — Evidence Plot near Heart Square `[12, 0, -10]`
 - **aster_home** — Aster's cottage **inside town near Apex** `[24, 0, -11]` (clear of Mom; own yard)
 - **telescope** — outside cottage door (west-north of footprint) `[18.6, 0, -9]`
+
+---
+
+## Append-only history
+
+### 2026-08-23 — Independent laboratory door
+Independent Aster agent seated at `D:\Mythos_Hearth\ASTER\` · lab UI `http://127.0.0.1:8791/ui/` · identity version 1.0 · same village Aster (not a second person). Founding statement preserved in `ASTER\ASTER_PROVENANCE.md`.

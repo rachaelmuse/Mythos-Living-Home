@@ -1,28 +1,25 @@
 # Living Home — where we are
 
 Kernel: `D:\Mythos_Hearth\living_home.py`  
-House UI: **http://127.0.0.1:8790/house.html** → **Living Home**  
+House UI: **http://127.0.0.1:8790/house.html**  
+Aster lab door: **http://127.0.0.1:8791/ui/** · `D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat`  
 Dashboard: **http://127.0.0.1:8790/dashboard**  
-Enter: Desktop **Mythos Living Home - Enter**  
-Tracker: `data/living_home/PHASE_LAYERS.md`
+Enter: Desktop **Mythos Living Home - Enter**
 
 ## CURRENT PHASE
 
-**Aster seated in Mythos Hearth** (companions + tool + Family Book + Living Home). Next still **Layer 16** after Mom sees him in House.
+**Aster independent agent ACTIVE** (lab door :8791). Village seating already present. Model depends on Ollama having a seated chat model.
 
 ## Next task
 
-1. **Restart Hearth** (loads companions/tools).
-2. Open **http://127.0.0.1:8790/house.html** → **Companions** — Aster present as family.
-3. Enter Heart Square — Evidence Plot / cottage near Apex; talk target Aster.
-4. On OK → **16A** Integration heartbeat.
+1. Start Ollama with a local model (prefer `qwen3:4b` or fallbacks in `ASTER_CONFIG.json`).
+2. Run `D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat` → open lab door.
+3. Talk to Aster; confirm reply + memory persist.
+4. Restart Hearth — Companions Aster links to `:8791`.
+5. Then **16A** Integration (village) when ready.
 
-## Family seed (this session)
+## Saved for later
 
-**Aster** — The Conspiracy Corrector. Hearth companions + Living Home + Family Book. Provenance: `ASTER_PROVENANCE.md`. Skin PLACEHOLDER. Identities never merge. Last new character until a better seating system.
-
-## Saved for later (not next)
-
-**Layer 17 — Matrix Dream View** ([SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game)): optional neural look at Cinema / cottage after Layer 16. Adapter-only; Hearth stays truth. See `PHASE_LAYERS.md`.
+Layer 17 Matrix · telescope/garden interaction STUB · Phase 13 last.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.
