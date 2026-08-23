@@ -28,6 +28,7 @@
     filterPerson: document.getElementById("filterPerson"),
     filterPlace: document.getElementById("filterPlace"),
     filterCapStatus: document.getElementById("filterCapStatus"),
+    btnCopyConvo: document.getElementById("btnCopyConvo"),
     talkDialog: document.getElementById("talkDialog"),
     talkForm: document.getElementById("talkForm"),
     talkToLabel: document.getElementById("talkToLabel"),
@@ -635,6 +636,37 @@
   el.filterPerson.addEventListener("change", renderConversations);
   el.filterPlace.addEventListener("change", renderConversations);
   el.filterCapStatus.addEventListener("change", () => renderCapabilities(state.capabilities));
+  el.btnCopyConvo?.addEventListener("click", async () => {
+    const sel = window.getSelection()?.toString()?.trim();
+    let text = sel || "";
+    if (!text && el.convoLog) {
+      text = Array.from(el.convoLog.querySelectorAll(".convo-row"))
+        .map((row) => {
+          const t = row.querySelector("time")?.textContent?.trim() || "";
+          const who = row.querySelector(".who")?.textContent?.trim() || "";
+          const place = row.querySelector(".place")?.textContent?.trim() || "";
+          const body = row.querySelector("div > div")?.textContent?.trim() || "";
+          return [t, who, place ? `@ ${place}` : "", body].filter(Boolean).join(" ");
+        })
+        .join("\n");
+    }
+    if (!text.trim()) {
+      el.btnCopyConvo.textContent = "Empty";
+      setTimeout(() => {
+        el.btnCopyConvo.textContent = "Copy";
+      }, 1000);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      el.btnCopyConvo.textContent = "Copied";
+    } catch (_err) {
+      el.btnCopyConvo.textContent = "Failed";
+    }
+    setTimeout(() => {
+      el.btnCopyConvo.textContent = "Copy";
+    }, 1200);
+  });
   document.getElementById("talkCancel")?.addEventListener("click", () => el.talkDialog.close());
   document.getElementById("stanceCancel")?.addEventListener("click", () => el.stanceDialog.close());
 

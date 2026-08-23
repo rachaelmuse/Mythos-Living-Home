@@ -47,6 +47,7 @@
         <div class="panel-head">
           <h2>Conversation log</h2>
           <div class="filters">
+            <button type="button" id="btnCopyConvo" class="btn ghost" title="Copy visible conversation text">Copy</button>
             <select id="filterPerson" aria-label="Filter by person">
               <option value="">All people</option>
             </select>
@@ -55,7 +56,7 @@
             </select>
           </div>
         </div>
-        <div id="convoLog" class="convo-log" aria-live="polite"></div>
+        <div id="convoLog" class="convo-log" aria-live="polite" tabindex="0"></div>
       </section>
 
       <section class="panel caps-panel">

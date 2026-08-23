@@ -359,6 +359,9 @@ select, textarea {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
 }
 
 .convo-row {
@@ -368,6 +371,7 @@ select, textarea {
   padding: 0.35rem 0.4rem;
   border-radius: 8px;
   background: rgba(18, 14, 11, 0.35);
+  user-select: text;
 }
 
 .convo-row.fresh { animation: pulse 0.8s ease; }

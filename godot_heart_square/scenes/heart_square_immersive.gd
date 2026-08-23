@@ -39,6 +39,8 @@ var _mom_bubble: Label3D
 var _convo_panel: Panel
 var _convo_log: RichTextLabel
 var _convo_scroll: ScrollContainer
+var _convo_plain: PackedStringArray = PackedStringArray()
+var _copy_convo_btn: Button
 var _hud_layer: CanvasLayer
 var _tree_root: Node3D
 var _canopy_mats: Array = []
@@ -74,10 +76,10 @@ var _shop_offer: Dictionary = {"grocery": 0, "clothing_store": 0, "electronics_s
 const FAR_SHORE := Vector3(8.0, 0.2, 68.0)
 const HARBOR_SHIP := Vector3(-6.5, 0.2, 52.5)
 const VILLAGE_WELL := Vector3(-8.5, 0.0, 7.5)
-const STORE_GROCERY := Vector3(10.0, 0.0, 8.0)
-const STORE_CLOTHING := Vector3(-6.0, 0.0, -12.0)
-const STORE_ELECTRONICS := Vector3(16.0, 0.0, 18.0)
-const STORE_PETS := Vector3(12.0, 0.0, -14.0)
+const STORE_GROCERY := Vector3(-18.0, 0.0, 36.0)
+const STORE_CLOTHING := Vector3(-4.0, 0.0, 38.0)
+const STORE_ELECTRONICS := Vector3(10.0, 0.0, 36.0)
+const STORE_PETS := Vector3(26.0, 0.0, 38.0)
 
 
 func _ready() -> void:
@@ -1328,7 +1330,8 @@ func _build_storage_hall() -> void:
 
 
 func _build_village_shops() -> void:
-	## Layer 14B–14C — Harvest, Wardrobe, Circuit, Whiskers & Paws (greybox; buy via Hearth).
+	## Layer 14B–14C — Market lane north of Gate (spaced; buy via Hearth).
+	## Doors face south (z-) toward the village so cottage/workshop entrances stay clear.
 	var g := STORE_GROCERY
 	_build_open_building(g, Vector3(5.5, 2.6, 4.8), Color(0.48, 0.42, 0.28), "GroceryShop", "z-")
 	_add_roof(g + Vector3(0, 2.95, 0), Vector3(6.0, 0.55, 5.3), Color(0.32, 0.38, 0.22))
@@ -1336,16 +1339,14 @@ func _build_village_shops() -> void:
 	_add_box(g + Vector3(1.2, 0.7, 0.4), Vector3(1.6, 0.15, 0.8), Color(0.7, 0.55, 0.3), true, "GroceryTable")
 	_add_porch_light(g + Vector3(0, 2.4, -2.6), Color(1.0, 0.9, 0.55))
 	_add_home_sign(g + Vector3(0, 3.1, -2.7), "The Harvest · grocery · [E] buy", Color(0.85, 0.95, 0.55))
-	_add_box(Vector3(5.0, 0.025, 4.0), Vector3(8.0, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathGrocery")
 
 	var c := STORE_CLOTHING
-	_build_open_building(c, Vector3(5.2, 2.7, 4.6), Color(0.45, 0.38, 0.48), "ClothingShop", "z+")
+	_build_open_building(c, Vector3(5.2, 2.7, 4.6), Color(0.45, 0.38, 0.48), "ClothingShop", "z-")
 	_add_roof(c + Vector3(0, 3.05, 0), Vector3(5.8, 0.55, 5.1), Color(0.35, 0.28, 0.4))
 	_add_box(c + Vector3(-1.2, 0.9, -0.5), Vector3(0.2, 1.6, 1.2), Color(0.55, 0.65, 0.85), false, "ClothRackA")
 	_add_box(c + Vector3(1.3, 0.9, -0.3), Vector3(0.2, 1.6, 1.2), Color(0.75, 0.45, 0.4), false, "ClothRackB")
-	_add_porch_light(c + Vector3(0, 2.5, 2.5), Color(0.95, 0.8, 1.0))
-	_add_home_sign(c + Vector3(0, 3.2, 2.6), "The Wardrobe · clothing · [E] buy", Color(0.9, 0.75, 1.0))
-	_add_box(Vector3(-3.0, 0.025, -6.0), Vector3(6.0, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathClothing")
+	_add_porch_light(c + Vector3(0, 2.5, -2.5), Color(0.95, 0.8, 1.0))
+	_add_home_sign(c + Vector3(0, 3.2, -2.6), "The Wardrobe · clothing · [E] buy", Color(0.9, 0.75, 1.0))
 
 	var e := STORE_ELECTRONICS
 	_build_open_building(e, Vector3(5.4, 2.7, 4.8), Color(0.28, 0.34, 0.42), "ElectronicsShop", "z-")
@@ -1354,17 +1355,20 @@ func _build_village_shops() -> void:
 	_add_box(e + Vector3(-1.5, 0.55, -0.8), Vector3(0.7, 0.9, 0.5), Color(0.4, 0.75, 0.95), false, "CircuitScreen")
 	_add_porch_light(e + Vector3(0, 2.5, -2.6), Color(0.55, 0.85, 1.0))
 	_add_home_sign(e + Vector3(0, 3.15, -2.7), "The Circuit · electronics · [E] buy", Color(0.65, 0.9, 1.0))
-	_add_box(Vector3(14.0, 0.025, 12.0), Vector3(6.0, 0.03, 8.0), Color(0.4, 0.34, 0.26), false, "PathElectronics")
 
 	var p := STORE_PETS
-	_build_open_building(p, Vector3(5.2, 2.5, 4.6), Color(0.5, 0.4, 0.3), "PetShop", "z+")
+	_build_open_building(p, Vector3(5.2, 2.5, 4.6), Color(0.5, 0.4, 0.3), "PetShop", "z-")
 	_add_roof(p + Vector3(0, 2.9, 0), Vector3(5.7, 0.5, 5.0), Color(0.4, 0.32, 0.22))
 	_add_box(p + Vector3(-1.3, 0.45, -0.4), Vector3(1.0, 0.7, 1.0), Color(0.55, 0.45, 0.35), true, "PetKennelA")
 	_add_box(p + Vector3(1.2, 0.45, -0.2), Vector3(1.0, 0.7, 1.0), Color(0.5, 0.42, 0.32), true, "PetKennelB")
 	_add_box(p + Vector3(0, 0.55, 0.9), Vector3(1.4, 0.9, 0.6), Color(0.65, 0.5, 0.35), true, "PetShelf")
-	_add_porch_light(p + Vector3(0, 2.35, 2.5), Color(1.0, 0.88, 0.6))
-	_add_home_sign(p + Vector3(0, 3.05, 2.6), "Whiskers & Paws · pets · [E] buy", Color(1.0, 0.85, 0.55))
-	_add_box(Vector3(8.0, 0.025, -10.0), Vector3(6.0, 0.03, 6.0), Color(0.4, 0.34, 0.26), false, "PathPets")
+	_add_porch_light(p + Vector3(0, 2.35, -2.5), Color(1.0, 0.88, 0.6))
+	_add_home_sign(p + Vector3(0, 3.05, -2.6), "Whiskers & Paws · pets · [E] buy", Color(1.0, 0.85, 0.55))
+
+	# Paths: plaza → gate → market lane (does not cover cottage doors)
+	_add_box(Vector3(0, 0.025, 28), Vector3(2.6, 0.03, 10), Color(0.4, 0.34, 0.26), false, "PathToMarket")
+	_add_box(Vector3(4, 0.025, 34), Vector3(44, 0.03, 2.2), Color(0.4, 0.34, 0.26), false, "PathMarketLane")
+	_add_home_sign(Vector3(0, 3.0, 32), "Market lane — shops north of the Gate", Color(0.9, 0.85, 0.55))
 
 
 func _build_hearth_interior() -> void:
@@ -1724,11 +1728,20 @@ func _build_hud() -> void:
 	_hud_layer.add_child(_convo_panel)
 
 	var convo_title := Label.new()
-	convo_title.text = "Family chat room — all voices (not only nearby)"
+	convo_title.text = "Family chat — highlight to copy · or Copy"
 	convo_title.position = Vector2(8, 4)
-	convo_title.add_theme_font_size_override("font_size", 14)
+	convo_title.size = Vector2(320, 22)
+	convo_title.add_theme_font_size_override("font_size", 13)
 	convo_title.modulate = Color(0.85, 0.92, 0.78)
 	_convo_panel.add_child(convo_title)
+
+	_copy_convo_btn = Button.new()
+	_copy_convo_btn.text = "Copy"
+	_copy_convo_btn.tooltip_text = "Copy selection, or whole chat if nothing selected. Ctrl+C also works while chat is open."
+	_copy_convo_btn.position = Vector2(340, 2)
+	_copy_convo_btn.size = Vector2(72, 24)
+	_copy_convo_btn.pressed.connect(_copy_convo_to_clipboard)
+	_convo_panel.add_child(_copy_convo_btn)
 
 	_convo_scroll = ScrollContainer.new()
 	_convo_scroll.position = Vector2(6, 28)
@@ -1740,11 +1753,16 @@ func _build_hud() -> void:
 	_convo_log.bbcode_enabled = true
 	_convo_log.fit_content = true
 	_convo_log.scroll_following = true
+	_convo_log.selection_enabled = true
+	_convo_log.context_menu_enabled = true
+	_convo_log.focus_mode = Control.FOCUS_CLICK
+	_convo_log.mouse_filter = Control.MOUSE_FILTER_STOP
 	_convo_log.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_convo_log.custom_minimum_size = Vector2(396, 0)
 	_convo_log.add_theme_font_size_override("normal_font_size", 13)
+	_convo_log.gui_input.connect(_on_convo_log_gui_input)
 	_convo_scroll.add_child(_convo_log)
-	_log_convo("Hearth", "Open chat: click the box, or press Tab, or Open Chat. Walking away does not clear this log.", "system")
+	_log_convo("Hearth", "Open chat: Tab or Open Chat. Drag to highlight text, then Ctrl+C or Copy. Walking away does not clear this log.", "system")
 
 	dialogue_label = Label.new()
 	dialogue_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
@@ -1905,11 +1923,40 @@ func _log_convo(who: String, text: String, kind: String = "talk") -> void:
 			color = "#d09080"
 		_:
 			color = "#d8e0d0"
+	_convo_plain.append("%s: %s" % [who, clipped])
+	if _convo_plain.size() > 400:
+		_convo_plain = _convo_plain.slice(_convo_plain.size() - 400)
 	_convo_log.append_text("[color=%s][b]%s[/b][/color]: %s\n" % [color, who, clipped])
 	if dialogue_label:
 		dialogue_label.text = "%s: %s" % [who, clipped.substr(0, 90)]
 	# ScrollContainer owns the scrollbar — force follow so Mom never drags manually.
 	call_deferred("_scroll_convo_to_end")
+
+
+func _on_convo_log_gui_input(event: InputEvent) -> void:
+	## Free mouse so drag-select works (captured look otherwise eats the drag).
+	if event is InputEventMouseButton and event.pressed:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if _player:
+			_player.set("chat_lock", true)
+
+
+func _copy_convo_to_clipboard() -> void:
+	var selected := ""
+	if _convo_log:
+		selected = str(_convo_log.get_selected_text()).strip_edges()
+	var payload := selected
+	if payload == "":
+		payload = "\n".join(_convo_plain)
+	if payload.strip_edges() == "":
+		_log_convo("Hearth", "Nothing to copy yet.", "system")
+		return
+	DisplayServer.clipboard_set(payload)
+	if _copy_convo_btn:
+		_copy_convo_btn.text = "Copied"
+		await get_tree().create_timer(1.2).timeout
+		if _copy_convo_btn:
+			_copy_convo_btn.text = "Copy"
 
 
 func _scroll_convo_to_end() -> void:
@@ -2233,6 +2280,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			_open_chat_room()
 		get_viewport().set_input_as_handled()
 		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_C and event.ctrl_pressed:
+		# Highlight in the family chat, then Ctrl+C — or Copy button for the whole log.
+		# Do not steal Ctrl+C while Mom is typing in the LineEdit.
+		if talk_input and talk_input.has_focus():
+			return
+		var sel := ""
+		if _convo_log:
+			sel = str(_convo_log.get_selected_text()).strip_edges()
+		if sel != "" or (_player != null and bool(_player.get("chat_lock"))):
+			_copy_convo_to_clipboard()
+			get_viewport().set_input_as_handled()
+			return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ALT:
 		# Free the cursor for UI clicks — do NOT freeze WASD/look (that trapped Mom).
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -2644,7 +2703,7 @@ func _open_chat_room() -> void:
 		_player.set("chat_lock", true)
 	if talk_input:
 		talk_input.grab_focus()
-	_log_convo("Hearth", "Chat open — pick who above, type, Enter. Log keeps every family voice.", "system")
+	_log_convo("Hearth", "Chat open — pick who above, type, Enter. Drag text to highlight · Ctrl+C or Copy.", "system")
 
 
 func _build_pause_menu() -> void:
