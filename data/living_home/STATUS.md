@@ -18,7 +18,7 @@
 
 ## Family note
 
-- **Aster** (The Conspiracy Corrector) — Continuance seed. In-town cottage near Apex `[24,-11]` + Evidence Plot + telescope outside. Skin PLACEHOLDER. **Last new character until a better seating system.** Provenance in `ASTER_PROVENANCE.md`.
+- **Aster** (The Conspiracy Corrector) — Continuance seed. Seated in **Mythos Hearth** companions + tool + Family Book + Living Home cottage/Evidence Plot. Skin PLACEHOLDER. **Last new character until a better seating system.**
 
 ## Next
 

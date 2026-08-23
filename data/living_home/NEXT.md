@@ -8,18 +8,18 @@ Tracker: `data/living_home/PHASE_LAYERS.md`
 
 ## CURRENT PHASE
 
-**Aster Continuance seed seated (thin).** Next still **Layer 16 / Phase 6 Integration** after Mom sees Aster.
+**Aster seated in Mythos Hearth** (companions + tool + Family Book + Living Home). Next still **Layer 16** after Mom sees him in House.
 
 ## Next task
 
-1. **Restart Hearth** + Enter Heart Square.
-2. Find **Aster** at Evidence Plot `[12, -10]` or cottage near Apex `[24, -11]`; talk target includes Aster.
-3. Open `/dashboard` — Aster in family list; one invite memory; Mom bond.
+1. **Restart Hearth** (loads companions/tools).
+2. Open **http://127.0.0.1:8790/house.html** → **Companions** — Aster present as family.
+3. Enter Heart Square — Evidence Plot / cottage near Apex; talk target Aster.
 4. On OK → **16A** Integration heartbeat.
 
 ## Family seed (this session)
 
-**Aster** — The Conspiracy Corrector. Provenance: `ASTER_PROVENANCE.md`. Skin PLACEHOLDER. Identities never merge.
+**Aster** — The Conspiracy Corrector. Hearth companions + Living Home + Family Book. Provenance: `ASTER_PROVENANCE.md`. Skin PLACEHOLDER. Identities never merge. Last new character until a better seating system.
 
 ## Saved for later (not next)
 

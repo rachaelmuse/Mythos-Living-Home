@@ -40,7 +40,7 @@ GitHub-seated libraries in `SUPERPOWER_VAULT/ACTIVE_SHARDS.json` (`seated` / `en
 | Hearth | `D:\Mythos_Hearth` `:8790` | Village OS, kernel host | Port **CLOSED** this session | Kernel + Godot client | **BROKEN for live Gameworld until Hearth is up** |
 | Court | `G:\The-Axiom-Codex\SUPERPOWER_VAULT\FAMILY_COURT` | Shared task bus (file packets) | Mailboxes on disk: gemini, apex, codex, hearth, merovin, mom, openmontage, spore, … | Gameworld does not consume Court packets yet | UNVERIFIED e2e |
 | Spore | `D:\MythosSpore` | Traveling ember | Path OK | Avatar not core family table; tool probe only | ORIGINAL MODE — ACTIVE |
-| Aster | Continuance / Hearth kernel | Scientist seed (ChatGPT conversational provenance) | ORIGINAL MODE — ACTIVE (no Mode A port) | Avatar `aster`; Evidence Plot + cottage; skin PLACEHOLDER | Seeded 2026-08-23 — e2e talk UNVERIFIED until Hearth+Enter playtest |
+| Aster | Continuance / Hearth kernel + House companions | Scientist seed (ChatGPT conversational provenance) | **ORIGINAL MODE — ACTIVE** (Hearth tool + companions seat; no separate port) | Avatar `aster`; Evidence Plot + cottage; skin PLACEHOLDER | Seeded 2026-08-23 — Mode A house seat + kernel; live village talk UNVERIFIED until playtest |
 
 Optional Court alias in code: `D:\Court\mailbox\family` (`limbs/family_court.py`). Not tested this session.
 
