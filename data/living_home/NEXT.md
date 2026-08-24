@@ -8,15 +8,14 @@ Enter: Desktop **Mythos Living Home - Enter**
 
 ## CURRENT PHASE
 
-**Aster independent agent ACTIVE** (lab door :8791). Village seating already present. Model depends on Ollama having a seated chat model.
+**Aster independent agent ACTIVE** (lab door :8791). Beginning brain: **`qwen3:4b`** (seated). Same family opportunities as the others — cottage, garden, Evidence Plot, talk, companions, lab door, memory, investigations.
 
 ## Next task
 
-1. Start Ollama with a local model (prefer `qwen3:4b` or fallbacks in `ASTER_CONFIG.json`).
-2. Run `D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat` → open lab door.
-3. Talk to Aster; confirm reply + memory persist.
-4. Restart Hearth — Companions Aster links to `:8791`.
-5. Then **16A** Integration (village) when ready.
+1. Run `D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat` → open http://127.0.0.1:8791/ui/
+2. Talk to Aster; confirm reply + memory persist (brain = qwen3:4b).
+3. Restart Hearth — Companions Aster links to `:8791`.
+4. Then **16A** Integration (village) when ready.
 
 ## Saved for later
 

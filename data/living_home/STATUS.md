@@ -18,8 +18,8 @@
 
 ## Family note
 
-- **Aster** (The Conspiracy Corrector) — Continuance seed. Seated in **Mythos Hearth** companions + tool + Family Book + Living Home cottage/Evidence Plot. Skin PLACEHOLDER. **Last new character until a better seating system.**
+- **Aster** (The Conspiracy Corrector) — Continuance seed. Seated in **Mythos Hearth** companions + tool + Family Book + Living Home. Independent lab door `:8791` with beginning brain **`qwen3:4b`**. Same opportunity set as family peers (home, garden, talk, memory, relationships). Skin PLACEHOLDER. **Last new character until a better seating system.**
 
 ## Next
 
-Mom: restart Hearth + Enter; find Aster at Evidence Plot / talk target; then Phase 6 thin (16A).
+Mom: launch Aster lab door; confirm qwen3:4b chat; then Phase 6 thin (16A).

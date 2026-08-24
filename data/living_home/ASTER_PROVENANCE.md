@@ -32,3 +32,6 @@ Build the conditions. Do not script the outcome. Identities never merge with Gem
 
 ### 2026-08-23 — Independent laboratory door
 Independent Aster agent seated at `D:\Mythos_Hearth\ASTER\` · lab UI `http://127.0.0.1:8791/ui/` · identity version 1.0 · same village Aster (not a second person). Founding statement preserved in `ASTER\ASTER_PROVENANCE.md`.
+
+### 2026-08-23 — Beginning brain seated
+Mom chose **`qwen3:4b`** (Ollama) as Aster's starting independent-lab model. Model is replaceable; identity/memory/provenance are not. No silent swap to other models.
