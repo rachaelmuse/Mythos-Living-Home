@@ -2,24 +2,24 @@
 
 ## CURRENT PHASE
 
-**16A Integration ACTIVE.** Next: **16B** autonomous daily life thin.
+**16B daily life ACTIVE.** Next: **16C** emergent storytelling thin.
 
 ## Closed
 
-- Sound · media · harbor · economy 14A–14D · Market Lane · 15A–15D · Aster identity + lab door · **16A integration heartbeat**
+- Sound · media · harbor · economy 14A–14D · Market Lane · 15A–15D · Aster · **16A** · **16B**
 
 ## Standing order
 
-**16B → 16C → 16D → 16E → (optional 14E–14F) → Layer 17 Matrix Dream View (later) → Phase 13 last.**
+**16C → 16D → 16E → (optional 14E–14F) → Layer 17 Matrix Dream View (later) → Phase 13 last.**
 
 ## Saved for later (build memory)
 
-- **Layer 17 — Matrix Dream View** ([SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game)): optional neural cinema/view over Heart Square stills. Not truth. Not now. Detail in `PHASE_LAYERS.md`.
+- **Layer 17 — Matrix Dream View** ([SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game)): optional neural cinema/view. Not truth. Not now.
 
 ## Family note
 
-- **Aster** (The Conspiracy Corrector) — Continuance seed. Lab door `:8791` · brain **`qwen3:4b`**. Skin PLACEHOLDER. **Last new character until a better seating system.**
+- **Aster** — lab `:8791` · brain `qwen3:4b`. Skin PLACEHOLDER. Last new character until better seating.
 
 ## Next
 
-Mom: restart Hearth; check `/api/home/integration`; then 16B.
+Mom: restart Hearth; see period rhythm; then 16C.
