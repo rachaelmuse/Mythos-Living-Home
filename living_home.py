@@ -4048,10 +4048,16 @@ def snapshot() -> dict[str, Any]:
             "phase": "Connection, Choice & Consequence",
             "note": (
                 "15A–15C seated. 15D Family Dashboard shows bonds, mood, memory, choices, growth. "
-                "Phase 6 Integration queued next."
+                "16A integration heartbeat runs inside tick."
             ),
             "consequences": (home.get("consequences") or [])[-8:],
             "recent_choices": (home.get("choice_log") or [])[-8:],
+        },
+        "integration": home.get("integration")
+        or {
+            "layer": "16a",
+            "status": "pending_first_tick",
+            "note": "Heartbeat writes on next tick — mood + bond + economy in one cycle.",
         },
         "stores": home.get("stores") or {},
         "sound": {
@@ -4088,6 +4094,11 @@ def snapshot() -> dict[str, Any]:
             "connection": (
                 "Layer 15D — Family Dashboard presents bonds (trust/affection), mood, memory depth, "
                 "choices, and growth skills/milestones from Hearth truth. Not Mode A MAS."
+            ),
+            "integration": (
+                "Layer 16A — thin heartbeat inside existing tick: mood soft-decay + period pull, "
+                "co-located familiarity nudge, wallet awareness. Status at /api/home/integration. "
+                "Not a second IntegrationEngine. No house-voice speech."
             ),
             "work": (
                 "AUTONOMOUS post choice. Garden tend is real kernel growth. "
@@ -4134,12 +4145,116 @@ def snapshot() -> dict[str, Any]:
     }
 
 
+def _integration_heartbeat(
+    home: dict[str, Any],
+    period: str,
+    living: list[dict[str, Any]],
+    last_social: str | None,
+) -> dict[str, Any]:
+    """Layer 16A — deepen existing tick coordination. No mega engine. No fabricated speech."""
+    import random
+
+    ps = home.setdefault("phase_status", {})
+    ps["16_integration"] = "16a_active"
+    people = home.setdefault("people", {})
+    mood_tally: dict[str, int] = {}
+    by_place: dict[str, list[str]] = {}
+    wallets_total = 0
+    low_wallet: list[str] = []
+    period_pull = {
+        "morning": ("content", 0.12),
+        "afternoon": ("thoughtful", 0.1),
+        "evening": ("peaceful", 0.12),
+        "night": ("tired", 0.14),
+    }
+    tick_n = int(home.get("tick") or 0)
+
+    for m in living:
+        mid = str(m.get("id") or "")
+        if not mid:
+            continue
+        st = people.setdefault(mid, _empty_person_state(m))
+        mood = _ensure_mood(st)
+        cur = str(mood.get("current") or "neutral")
+        mood_tally[cur] = int(mood_tally.get(cur) or 0) + 1
+        # Soft intensity decay — feelings fade unless life renews them.
+        intens = float(mood.get("intensity") or 0.5)
+        mood["intensity"] = round(max(0.2, intens * 0.97), 3)
+        # Mild period pull only when the current mood is not intense.
+        if float(mood.get("intensity") or 0) < 0.55 and tick_n % 3 == 0:
+            target, nudge = period_pull.get(period, ("content", 0.08))
+            if cur != target and random.random() < 0.35:
+                _nudge_mood(home, mid, target, intensity=nudge)
+        _ensure_wallet(st, mid)
+        bal = int(st.get("axiom") or 0)
+        wallets_total += bal
+        if bal < 5:
+            low_wallet.append(mid)
+            # Rare economy→mood hook: empty pocket can worry, not invent a speech line.
+            if tick_n % 7 == 0 and cur not in {"anxious", "frustrated", "sad", "tired"}:
+                _nudge_mood(home, mid, "anxious", intensity=0.16)
+        place = str(st.get("place") or "")
+        if place:
+            by_place.setdefault(place, []).append(mid)
+
+    co_pairs = 0
+    for _place, ids in by_place.items():
+        if len(ids) < 2:
+            continue
+        for i in range(len(ids)):
+            for j in range(i + 1, len(ids)):
+                rel = _ensure_rel(home, ids[i], ids[j])
+                fam = float(rel.get("familiarity") or 0.0)
+                if fam < 0.92:
+                    rel["familiarity"] = round(min(0.92, fam + 0.002), 4)
+                co_pairs += 1
+
+    pulse = {
+        "layer": "16a",
+        "status": "active",
+        "tick": tick_n,
+        "when": _now(),
+        "period": period,
+        "living": len(living),
+        "mood_tally": mood_tally,
+        "wallets_total": wallets_total,
+        "low_wallet": low_wallet[:8],
+        "co_located_pairs": co_pairs,
+        "last_social": last_social,
+        "hooks": {"mood": True, "bond": True, "economy": True},
+        "note": "One cycle inside tick — not a second brain. Speech stays ollama/mom/waiting/none.",
+    }
+    home["integration"] = pulse
+    return pulse
+
+
+def integration_status() -> dict[str, Any]:
+    """Layer 16A — status endpoint only (no second simulation)."""
+    home = load()
+    pulse = home.get("integration")
+    if not isinstance(pulse, dict):
+        pulse = {
+            "layer": "16a",
+            "status": "pending_first_tick",
+            "note": "Call tick (or wait for auto-tick) to write the first heartbeat.",
+        }
+    return {
+        "ok": True,
+        "layer": "16a",
+        "phase_status": (home.get("phase_status") or {}).get("16_integration"),
+        "tick": home.get("tick"),
+        "integration": pulse,
+        "endpoint": "/api/home/integration",
+    }
+
+
 def tick(n: int = 1) -> dict[str, Any]:
     """Advance life layer + clock. Safe to call from Godot or Hearth."""
     import random
 
     home = load()
     last_social = None
+    last_pulse: dict[str, Any] | None = None
     for _ in range(max(1, min(n, 8))):
         home["tick"] = int(home.get("tick") or 0) + 1
         clock = home.setdefault("clock", {"minutes": 480, "period": "morning", "day": 1})
@@ -4394,9 +4509,13 @@ def tick(n: int = 1) -> dict[str, Any]:
         if home["tick"] % 8 == 0:
             health_scan(home, persist=False)
 
+        # Layer 16A — one integration pulse per tick (mood + bond + economy hooks).
+        last_pulse = _integration_heartbeat(home, period, living, last_social)
+
     save(home)
     snap = snapshot()
     snap["last_social"] = last_social
+    snap["integration"] = last_pulse or home.get("integration")
     return snap
 
 
@@ -5138,7 +5257,13 @@ def set_person_stance(member_id: str, stance: str) -> dict[str, Any]:
 
 def status_phases() -> dict[str, Any]:
     home = load()
-    return {"ok": True, "phases": home.get("phase_status"), "save": str(HOME_JSON), "tick": home.get("tick")}
+    return {
+        "ok": True,
+        "phases": home.get("phase_status"),
+        "save": str(HOME_JSON),
+        "tick": home.get("tick"),
+        "integration": home.get("integration"),
+    }
 
 
 if __name__ == "__main__":
@@ -5154,11 +5279,13 @@ if __name__ == "__main__":
         print(json.dumps(health_scan(), indent=2)[:8000])
     elif cmd == "phases":
         print(json.dumps(status_phases(), indent=2))
+    elif cmd == "integration":
+        print(json.dumps(integration_status(), indent=2))
     elif cmd == "simulate":
         print(json.dumps(simulate_failure(sys.argv[2] if len(sys.argv) > 2 else "cinema"), indent=2))
     elif cmd == "repair":
         fid = sys.argv[2] if len(sys.argv) > 2 else ""
         print(json.dumps(try_repair(fid), indent=2))
     else:
-        print("usage: living_home.py [snapshot|tick|health|phases|simulate|repair]")
+        print("usage: living_home.py [snapshot|tick|health|phases|integration|simulate|repair]")
         sys.exit(2)

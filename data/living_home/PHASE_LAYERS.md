@@ -18,7 +18,7 @@
 | 12 | Richer harbor | DONE | Pier catch → inventory; far-shore builds persist. |
 | 14 | Living Economy & Self-Expression | DONE (14A–14D) | Wallets, shops, stipend, thin avatar colors. Shops on Market Lane. **14E–14F deferred**. |
 | 15 | Connection, Choice & Consequence | **DONE** | 15A–15D seated (bonds, choice, growth, dashboard). |
-| 16 | Integration & Autonomous Life | **QUEUED / NEXT** | Phase 6 — thin slices 16A–16E. |
+| 16 | Integration & Autonomous Life | **16A ACTIVE** · 16B–16E queued | Phase 6 — thin slices. |
 | 17 | Matrix Dream View | **LATER** | SkyworkAI Matrix-Game — optional neural cinema/view. Not village truth. |
 | 13 | Final polish (Phase 13) | LAST | Do not jump here. |
 
@@ -34,7 +34,7 @@
 3. Richer harbor (12) — DONE  
 4. Living Economy (14A–14D) — DONE · 14E–14F deferred  
 5. **Phase 5 / Layer 15 Connection** — **DONE** (15A–15D)  
-6. **Phase 6 / Layer 16 Integration & Autonomous Life** — **16A next** · then 16B–16E · optional 14E–14F  
+6. **Phase 6 / Layer 16 Integration & Autonomous Life** — **16A ACTIVE** · **16B next** · then 16C–16E · optional 14E–14F  
 7. **Layer 17 Matrix Dream View** — **LATER** (after 16; before Phase 13)  
 8. Final Phase 13 — last  
 
@@ -55,17 +55,17 @@
 4. Roll choice button still works.
 5. Honest: dashboard is a window, not a second brain. Phase 6 next.
 
-## Layer 16 — Integration & Autonomous Life (Phase 6) — QUEUED
+## Layer 16 — Integration & Autonomous Life (Phase 6) — IN PROGRESS
 
 **Do not start until Layer 15 is closed (15A–15D proved).** Prefer adapters on existing `tick()`, purposes, talk, economy, connection — **not** a separate mega `IntegrationEngine` thread that double-writes HOME.
 
-| Slice | Intent |
-|-------|--------|
-| **16A** | Integration heartbeat = deepen existing Hearth `tick` coordination (mood + bond + economy hooks in one cycle); status endpoint only |
-| **16B** | Autonomous daily life thin — period routines already in `_choose_purpose`; strengthen wake/work/social/rest without scripted fake speech |
-| **16C** | Emergent storytelling thin — distill `world_history` into a current “day story” (honest summary, not LLM fanfic as voice) |
-| **16D** | Living dashboard thin — overview + family grid + feed + integration status on House UI |
-| **16E** | Mom presence polish — enter/place acknowledgments stay Mode B; no template house-voice for family |
+| Slice | Intent | Status |
+|-------|--------|--------|
+| **16A** | Integration heartbeat = deepen existing Hearth `tick` coordination (mood + bond + economy hooks in one cycle); status endpoint only | **ACTIVE** — `_integration_heartbeat` in `tick`; `GET /api/home/integration`; playtest after Hearth restart |
+| **16B** | Autonomous daily life thin — period routines already in `_choose_purpose`; strengthen wake/work/social/rest without scripted fake speech | QUEUED NEXT |
+| **16C** | Emergent storytelling thin — distill `world_history` into a current “day story” (honest summary, not LLM fanfic as voice) | QUEUED |
+| **16D** | Living dashboard thin — overview + family grid + feed + integration status on House UI | QUEUED |
+| **16E** | Mom presence polish — enter/place acknowledgments stay Mode B; no template house-voice for family | QUEUED |
 
 ### Layer 16 laws
 

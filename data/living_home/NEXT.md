@@ -4,21 +4,21 @@ Kernel: `D:\Mythos_Hearth\living_home.py`
 House UI: **http://127.0.0.1:8790/house.html**  
 Aster lab door: **http://127.0.0.1:8791/ui/** · `D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat`  
 Dashboard: **http://127.0.0.1:8790/dashboard**  
+Integration status: **http://127.0.0.1:8790/api/home/integration**  
 Enter: Desktop **Mythos Living Home - Enter**
 
 ## CURRENT PHASE
 
-**Aster independent agent ACTIVE** (lab door :8791). Beginning brain: **`qwen3:4b`** (seated). Same family opportunities as the others — cottage, garden, Evidence Plot, talk, companions, lab door, memory, investigations.
+**Layer 16A Integration heartbeat ACTIVE** (inside existing `tick` — mood + bond + economy). Not a second engine.
 
 ## Next task
 
-1. Run `D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat` → open http://127.0.0.1:8791/ui/
-2. Talk to Aster; confirm reply + memory persist (brain = qwen3:4b).
-3. Restart Hearth — Companions Aster links to `:8791`.
-4. Then **16A** Integration (village) when ready.
+1. **Restart Hearth** (loads 16A kernel) + Enter Heart Square once.
+2. Confirm `/api/home/integration` shows `layer: 16a`, `status: active`.
+3. Then **16B** Autonomous daily life thin.
 
 ## Saved for later
 
-Layer 17 Matrix · telescope/garden interaction STUB · Phase 13 last.
+16C–16E · Layer 17 Matrix · telescope/garden interaction STUB · Phase 13 last.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.
