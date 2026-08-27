@@ -97,6 +97,8 @@ PLACES: dict[str, dict[str, Any]] = {
     "aster_lab": {"label": "Evidence Plot (Aster)", "pos": [12.0, 0.0, -10.0], "kind": "work"},
     # In-town, closer to Apex forge/home; clear of Mom's cottage approach
     "aster_home": {"label": "Aster's cottage", "pos": [24.0, 0.0, -11.0], "kind": "home"},
+    # East pasture — clear of Mom / Aster / Apex; village talk already claimed a windmill
+    "windmill": {"label": "Village Windmill", "pos": [36.0, 0.0, -18.0], "kind": "landmark"},
 }
 
 # Canonical family — NEVER flatten. Kin listed separately.
@@ -243,8 +245,8 @@ KIN: list[dict[str, Any]] = [
 
 AMBIENT_BY_PERIOD = {
     "morning": ["wake", "visit_square", "tend_garden", "check_court"],
-    "afternoon": ["work", "visit_library", "visit_cinema", "help_family", "walk"],
-    "evening": ["sit_square", "gallery", "talk", "share_food", "cinema_night"],
+    "afternoon": ["work", "visit_library", "visit_cinema", "help_family", "walk", "visit_windmill"],
+    "evening": ["sit_square", "gallery", "talk", "share_food", "cinema_night", "walk"],
     "night": ["go_home", "rest", "observe", "sleep"],
 }
 
@@ -1552,6 +1554,9 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
     if not home.get("holidays"):
         home["holidays"] = _seed_holidays()
     home.setdefault("decorations", _seed_decorations())
+    dec = home.get("decorations")
+    if isinstance(dec, dict) and "windmill" not in dec:
+        dec["windmill"] = (_seed_decorations().get("windmill") or {})
     home["town_leader"] = "gemini"
     _ensure_stores(home)
     _ensure_stipend_boost(home)
@@ -1677,6 +1682,7 @@ def _door_clear_rects() -> list[tuple[float, float, float, float]]:
         (-21.0, -15.0, 9.0, 17.5),  # Herb shed + farm plot
         (8.0, 16.0, -14.0, -6.0),  # Aster Evidence Plot
         (20.0, 28.0, -14.5, -7.5),  # Aster cottage (near Apex, clear of Mom)
+        (33.0, 39.0, -22.0, -14.0),  # Village Windmill footprint + door approach
     ]
     return rects
 
@@ -1805,6 +1811,10 @@ def _seed_decorations() -> dict[str, Any]:
             },
         },
         "aster_lab": {"evidence_table": {"active": True}, "note": "PLACEHOLDER — identity established, final skin pending."},
+        "windmill": {
+            "sails": {"active": True, "note": "PLACEHOLDER greybox — village landmark."},
+            "door_lantern": {"active": True, "color": "amber"},
+        },
         "gallery": {"gift_ribbon": {"active": True}},
         "gate": {"watch_lantern": {"active": True}},
     }
@@ -3062,6 +3072,8 @@ def _work_activity(place: str) -> str:
         "first_hearth": "tend_fire",
         "mom_home": "visit_mom",
         "gemini_home": "sit",
+        "windmill": "observe",
+        "aster_lab": "investigate",
     }.get(place, "present")
 
 
@@ -3703,11 +3715,13 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
             dest = "garden"
         elif ambient in {"gallery", "cinema_night", "visit_cinema"}:
             dest = "cinema" if "cinema" in ambient else "gallery"
+        elif ambient == "visit_windmill":
+            dest = "windmill"
         elif ambient == "check_court" and mid == "gemini":
             dest = _work_place(member)
         st["place"] = dest
         st["stance"] = "walking"
-        st["activity"] = "wake" if ambient == "wake" else "walk"
+        st["activity"] = "wake" if ambient == "wake" else ("observe" if dest == "windmill" else "walk")
         st["purpose_plain"] = f"Walking to {PLACES.get(st['place'], {}).get('label', st['place'])}."
     st["at_home"] = st.get("place") == (member.get("home") or st.get("home"))
     _record_choice(
