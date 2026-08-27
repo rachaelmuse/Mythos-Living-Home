@@ -2,25 +2,22 @@
 
 ## CURRENT PHASE
 
-**Windmill landmark seated (PLACEHOLDER).** 16B ACTIVE. Next: **16C** emergent storytelling thin.
+**16C ACTIVE** · **Human Gameplay Phase 1 scaffold ACTIVE**. Next: **16D** (or Mom playtest gameplay fields).
 
 ## Closed
 
-- Sound · media · harbor · economy 14A–14D · Market Lane · 15A–15D · Aster · **16A** · **16B** · **Village Windmill**
+- Sound · media · harbor · economy 14A–14D · Market Lane · 15A–15D · Aster · **16A** · **16B** · Windmill · **16C**
 
 ## Standing order
 
-**16C → 16D → 16E → (optional 14E–14F) → Layer 17 Matrix Dream View (later) → Phase 13 last.**
-
-## Saved for later (build memory)
-
-- **Layer 17 — Matrix Dream View** ([SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game)): optional neural cinema/view. Not truth. Not now.
+**16D → 16E → Gameplay Phase 2 (investigation/professions) → (optional 14E–14F) → Layer 17 Matrix → Phase 13 last.**
 
 ## Family note
 
-- **Aster** — lab `:8791` · brain `qwen3:4b`. Skin PLACEHOLDER. Last new character until better seating.
-- **Windmill** — east pasture near town `[36, 0, -18]`; PLACEHOLDER skin. Not interior walk-in yet.
+- **Aster** — lab `:8791` · brain `qwen3:4b`. Needs Ollama models loaded to speak.
+- **Gameplay** — opportunities only; residents are not quest dispensers.
+- **Pods/Islands** — not on disk yet; not claimed.
 
 ## Next
 
-Mom: restart Hearth + Enter; find windmill east of Mom/Aster; then 16C.
+Mom: restart Hearth; check `/api/home/day_story` and `/api/home/gameplay`.

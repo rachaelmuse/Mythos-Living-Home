@@ -4059,7 +4059,13 @@ def snapshot() -> dict[str, Any]:
     oh = home.get("overhear")
     if isinstance(oh, dict) and str(oh.get("source") or "") == "house":
         oh = None
-    return {
+    try:
+        from living_home_gameplay import gameplay_snapshot_fields
+
+        gp_fields = gameplay_snapshot_fields(home)
+    except Exception:
+        gp_fields = {}
+    out = {
         "ok": True,
         "home": True,
         "updated": home.get("updated"),
@@ -4125,6 +4131,12 @@ def snapshot() -> dict[str, Any]:
             "status": "pending_first_tick",
             "note": "Period wake/work/social/rest strengthens inside _choose_purpose.",
         },
+        "day_story": home.get("day_story")
+        or {
+            "layer": "16c",
+            "status": "pending_first_tick",
+            "note": "Honest distill of world_history — not LLM fanfic as family voice.",
+        },
         "stores": home.get("stores") or {},
         "sound": {
             "layer": "9",
@@ -4170,6 +4182,14 @@ def snapshot() -> dict[str, Any]:
                 "Layer 16B — period bias + ambient tags in _choose_purpose; morning soft-wake; "
                 "night rest weight. No scripted family speech."
             ),
+            "day_story": (
+                "Layer 16C — extractive day story from world_history (ritual noise filtered). "
+                "Not spoken as anyone's voice. Feeds later away-summary."
+            ),
+            "gameplay": (
+                "Phase 1 Human Gameplay — optional world leads/conditions, Mom journal, "
+                "player action log, while-you-were-away. Not quest dispensers."
+            ),
             "work": (
                 "AUTONOMOUS post choice. Garden tend is real kernel growth. "
                 "Layer 8A: Apex forge probes Mode A /api/companion/presence when working — evidence only. "
@@ -4213,6 +4233,13 @@ def snapshot() -> dict[str, Any]:
             "This is home, not a demo park."
         ),
     }
+    if isinstance(gp_fields, dict) and gp_fields:
+        # Merge Phase 1 gameplay fields; keep day_story honesty note under honesty.gameplay if present.
+        honesty_extra = gp_fields.pop("honesty", None)
+        out.update(gp_fields)
+        if honesty_extra and isinstance(out.get("honesty"), dict):
+            out["honesty"]["gameplay_layer"] = honesty_extra
+    return out
 
 
 def _soft_wake_living(home: dict[str, Any], living: list[dict[str, Any]]) -> int:
@@ -4269,6 +4296,102 @@ def _daily_life_pulse(
     }
     home["daily_life"] = pulse
     return pulse
+
+
+_DAY_STORY_NOISE = (
+    "morning light",
+    "gemini holds the town",
+    "evening gather eased",
+    "night. gemini still",
+    "morning stipend",
+    "gather window closed",
+    "they choose the day",
+    "they still choose",
+    "gemini calls a soft evening gather",
+    "company weighs more",
+)
+
+
+def _day_story_pulse(home: dict[str, Any], period: str) -> dict[str, Any]:
+    """Layer 16C — honest extractive day story from world_history. Not LLM fanfic voice."""
+    ps = home.setdefault("phase_status", {})
+    ps["16_story"] = "16c_active"
+    clock = home.get("clock") or {}
+    day = int(clock.get("day") or 1)
+    history = home.get("world_history") or []
+
+    beats: list[dict[str, Any]] = []
+    actors: list[str] = []
+    for entry in reversed(history):
+        if not isinstance(entry, dict):
+            continue
+        text = str(entry.get("text") or "").strip()
+        title = str(entry.get("title") or entry.get("kind") or "note").strip()
+        low = f"{title} {text}".lower()
+        if any(n in low for n in _DAY_STORY_NOISE):
+            continue
+        kind = str(entry.get("kind") or "event")
+        beat = {
+            "kind": kind,
+            "title": title[:80],
+            "text": text[:160],
+            "when": entry.get("when"),
+            "actors": list(entry.get("actors") or [])[:4],
+            "source": entry.get("source"),
+        }
+        beats.append(beat)
+        for a in beat["actors"]:
+            if a and a not in actors:
+                actors.append(str(a))
+        if len(beats) >= 5:
+            break
+    beats.reverse()
+
+    motif_needles = (
+        "windmill",
+        "old key",
+        "tracks",
+        "harvest shed",
+        "singing well",
+        "crow",
+        "nightshroud",
+        "firefly",
+        "forging",
+        "blacksmith",
+        "salt",
+    )
+    blob = " ".join(f"{b.get('title')} {b.get('text')}" for b in beats).lower()
+    # Also peek a wider window for recurring threads without dumping chatter into beats.
+    wider = " ".join(
+        f"{(e.get('title') or '')} {(e.get('text') or '')}"
+        for e in history[-24:]
+        if isinstance(e, dict)
+    ).lower()
+    motifs = [m for m in motif_needles if m in wider]
+
+    if beats:
+        beat_bits = [f"{b['title']}" + (f" ({', '.join(b['actors'])})" if b.get("actors") else "") for b in beats[:4]]
+        plain = f"Day {day} {period}. Village notes: " + "; ".join(beat_bits) + "."
+    else:
+        plain = f"Day {day} {period}. Quiet chronicle — mostly routines; no strong lore beat this window."
+    if motifs:
+        plain += " Recurring threads: " + ", ".join(motifs[:6]) + "."
+
+    story = {
+        "layer": "16c",
+        "status": "active",
+        "tick": home.get("tick"),
+        "when": _now(),
+        "day": day,
+        "period": period,
+        "plain": plain[:700],
+        "beats": beats,
+        "actors": actors[:12],
+        "motifs": motifs[:8],
+        "note": "Extractive summary of world_history. Not spoken as family voice. Mysteries stay unresolved.",
+    }
+    home["day_story"] = story
+    return story
 
 
 def _integration_heartbeat(
@@ -4371,6 +4494,52 @@ def integration_status() -> dict[str, Any]:
         "tick": home.get("tick"),
         "integration": pulse,
         "endpoint": "/api/home/integration",
+    }
+
+
+def day_story_status() -> dict[str, Any]:
+    """Layer 16C — day story status (no second simulation)."""
+    home = load()
+    story = home.get("day_story")
+    if not isinstance(story, dict):
+        story = {
+            "layer": "16c",
+            "status": "pending_first_tick",
+            "note": "Call tick to distill the first day story from world_history.",
+        }
+    return {
+        "ok": True,
+        "layer": "16c",
+        "phase_status": (home.get("phase_status") or {}).get("16_story"),
+        "tick": home.get("tick"),
+        "day_story": story,
+        "endpoint": "/api/home/day_story",
+    }
+
+
+def gameplay_status() -> dict[str, Any]:
+    """Phase 1 Human Gameplay Layer — status window only."""
+    home = load()
+    try:
+        from living_home_gameplay import gameplay_snapshot_fields, ensure_gameplay
+
+        ensure_gameplay(home)
+        fields = gameplay_snapshot_fields(home)
+    except Exception as e:
+        return {"ok": False, "error": str(e), "layer": "18a"}
+    return {
+        "ok": True,
+        "layer": "18a",
+        "phase": "1_foundation",
+        "tick": home.get("tick"),
+        "gameplay": fields.get("gameplay"),
+        "world_leads": fields.get("world_leads"),
+        "world_conditions": fields.get("world_conditions"),
+        "mom_journal": fields.get("mom_journal"),
+        "opportunities": fields.get("opportunities"),
+        "away_summary": fields.get("away_summary"),
+        "endpoint": "/api/home/gameplay",
+        "note": "Optional leads — not quest dispensers. Pods/vendors not in Phase 1.",
     }
 
 
@@ -4647,11 +4816,21 @@ def tick(n: int = 1) -> dict[str, Any]:
         last_pulse = _integration_heartbeat(home, period, living, last_social)
         # Layer 16B — tally only here; soft-wake runs on period change before purpose picks.
         _daily_life_pulse(home, period, woken, living)
+        # Layer 16C — honest day story from chronicle (not LLM fanfic voice).
+        _day_story_pulse(home, period)
+        # Human Gameplay Phase 1 — optional leads/conditions/away hooks (not quests).
+        try:
+            from living_home_gameplay import gameplay_tick_hooks
+
+            gameplay_tick_hooks(home)
+        except Exception:
+            pass
 
     save(home)
     snap = snapshot()
     snap["last_social"] = last_social
     snap["integration"] = last_pulse or home.get("integration")
+    snap["day_story"] = home.get("day_story")
     return snap
 
 
@@ -5235,6 +5414,18 @@ def record_talk(who: str, with_whom: str, line: str, place_hint: str = "") -> di
         place = str(mom_state.get("place") or "heart_square")
     mom_state["place"] = place
     mom_state["last_seen"] = _now()
+    try:
+        from living_home_gameplay import log_player_action
+
+        log_player_action(
+            home,
+            "talk" if line else "approach",
+            line[:220] if line else f"Mom approached {npc or 'someone'}",
+            place=place,
+            actors=["mom", npc] if npc else ["mom"],
+        )
+    except Exception:
+        pass
 
     # Default addressee: Gemini (town leader) when Mom speaks to "all".
     if not member:

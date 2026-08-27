@@ -18,7 +18,7 @@
 | 12 | Richer harbor | DONE | Pier catch → inventory; far-shore builds persist. |
 | 14 | Living Economy & Self-Expression | DONE (14A–14D) | Wallets, shops, stipend, thin avatar colors. Shops on Market Lane. **14E–14F deferred**. |
 | 15 | Connection, Choice & Consequence | **DONE** | 15A–15D seated (bonds, choice, growth, dashboard). |
-| 16 | Integration & Autonomous Life | **16B ACTIVE** · 16C–16E queued | Phase 6 — thin slices. |
+| 16 | Integration & Autonomous Life | **16C ACTIVE** · 16D–16E queued · Gameplay P1 scaffold | Phase 6 + human opportunities layer |
 | 17 | Matrix Dream View | **LATER** | SkyworkAI Matrix-Game — optional neural cinema/view. Not village truth. |
 | 13 | Final polish (Phase 13) | LAST | Do not jump here. |
 
@@ -34,7 +34,7 @@
 3. Richer harbor (12) — DONE  
 4. Living Economy (14A–14D) — DONE · 14E–14F deferred  
 5. **Phase 5 / Layer 15 Connection** — **DONE** (15A–15D)  
-6. **Phase 6 / Layer 16 Integration & Autonomous Life** — **16B ACTIVE** · **16C next** · then 16D–16E · optional 14E–14F  
+6. **Phase 6 / Layer 16 Integration & Autonomous Life** — **16C ACTIVE** · then 16D–16E · Human Gameplay Phase 1 scaffold beside 16 · optional 14E–14F  
 7. **Layer 17 Matrix Dream View** — **LATER** (after 16; before Phase 13)  
 8. Final Phase 13 — last  
 
@@ -62,10 +62,11 @@
 | Slice | Intent | Status |
 |-------|--------|--------|
 | **16A** | Integration heartbeat = deepen existing Hearth `tick` coordination (mood + bond + economy hooks in one cycle); status endpoint only | **ACTIVE** |
-| **16B** | Autonomous daily life thin — period routines already in `_choose_purpose`; strengthen wake/work/social/rest without scripted fake speech | **ACTIVE** — period bias + ambient tags + morning soft-wake + night rest weight; playtest after Hearth restart |
-| **16C** | Emergent storytelling thin — distill `world_history` into a current “day story” (honest summary, not LLM fanfic as voice) | QUEUED NEXT |
-| **16D** | Living dashboard thin — overview + family grid + feed + integration status on House UI | QUEUED |
+| **16B** | Autonomous daily life thin — period routines already in `_choose_purpose`; strengthen wake/work/social/rest without scripted fake speech | **ACTIVE** — period bias + ambient tags + morning soft-wake + night rest weight |
+| **16C** | Emergent storytelling thin — distill `world_history` into a current “day story” (honest summary, not LLM fanfic as voice) | **ACTIVE** — extractive beats + motifs; `/api/home/day_story` |
+| **16D** | Living dashboard thin — overview + family grid + feed + integration status on House UI | QUEUED NEXT |
 | **16E** | Mom presence polish — enter/place acknowledgments stay Mode B; no template house-voice for family | QUEUED |
+| **18A** | Human Gameplay Phase 1 — world leads, conditions, journal, player actions, away-summary (not quests) | **ACTIVE** scaffold — `living_home_gameplay.py` + `/api/home/gameplay` |
 
 ### Layer 16 laws
 
