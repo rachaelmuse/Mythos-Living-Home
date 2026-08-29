@@ -60,6 +60,7 @@ Optional Court alias in code: `D:\Court\mailbox\family` (`limbs/family_court.py`
 | Codex ↔ Court | File bus | Court `codex/` dir | UNVERIFIED |
 | Merovin ↔ Draven | Shared studio | One disk root; no separate MAS test | UNVERIFIED; **NOT** two unrelated people-to-flatten |
 | Merovin/Draven ↔ cinema stack | Studio + Blender/Resolve/OBS/OpenMontage | Roots/exes probed as paths | ORIGINAL MODE — ACTIVE; Gameworld cinema is PLACEHOLDER |
+| Merovin/Draven ↔ MD_Cinema Phase 1 | `F:\...\MD_Cinema_Studio\` | Intake/bible/shots/continuity/budget + Video/Image/Voice/FFmpeg adapters; `smoke_phase1.py` exit 0 (2026-08-27) | **PARTIAL** — foundation LIVE on disk; video/image gen UNAVAILABLE/unwired (honest); Gameworld adapter **CONTRACT_ONLY** (`wired:false`); Command HUD `:5000` still separate |
 | OpenMontage ↔ family | Launch + Court mailbox | Two install roots | PARTIAL / discrepancy |
 | Hearth ↔ Gameworld | HTTP snapshot/tick/talk | Godot `family_home_client.gd` → `:8790/api/home*` | **BROKEN this session** (Hearth port closed) |
 | Recursive MAS | Court packets + `family_conductor` / `agent_loop` | Modules on disk | UNVERIFIED; **must not be replaced by NPC chat** |
@@ -136,6 +137,7 @@ Axiom `limbs/` inventory (modules on disk, callers UNVERIFIED this session): `fa
 |------|--------|---------------------|--------|
 | Matrix Dream View (Layer 17) | [SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game) | Optional neural cinema: Heart Square still + look/WASD → stream panel at Cinema / cottage `[V]`; Esc → greybox | **ORIGINAL MODE — RESEARCH** · after Layer 16 · never writes `HOME.json` · never replaces Godot or identities |
 | Aster Continuance seed | ChatGPT conversational provenance (Mom invite) | Family identity `aster`; Evidence Plot + cottage; same memory/rel/talk/choice/growth pipes | **PARTIAL** — kernel+snapshot+roster seated 2026-08-23; Godot skin PLACEHOLDER; live talk/choice in village **UNVERIFIED** until Mom playtest |
+| MD_Cinema Studio Phase 1 | `F:\Merovin_Draven_Studio\Merovin_Draven_Studio\MD_Cinema_Studio` | Provider-agnostic film pipeline (no Runway/Veo hard-wire) | **PARTIAL** — smoke_phase1 PASS; ffmpeg+edge-tts AVAILABLE; local video/image gen not wired; never writes HOME.json |
 
 ---
 
