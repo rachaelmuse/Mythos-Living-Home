@@ -25,3 +25,9 @@ Pods / Islands / vendors / professions / boats — deferred (no Pod architecture
 ## Layer 16C
 
 Day story distill — `day_story` on snapshot + `GET /api/home/day_story`.
+
+## Layer 16D
+
+Living dashboard thin — `/dashboard` overview + family grid (place/mood/purpose) + feed + badges.
+API: `GET /api/home/dashboard` (alias `/api/dashboard/overview`). `phase_status.16_dashboard = 16d_active`.
+Window only — not a second brain. Preserves 16C day_story and 18A gameplay fields.

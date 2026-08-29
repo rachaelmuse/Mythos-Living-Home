@@ -2171,6 +2171,10 @@ class HearthHandler(SimpleHTTPRequestHandler):
             from living_home import gameplay_status
 
             return self._json(200, gameplay_status())
+        if path in {"/api/home/dashboard", "/api/dashboard/overview"}:
+            from living_home import dashboard_overview
+
+            return self._json(200, dashboard_overview())
 
         # ===== Family dashboard (window into Hearth — does not replace Godot) =====
         if path in {"/dashboard", "/dashboard/"}:

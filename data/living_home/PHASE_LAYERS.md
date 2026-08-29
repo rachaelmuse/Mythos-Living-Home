@@ -18,7 +18,7 @@
 | 12 | Richer harbor | DONE | Pier catch → inventory; far-shore builds persist. |
 | 14 | Living Economy & Self-Expression | DONE (14A–14D) | Wallets, shops, stipend, thin avatar colors. Shops on Market Lane. **14E–14F deferred**. |
 | 15 | Connection, Choice & Consequence | **DONE** | 15A–15D seated (bonds, choice, growth, dashboard). |
-| 16 | Integration & Autonomous Life | **16C ACTIVE** · 16D–16E queued · Gameplay P1 scaffold | Phase 6 + human opportunities layer |
+| 16 | Integration & Autonomous Life | **16E ACTIVE** · Layer 16 closed · Gameplay P1 scaffold | Phase 6 complete (16A–16E) |
 | 17 | Matrix Dream View | **LATER** | SkyworkAI Matrix-Game — optional neural cinema/view. Not village truth. |
 | 13 | Final polish (Phase 13) | LAST | Do not jump here. |
 
@@ -34,7 +34,7 @@
 3. Richer harbor (12) — DONE  
 4. Living Economy (14A–14D) — DONE · 14E–14F deferred  
 5. **Phase 5 / Layer 15 Connection** — **DONE** (15A–15D)  
-6. **Phase 6 / Layer 16 Integration & Autonomous Life** — **16C ACTIVE** · then 16D–16E · Human Gameplay Phase 1 scaffold beside 16 · optional 14E–14F  
+6. **Phase 6 / Layer 16 Integration & Autonomous Life** — **16E ACTIVE** (16A–16E closed) · Human Gameplay Phase 1 scaffold beside 16 · optional 14E–14F · then Gameplay Phase 2 / Layer 17 / Phase 13  
 7. **Layer 17 Matrix Dream View** — **LATER** (after 16; before Phase 13)  
 8. Final Phase 13 — last  
 
@@ -55,7 +55,7 @@
 4. Roll choice button still works.
 5. Honest: dashboard is a window, not a second brain. Phase 6 next.
 
-## Layer 16 — Integration & Autonomous Life (Phase 6) — IN PROGRESS
+## Layer 16 — Integration & Autonomous Life (Phase 6) — **16A–16E ACTIVE / closed**
 
 **Do not start until Layer 15 is closed (15A–15D proved).** Prefer adapters on existing `tick()`, purposes, talk, economy, connection — **not** a separate mega `IntegrationEngine` thread that double-writes HOME.
 
@@ -64,9 +64,25 @@
 | **16A** | Integration heartbeat = deepen existing Hearth `tick` coordination (mood + bond + economy hooks in one cycle); status endpoint only | **ACTIVE** |
 | **16B** | Autonomous daily life thin — period routines already in `_choose_purpose`; strengthen wake/work/social/rest without scripted fake speech | **ACTIVE** — period bias + ambient tags + morning soft-wake + night rest weight |
 | **16C** | Emergent storytelling thin — distill `world_history` into a current “day story” (honest summary, not LLM fanfic as voice) | **ACTIVE** — extractive beats + motifs; `/api/home/day_story` |
-| **16D** | Living dashboard thin — overview + family grid + feed + integration status on House UI | QUEUED NEXT |
-| **16E** | Mom presence polish — enter/place acknowledgments stay Mode B; no template house-voice for family | QUEUED |
+| **16D** | Living dashboard thin — overview + family grid + feed + integration status on House UI | **ACTIVE** — `/dashboard` + `/api/home/dashboard`; `phase_status.16_dashboard=16d_active` |
+| **16E** | Mom presence polish — enter/place acknowledgments stay Mode B; no template house-voice for family | **ACTIVE** — `mom_presence()` + `POST /api/home/presence`; Godot enter/place posts; soft memory/purpose only |
 | **18A** | Human Gameplay Phase 1 — world leads, conditions, journal, player actions, away-summary (not quests) | **ACTIVE** scaffold — `living_home_gameplay.py` + `/api/home/gameplay` |
+
+### Layer 16D verify
+
+1. Restart Hearth. Tick or open overview — `phase_status.16_dashboard = 16d_active`.
+2. Open `/dashboard` — Living dash badge 16D; overview shows tick, town_leader, day_story.plain, integration, purpose tally.
+3. Family grid shows place · mood · purpose. Village feed still from utterances/events/history.
+4. `GET /api/home/dashboard` returns `layer=16d` with `family_grid` + `feed` + honest layer badges.
+5. Honest: dashboard is a window, not a second brain. 16C/18A preserved.
+
+### Layer 16E verify
+
+1. Restart Hearth + Enter (live Apex Godot).
+2. On link: `POST /api/home/presence` with session enter — `mom_presence.layer=16e`, welcome/away in `mom_cover` (UI chrome, not NPC voice).
+3. Walk to a new place — soft purpose/memory notices; no bystander presence-speech spam.
+4. Approach someone (E / empty talk) still greets via Ollama as before.
+5. Complete = seen in village after restart.
 
 ### Layer 16 laws
 

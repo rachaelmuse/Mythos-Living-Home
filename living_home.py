@@ -4137,6 +4137,11 @@ def snapshot() -> dict[str, Any]:
             "status": "pending_first_tick",
             "note": "Honest distill of world_history — not LLM fanfic as family voice.",
         },
+        "living_dashboard": {
+            "layer": "16d",
+            "status": (home.get("phase_status") or {}).get("16_dashboard") or "pending",
+            "note": "Overview + family grid + feed on /dashboard. Window only — not a second brain.",
+        },
         "stores": home.get("stores") or {},
         "sound": {
             "layer": "9",
@@ -4185,6 +4190,10 @@ def snapshot() -> dict[str, Any]:
             "day_story": (
                 "Layer 16C — extractive day story from world_history (ritual noise filtered). "
                 "Not spoken as anyone's voice. Feeds later away-summary."
+            ),
+            "living_dashboard": (
+                "Layer 16D — Family Dashboard window: overview + family grid + feed + "
+                "integration/gameplay badges. Not a second brain; Hearth snapshot is truth."
             ),
             "gameplay": (
                 "Phase 1 Human Gameplay — optional world leads/conditions, Mom journal, "
@@ -4543,6 +4552,131 @@ def gameplay_status() -> dict[str, Any]:
     }
 
 
+def dashboard_overview(persist: bool = True) -> dict[str, Any]:
+    """Layer 16D — thin living-dashboard aggregate from existing snapshot fields. No second sim."""
+    home = load()
+    ps = home.setdefault("phase_status", {})
+    ps["16_dashboard"] = "16d_active"
+    if persist:
+        try:
+            save(home)
+        except Exception:
+            pass
+
+    snap = snapshot()
+    clock = snap.get("clock") or {}
+    weather = snap.get("weather") or {}
+    integ = snap.get("integration") or {}
+    daily = snap.get("daily_life") or {}
+    story = snap.get("day_story") or {}
+    gp = snap.get("gameplay") or {}
+    away = snap.get("away_summary") or {}
+    leads = snap.get("world_leads") or []
+    purpose_tally = daily.get("purpose_tally") if isinstance(daily, dict) else {}
+    open_leads = [
+        l
+        for l in leads
+        if isinstance(l, dict) and str(l.get("status") or "") not in {"resolved", "disproven", "abandoned"}
+    ]
+    feed = []
+    for entry in list(snap.get("world_history") or [])[-8:]:
+        if isinstance(entry, dict):
+            feed.append(
+                {
+                    "kind": entry.get("kind") or "history",
+                    "when": entry.get("when"),
+                    "text": (entry.get("text") or entry.get("title") or "")[:160],
+                    "actors": list(entry.get("actors") or [])[:4],
+                }
+            )
+    for entry in list(snap.get("events") or [])[-6:]:
+        if isinstance(entry, dict):
+            feed.append(
+                {
+                    "kind": entry.get("kind") or "event",
+                    "when": entry.get("when"),
+                    "text": (entry.get("text") or entry.get("plain") or "")[:160],
+                    "actors": list(entry.get("actors") or [])[:4],
+                }
+            )
+    feed.sort(key=lambda r: str(r.get("when") or ""), reverse=True)
+
+    family_grid = []
+    for person in snap.get("family") or []:
+        if not isinstance(person, dict) or person.get("ambient_only"):
+            continue
+        mood = person.get("mood") if isinstance(person.get("mood"), dict) else {}
+        family_grid.append(
+            {
+                "id": person.get("id"),
+                "name": person.get("name") or person.get("id"),
+                "place": person.get("place"),
+                "purpose": person.get("purpose"),
+                "purpose_plain": person.get("purpose_plain"),
+                "stance": person.get("stance"),
+                "activity": person.get("activity"),
+                "mood": mood.get("current") or "neutral",
+                "mood_intensity": mood.get("intensity"),
+            }
+        )
+
+    layers = {
+        "16a_integration": (ps.get("16_integration") or integ.get("layer") or "16a"),
+        "16b_daily_life": (ps.get("16_daily_life") or daily.get("layer") or "16b"),
+        "16c_day_story": (ps.get("16_story") or story.get("layer") or "16c"),
+        "16d_dashboard": ps.get("16_dashboard") or "16d_active",
+        "18a_gameplay": (gp.get("layer") if isinstance(gp, dict) else None) or "18a",
+        "15d_connection": (snap.get("connection") or {}).get("layer") or "15d",
+    }
+
+    return {
+        "ok": True,
+        "layer": "16d",
+        "status": "16d_active",
+        "phase_status": ps.get("16_dashboard"),
+        "tick": snap.get("tick"),
+        "town_leader": snap.get("town_leader") or "gemini",
+        "clock": {
+            "day": clock.get("day"),
+            "period": clock.get("period"),
+            "season": clock.get("season"),
+            "minutes": clock.get("minutes"),
+        },
+        "weather": {
+            "current": weather.get("current"),
+            "temperature": weather.get("temperature"),
+        },
+        "day_story": {
+            "plain": (story or {}).get("plain"),
+            "motifs": (story or {}).get("motifs") or [],
+            "layer": (story or {}).get("layer") or "16c",
+            "status": (story or {}).get("status"),
+        },
+        "integration": {
+            "status": integ.get("status"),
+            "period": integ.get("period"),
+            "living": integ.get("living"),
+            "co_located_pairs": integ.get("co_located_pairs"),
+            "mood_tally": integ.get("mood_tally") or {},
+            "layer": integ.get("layer") or "16a",
+        },
+        "daily_life": {
+            "woken": daily.get("woken"),
+            "purpose_tally": purpose_tally or {},
+            "period": daily.get("period"),
+            "layer": daily.get("layer") or "16b",
+        },
+        "away_summary": away if isinstance(away, dict) else {"pending": False, "plain": ""},
+        "world_leads_open": len(open_leads),
+        "gameplay": {"layer": layers["18a_gameplay"], "open_leads": len(open_leads)},
+        "family_grid": family_grid,
+        "feed": feed[:16],
+        "layers": layers,
+        "endpoint": "/api/home/dashboard",
+        "note": "Window into Hearth — not a second brain. Identities never merge.",
+    }
+
+
 def tick(n: int = 1) -> dict[str, Any]:
     """Advance life layer + clock. Safe to call from Godot or Hearth."""
     import random
@@ -4818,6 +4952,8 @@ def tick(n: int = 1) -> dict[str, Any]:
         _daily_life_pulse(home, period, woken, living)
         # Layer 16C — honest day story from chronicle (not LLM fanfic voice).
         _day_story_pulse(home, period)
+        # Layer 16D — living dashboard window is active (UI reads snapshot; no second sim).
+        ps["16_dashboard"] = "16d_active"
         # Human Gameplay Phase 1 — optional leads/conditions/away hooks (not quests).
         try:
             from living_home_gameplay import gameplay_tick_hooks
@@ -4831,6 +4967,11 @@ def tick(n: int = 1) -> dict[str, Any]:
     snap["last_social"] = last_social
     snap["integration"] = last_pulse or home.get("integration")
     snap["day_story"] = home.get("day_story")
+    snap["living_dashboard"] = {
+        "layer": "16d",
+        "status": "16d_active",
+        "note": "Overview + family grid + feed on /dashboard. Window only.",
+    }
     return snap
 
 
@@ -5590,6 +5731,8 @@ def status_phases() -> dict[str, Any]:
         "save": str(HOME_JSON),
         "tick": home.get("tick"),
         "integration": home.get("integration"),
+        "day_story": home.get("day_story"),
+        "living_dashboard": (home.get("phase_status") or {}).get("16_dashboard"),
     }
 
 
@@ -5608,11 +5751,15 @@ if __name__ == "__main__":
         print(json.dumps(status_phases(), indent=2))
     elif cmd == "integration":
         print(json.dumps(integration_status(), indent=2))
+    elif cmd in {"dashboard", "overview"}:
+        print(json.dumps(dashboard_overview(), indent=2)[:8000])
     elif cmd == "simulate":
         print(json.dumps(simulate_failure(sys.argv[2] if len(sys.argv) > 2 else "cinema"), indent=2))
     elif cmd == "repair":
         fid = sys.argv[2] if len(sys.argv) > 2 else ""
         print(json.dumps(try_repair(fid), indent=2))
     else:
-        print("usage: living_home.py [snapshot|tick|health|phases|integration|simulate|repair]")
+        print(
+            "usage: living_home.py [snapshot|tick|health|phases|integration|dashboard|simulate|repair]"
+        )
         sys.exit(2)
