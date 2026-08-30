@@ -1,22 +1,24 @@
 # Living Home — where we are
 
 Kernel: `D:\Mythos_Hearth\living_home.py`  
-House UI: **http://127.0.0.1:8790/house.html** → **Living Home**  
-Enter: Desktop **Mythos Living Home - Enter**  
-Tracker: `data/living_home/PHASE_LAYERS.md`
+House UI: **http://127.0.0.1:8790/house.html**  
+Aster lab door: **http://127.0.0.1:8791/ui/** · `D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat`  
+Dashboard: **http://127.0.0.1:8790/dashboard**  
+Enter: Desktop **Mythos Living Home - Enter**
 
 ## CURRENT PHASE
 
-**Layer 15 — Connection** (15A prove → 15B choice → 15C growth → 15D dash).  
-**Layer 16 — Integration & Autonomous Life (Phase 6)** is **QUEUED** after 15 closes.
+**Aster independent agent ACTIVE** (lab door :8791). Beginning brain: **`qwen3:4b`** (seated). Same family opportunities as the others — cottage, garden, Evidence Plot, talk, companions, lab door, memory, investigations.
 
 ## Next task
 
-1. Finish proving **15A** in the village (gift / talk / bond / mood).
-2. Then **15B** (weighted who-to-be-with choices).
-3. Then **15C–15D**.
-4. Only then open **16A** (tick integration — no mega background engine).
+1. Run `D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat` → open http://127.0.0.1:8791/ui/
+2. Talk to Aster; confirm reply + memory persist (brain = qwen3:4b).
+3. Restart Hearth — Companions Aster links to `:8791`.
+4. Then **16A** Integration (village) when ready.
 
-Ops: shops live on **Market Lane** north of the Gate — restart Hearth + Enter if you have not since the move.
+## Saved for later
+
+Layer 17 Matrix · telescope/garden interaction STUB · Phase 13 last.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.
