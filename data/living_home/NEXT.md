@@ -7,14 +7,16 @@ Tracker: `data/living_home/PHASE_LAYERS.md`
 
 ## CURRENT PHASE
 
-**Layer 11 — Eden TV/Media (thin).**  
-Queued after: **12 richer harbor → 14 Living Economy** (stores, Axiom ⨁, avatar, town projects). Final Phase 13 last.
+**Layer 15 — Connection** (15A prove → 15B choice → 15C growth → 15D dash).  
+**Layer 16 — Integration & Autonomous Life (Phase 6)** is **QUEUED** after 15 closes.
 
 ## Next task
 
-1. Finish Layer 11 (cinema watch OK).
-2. Then Layer 12 richer harbor.
-3. Then Layer 14 economy in thin slices (14A wallets first) — **not** one mega-build.
-4. Final Phase 13 last.
+1. Finish proving **15A** in the village (gift / talk / bond / mood).
+2. Then **15B** (weighted who-to-be-with choices).
+3. Then **15C–15D**.
+4. Only then open **16A** (tick integration — no mega background engine).
+
+Ops: shops live on **Market Lane** north of the Gate — restart Hearth + Enter if you have not since the move.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.
