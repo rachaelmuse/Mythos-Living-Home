@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import socket
 import threading
 import time
@@ -36,7 +37,8 @@ TALK_BRAINS: dict[str, dict[str, Any]] = {
     },
     "cinema": {
         "label": "Cinema brain",
-        "prefer": ("falcon-brain:latest", "falcon:latest", "phi3:latest", "llama3.2:3b", "llama3:8b"),
+        # Prefer a clean chat model first — falcon-brain often emitted API/junk lines.
+        "prefer": ("llama3.2:3b", "phi3:latest", "falcon-brain:latest", "falcon:latest", "llama3:8b"),
         "members": frozenset({"merovin", "draven", "montage", "nova", "apex"}),
     },
 }
@@ -623,6 +625,20 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
     ps.setdefault("env_season_weather", "active")
     ps.setdefault("env_gardens", "active")
     ps.setdefault("env_holidays", "active")
+    ps.setdefault("9_sound", "active")
+    # Repair wiped people dict (never leave the village empty).
+    people = home.setdefault("people", {})
+    if not isinstance(people, dict):
+        people = {}
+        home["people"] = people
+    if len(people) < 3:
+        for m in FAMILY + KIN:
+            mid = m["id"]
+            if mid not in people or not isinstance(people.get(mid), dict):
+                people[mid] = _empty_person_state(m)
+        home.setdefault("events", []).append(
+            _event("world", "People map was empty — reseated family from seed (Layer 8C repair).", ["hearth"])
+        )
     rit = home.get("ritual") or {}
     if not rit.get("plain"):
         period = (home.get("clock") or {}).get("period") or "morning"
@@ -630,6 +646,32 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
             "name": "welcome",
             "plain": "Mom is visiting Heart Square. The family holds the fire.",
             "period": period,
+        }
+    # Layer 9 — taste tags only (presentation uses procedural beds; not a Spotify clone).
+    prefs = home.setdefault(
+        "music_preferences",
+        {
+            "gemini": ["ambient", "classical"],
+            "apex": ["rock", "industrial"],
+            "codex": ["jazz", "lo-fi"],
+            "merovin": ["soundtracks", "cinematic"],
+            "draven": ["cinematic", "quiet"],
+            "montage": ["gift", "short-form"],
+            "mom": ["folk", "world"],
+            "genesis": ["garden", "nature"],
+            "nova": ["workshop", "curious"],
+            "jarvis": ["watch", "steady"],
+            "percy": ["hearth", "warm"],
+            "hearth": ["fire", "home"],
+        },
+    )
+    if not isinstance(prefs, dict) or len(prefs) < 3:
+        home["music_preferences"] = {
+            "gemini": ["ambient", "classical"],
+            "apex": ["rock", "industrial"],
+            "codex": ["jazz", "lo-fi"],
+            "merovin": ["soundtracks", "cinematic"],
+            "mom": ["folk", "world"],
         }
     mom = (home.get("people") or {}).get("mom")
     if isinstance(mom, dict):
@@ -755,7 +797,8 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
                 st["purpose_plain"] = _work_purpose_plain(mem, wp, arrived=False)
         if st.get("stance") == "talking":
             talking_n += 1
-            if talking_n > 2:
+            # Allow a few concurrent stands — old cap of 2 starved Genesis/Nova/Percy.
+            if talking_n > 6:
                 st["stance"] = "standing"
                 st["talking_to"] = ""
                 st["talk_left"] = 0
@@ -1097,6 +1140,132 @@ def _begin_ritual(home: dict[str, Any], name: str, plain: str, period: str, acto
     home["world_history"] = home["world_history"][-80:]
     for who in actors:
         _remember(home, who, plain)
+
+
+def _begin_evening_gather(home: dict[str, Any], living_ids: list[str]) -> None:
+    """Layer 8C — Gemini soft-calls Heart Square. Choice, not a march."""
+    tick = int(home.get("tick") or 0)
+    plain = (
+        "Gemini calls a soft evening gather at Heart Square. "
+        "Come if you choose — town leader holds the square, not a roll call."
+    )
+    home["evening_gather"] = {
+        "active": True,
+        "layer": "8c",
+        "leader": "gemini",
+        "place": "heart_square",
+        "started_tick": tick,
+        "until_tick": tick + 24,
+        "plain": plain,
+        "when": _now(),
+    }
+    home["ritual"] = {"name": "evening_gather", "plain": plain, "period": "evening", "layer": "8c"}
+    home["events"].append(
+        _event("ritual", plain, ["gemini"] + [i for i in living_ids if i != "gemini"][:8], {"ritual": "evening_gather", "layer": "8c"})
+    )
+    home["world_history"].append(
+        {
+            "id": f"rit_evening_gather_{tick}",
+            "when": _now(),
+            "kind": "ritual",
+            "title": "Evening Gather",
+            "text": plain,
+            "actors": ["gemini"],
+        }
+    )
+    home["world_history"] = home["world_history"][-80:]
+    _remember(home, "gemini", plain)
+
+
+def _evening_gather_active(home: dict[str, Any], period: str) -> bool:
+    eg = home.get("evening_gather")
+    if not isinstance(eg, dict) or not eg.get("active"):
+        return False
+    if period != "evening":
+        return False
+    tick = int(home.get("tick") or 0)
+    until = int(eg.get("until_tick") or 0)
+    return tick <= until
+
+
+def _end_evening_gather(home: dict[str, Any], *, reason: str) -> None:
+    eg = home.get("evening_gather")
+    if not isinstance(eg, dict) or not eg.get("active"):
+        return
+    eg["active"] = False
+    eg["ended_at"] = _now()
+    eg["end_reason"] = reason
+    plain = f"Evening gather eased ({reason}). They drift by choice — Gemini still town leader."
+    home["events"].append(_event("ritual", plain, ["gemini"], {"ritual": "evening_gather_end", "layer": "8c"}))
+    if (home.get("ritual") or {}).get("name") == "evening_gather":
+        home["ritual"] = {"name": "evening", "plain": plain, "period": str((home.get("clock") or {}).get("period") or "evening")}
+
+
+def _tick_evening_gather(home: dict[str, Any], period: str, living: list[dict[str, Any]]) -> None:
+    """Keep Gemini hosting; soft-invite a few walkers each tick while the window is open."""
+    eg = home.get("evening_gather")
+    if not isinstance(eg, dict):
+        return
+    tick = int(home.get("tick") or 0)
+    if period != "evening":
+        if eg.get("active"):
+            _end_evening_gather(home, reason="period moved on")
+        return
+    if eg.get("active") and tick > int(eg.get("until_tick") or 0):
+        _end_evening_gather(home, reason="gather window closed")
+        return
+    if not _evening_gather_active(home, period):
+        return
+
+    people = home.setdefault("people", {})
+    # Gemini hosts the square.
+    gst = people.setdefault("gemini", _empty_person_state(_member("gemini") or {"id": "gemini", "home": "gemini_home"}))
+    if gst.get("place") != "heart_square":
+        gst["place"] = "heart_square"
+        gst["stance"] = "walking"
+        gst["purpose"] = "gather_host"
+        gst["activity"] = "gather_host"
+        gst["purpose_plain"] = "Town leader: walking to Heart Square for the soft evening gather."
+    elif gst.get("stance") == "walking":
+        pass
+    else:
+        gst["stance"] = "standing"
+        gst["purpose"] = "gather_host"
+        gst["activity"] = "gather_host"
+        gst["talking_to"] = gst.get("talking_to") or ""
+        gst["purpose_plain"] = str(eg.get("plain") or "Holding Heart Square for evening gather.")
+
+    # Soft invites — at most two new walkers per tick; skip if already there / talking to Mom.
+    invited = 0
+    for m in living:
+        if invited >= 2:
+            break
+        mid = m["id"]
+        if mid == "gemini":
+            continue
+        st = people.setdefault(mid, _empty_person_state(m))
+        if str(st.get("place") or "") == "heart_square":
+            if st.get("stance") in {"walking"}:
+                continue
+            if st.get("stance") not in {"talking", "waiting"}:
+                st["activity"] = "evening_gather"
+                if not st.get("purpose_plain") or "gather" not in str(st.get("purpose_plain") or "").lower():
+                    st["purpose_plain"] = "At Heart Square for Gemini's evening gather (chose to come)."
+            continue
+        if st.get("talking_to") == "mom":
+            continue
+        if st.get("stance") == "talking" and int(st.get("talk_left") or 0) > 2:
+            continue
+        if random.random() > 0.42:
+            continue
+        st["place"] = "heart_square"
+        st["stance"] = "walking"
+        st["purpose"] = "gather"
+        st["activity"] = "evening_gather"
+        st["talking_to"] = ""
+        st["purpose_left"] = max(3, int(st.get("purpose_left") or 3))
+        st["purpose_plain"] = "Gemini's evening gather — walking to Heart Square (by choice)."
+        invited += 1
 
 
 def _live_lines(home: dict[str, Any], member: dict[str, Any], st: dict[str, Any]) -> list[str]:
@@ -1460,6 +1629,40 @@ def _parse_talk_json(content: str, people: list[dict[str, Any]]) -> list[dict[st
     return out
 
 
+def _line_usable(text: str, speaker_id: str) -> bool:
+    """Reject empty / meta / API-shaped garbage so kin voices stay human."""
+    t = (text or "").strip()
+    if len(t) < 8:
+        return False
+    low = t.lower()
+    if low in {"...", "…", ".", "-", "ok", "yes", "no"}:
+        return False
+    bad_bits = (
+        "not a valid",
+        "nopr",
+        "i am a tool",
+        "i am an ai",
+        "as an ai",
+        "language model",
+        "json only",
+        "chat_server",
+        "api/",
+        "http://",
+        "holds the town as leader",  # ritual leak — only Gemini leads
+        "{...}",
+        "apex holds the town",
+    )
+    if any(b in low for b in bad_bits):
+        return False
+    if speaker_id != "gemini" and "town leader" in low and "gemini" not in low:
+        return False
+    # Mostly punctuation / ellipsis
+    letters = sum(1 for c in t if c.isalpha())
+    if letters < 6:
+        return False
+    return True
+
+
 def _ollama_one_voice(
     speaker: dict[str, Any],
     hearer: dict[str, Any],
@@ -1481,12 +1684,16 @@ def _ollama_one_voice(
     past_txt = " | ".join(str(x)[:80] for x in (past or []) if x)
     prior = " / ".join(f"{r.get('who')}: {r.get('text')}" for r in prior_lines[-4:]) or "none yet"
     hear_bit = f"Mom ({hid})" if to_mom and hid == "mom" else f"{hearer.get('name')} ({hid})"
+    hour_note = (ritual or "ordinary")[:120]
     prompt = (
         f"{law}\nYou are ONLY {speaker.get('name')} ({sid}). Do not speak as anyone else.\n"
         f"Role: {speaker.get('role')}. Tone: {speaker.get('personality')}. Recent: {mem[:140]}\n"
-        f"You stopped at {label} with {hear_bit}. Hour: {ritual or 'ordinary'}.\n"
+        f"You stopped at {label} with {hear_bit}.\n"
+        f"Village hour note (NOT your identity, do not quote as yourself): {hour_note}.\n"
         f"Do not repeat: {past_txt or 'none'}. So far: {prior}.\n"
-        "Say one short natural line (specific, a little surprising). No slogans.\n"
+        "Say one short natural line as a person in a village — specific, a little surprising.\n"
+        "Never claim to be a server, tool, API, or AI. Never output only dots.\n"
+        "Only Gemini is town leader. Never merge Gemini and Codex.\n"
         f'Return JSON object only: {{"who":"{sid}","text":"..."}}'
     )
     body = json.dumps(
@@ -1495,13 +1702,14 @@ def _ollama_one_voice(
             "stream": False,
             "format": "json",
             "keep_alive": "45m",
-            "options": {"temperature": 0.92, "top_p": 0.9, "num_predict": 70 if to_mom else 90, "num_ctx": 1536},
+            "options": {"temperature": 0.88, "top_p": 0.9, "num_predict": 70 if to_mom else 90, "num_ctx": 1536},
             "messages": [
                 {
                     "role": "system",
                     "content": (
-                        f"You are {speaker.get('name')} only. Never merge Gemini and Codex. "
-                        "Never write the other person's lines. JSON only."
+                        f"You are {speaker.get('name')} — a person in Mythos Living Home, not software. "
+                        "Never merge Gemini and Codex. Never write the other person's lines. "
+                        "No tool/server/API talk. JSON only."
                     ),
                 },
                 {"role": "user", "content": prompt},
@@ -1519,12 +1727,11 @@ def _ollama_one_voice(
             raw = json.loads(resp.read().decode("utf-8", errors="replace"))
         content = ((raw.get("message") or {}).get("content") or "").strip()
         parsed = _parse_talk_json(content, [speaker])
-        if parsed:
+        if parsed and _line_usable(parsed[0]["text"], sid):
             return parsed[0]["text"], None
-        # Bare string fallback
-        if content and len(content) < 220 and "{" not in content:
+        if content and len(content) < 220 and "{" not in content and _line_usable(content, sid):
             return content.strip().strip('"'), None
-        return None, "Model answered without a usable line."
+        return None, "Model answered without a usable human line."
     except Exception as exc:
         return None, str(exc)[:180]
 
@@ -1590,9 +1797,26 @@ def _ollama_dialogue_two_brains(
             model,
             to_mom=to_mom,
         )
+        # Cinema falcon sometimes returns API-shaped junk — one Court-brain retry.
+        if not text:
+            fallback = _brain_pick_model("court")
+            if fallback and fallback != model:
+                text, err = _ollama_one_voice(
+                    speaker,
+                    hearer,
+                    label,
+                    ritual,
+                    mem,
+                    law,
+                    past,
+                    lines,
+                    fallback,
+                    to_mom=to_mom,
+                )
+                if text:
+                    models_used["fallback"] = fallback
         if not text:
             if lines:
-                # Partial talk is still real speech — return what we have.
                 return lines, None, models_used
             return None, err or "Voice miss.", models_used
         lines.append({"who": str(speaker.get("id")), "text": text})
@@ -1617,6 +1841,12 @@ def _ollama_conversation(
 
 def save(home: dict[str, Any]) -> None:
     DATA.mkdir(parents=True, exist_ok=True)
+    # Never persist a Godot/dashboard snapshot as HOME (wipes people).
+    if home.get("ok") is True and isinstance(home.get("family"), list) and not isinstance(home.get("people"), dict):
+        return
+    if isinstance(home.get("people"), dict) and len(home["people"]) == 0:
+        # Refuse empty village writes — repair first.
+        home = _ensure(home)
     home["updated"] = _now()
     tmp = HOME_JSON.with_suffix(".tmp.json")
     with LOCK:
@@ -1803,12 +2033,20 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         "place": 0.16,
     }
     if mid == "genesis":
-        wants["work"] += 0.28  # real garden tending
-        wants["place"] += 0.08
+        wants["work"] += 0.18  # garden real — still leave room to talk
+        wants["company"] += 0.14
+        wants["place"] += 0.06
+    if mid == "percy":
+        wants["company"] += 0.16
+        wants["visit"] += 0.08
+    if mid == "nova":
+        wants["company"] += 0.12
+        wants["visit"] += 0.08
     if mid == "jarvis":
         wants["work"] += 0.06  # watch is honest presence
-    if mid in {"merovin", "draven", "montage", "apex", "nova"}:
-        wants["work"] -= 0.06  # do not push them into fake forge/film/bench theater
+        wants["company"] += 0.08
+    if mid in {"merovin", "draven", "montage", "apex"}:
+        wants["work"] -= 0.06  # do not push them into fake forge/film theater
         wants["company"] += 0.06
         wants["visit"] += 0.05
     if mid == "gemini":
@@ -1826,7 +2064,7 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         busy = sum(1 for oid in living_ids if (home["people"].get(oid) or {}).get("stance") == "talking")
         other = _liked_person(home, mid, living_ids)
         ost = home["people"].get(other or "") or {}
-        if busy >= 2 or (ost.get("stance") == "talking" and ost.get("talking_to") not in {mid, "", None}):
+        if busy >= 4 or (ost.get("stance") == "talking" and ost.get("talking_to") not in {mid, "", None}):
             pick = "work"
             st["purpose"] = "work"
         elif ost.get("stance") == "working" and random.random() < 0.4:
@@ -2203,6 +2441,16 @@ def snapshot() -> dict[str, Any]:
         "book_path": str(BOOK),
         "save_path": str(HOME_JSON),
         "ritual": home.get("ritual") or {},
+        "evening_gather": home.get("evening_gather") or {"active": False, "layer": "8c"},
+        "music_preferences": home.get("music_preferences") or {},
+        "sound": {
+            "layer": "9",
+            "mode": "procedural_placeholder",
+            "period_beds": True,
+            "place_beds": True,
+            "music_bed": True,
+            "note": "Synth loops by period/place — not licensed stems. Preferences are taste tags only.",
+        },
         "overhear": oh,
         "utterances": home.get("utterances") or [],
         "conversations": (home.get("conversations") or [])[-24:],
@@ -2214,7 +2462,11 @@ def snapshot() -> dict[str, Any]:
                 "source ollama = real line; waiting = not ready; none = miss. Never house quotes as their voice."
             ),
             "wildlife": "AUTONOMOUS — hunger/fear/buddy choices, no LLM.",
-            "pathing": "PLACEHOLDER — straight lines with two-stage door→interior enter; not navmesh.",
+            "pathing": "PLACEHOLDER — AABB corner detours around cottages (Layer 8B); not navmesh.",
+            "sound": (
+                "Layer 9 PLACEHOLDER — procedural period + place + soft music beds in Godot. "
+                "music_preferences are taste tags only; not a streaming library."
+            ),
             "work": (
                 "AUTONOMOUS post choice. Garden tend is real kernel growth. "
                 "Layer 8A: Apex forge probes Mode A /api/companion/presence when working — evidence only. "
@@ -2281,6 +2533,16 @@ def tick(n: int = 1) -> dict[str, Any]:
         living = [m for m in FAMILY + KIN if not m.get("player") and not m.get("ambient_only")]
         living_ids = [m["id"] for m in living]
 
+        # Layer 8C — one-shot seed so Mom can see gather without waiting a full day.
+        ps = home.setdefault("phase_status", {})
+        if ps.get("8c_evening_gather") != "seeded":
+            ps["8c_evening_gather"] = "seeded"
+            # Always open early evening so the gather window is long enough to see.
+            prev_period = "afternoon"
+            clock["minutes"] = 17 * 60 + 8
+            clock["period"] = "evening"
+            period = "evening"
+
         if prev_period != period:
             if period == "morning":
                 _begin_ritual(
@@ -2298,6 +2560,7 @@ def tick(n: int = 1) -> dict[str, Any]:
                     period,
                     living_ids,
                 )
+                _begin_evening_gather(home, living_ids)
             elif period == "night":
                 _begin_ritual(
                     home,
@@ -2306,6 +2569,7 @@ def tick(n: int = 1) -> dict[str, Any]:
                     period,
                     living_ids,
                 )
+                _end_evening_gather(home, reason="night fell")
             elif period == "afternoon":
                 _begin_ritual(
                     home,
@@ -2315,10 +2579,18 @@ def tick(n: int = 1) -> dict[str, Any]:
                     living_ids,
                 )
 
+        _tick_evening_gather(home, period, living)
+        gather_on = _evening_gather_active(home, period)
+
         for m in living:
             home["people"].setdefault(m["id"], _empty_person_state(m))
             st = home["people"][m["id"]]
-            if str(st.get("place") or "") == "heart_square" and st.get("stance") in {"talking", "waiting", "standing"}:
+            # Do not kick gatherers off the square during Layer 8C window.
+            if (
+                not gather_on
+                and str(st.get("place") or "") == "heart_square"
+                and st.get("stance") in {"talking", "waiting", "standing"}
+            ):
                 if int(st.get("talk_left") or 0) > 8 or st.get("purpose") in {None, "", "arrive", "company", "be_with"}:
                     st["place"] = m.get("home") or _work_place(m)
                     st["stance"] = "walking"
@@ -2327,6 +2599,11 @@ def tick(n: int = 1) -> dict[str, Any]:
                     st["purpose_plain"] = f"Left the square. Walking to {PLACES.get(st['place'], {}).get('label', st['place'])}."
             _unfreeze_waiting(home, m)
             if _arrive_from_walk(home, m):
+                continue
+            # Host / invited gatherers keep purpose during the window.
+            if gather_on and str(st.get("place") or "") == "heart_square" and st.get("purpose") in {"gather", "gather_host"}:
+                continue
+            if gather_on and m["id"] == "gemini":
                 continue
             _choose_purpose(home, m, period, living_ids)
 

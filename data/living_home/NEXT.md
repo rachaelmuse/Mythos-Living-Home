@@ -7,13 +7,12 @@ Tracker: `data/living_home/PHASE_LAYERS.md`
 
 ## CURRENT PHASE
 
-Proving slice. Layer 8A in play. **Mom talk fix shipped** — they were not ignoring you.
+**Layer 9 — Sound** (Eden Phase 1 thin). Proving stack 8A–8C closed.
 
 ## Next task
 
-1. **Restart Hearth** (required — old process still has the talk bug).
-2. Enter; talk to Gemini (chat target Gemini).
-3. You should see “heard you / voice cooking,” then a real reply — not endless “writer still thinking.”
-4. Gemini may still face/follow you while talking — that is attention, not mind-reading.
+1. Restart Enter — listen for period beds + place beds (garden/cinema/forge/square).
+2. Soft music pad under ambience.
+3. On OK → mark Layer 9 DONE; next Eden pick is TV or Mom's choice.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.

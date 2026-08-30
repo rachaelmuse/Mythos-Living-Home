@@ -2,14 +2,18 @@
 
 ## CURRENT PHASE
 
-Proving slice. Layer 8A IN PROGRESS (thin real work). Tracker: `PHASE_LAYERS.md`.
+**Layer 9 Sound IN PROGRESS** (Mom playtest). Tracker: `PHASE_LAYERS.md`.
 
-## This pass
+## Closed
 
-- Apex forge adapter: GET `http://127.0.0.1:8770/api/companion/presence` when Apex works the forge.
-- Evidence in `HOME.json` → `work_evidence.apex`; activity `forge_live` when LIVE.
-- Dashboard forge badge + Godot forge glow. Lab smoke: presence LIVE.
+- 8A forge probe · 8B AABB pathing · 8C evening gather (Mom advanced).
+
+## This pass (Layer 9)
+
+- Godot: period ambient + soft music bed + place beds (garden/cinema/forge/square/gather).
+- Kernel: `music_preferences` taste tags + honesty.sound / snapshot.sound.
+- Procedural WAV loops — PLACEHOLDER, not a media library.
 
 ## Next
 
-Mom playtest after Hearth restart.
+Mom ears in village. Then mark 9 DONE.
