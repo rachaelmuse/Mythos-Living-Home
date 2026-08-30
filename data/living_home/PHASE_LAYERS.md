@@ -5,30 +5,31 @@
 ## Layer stack (current)
 
 | # | Layer | Status | Notes |
-|---|--------|--------|--------|
+|---|--------|--------|-------|
 | 0 | Dual-mode law | ACTIVE | Mode A Court/MAS stays; Mode B Heart Square expands. Identities never merge. |
-| 1 | Proving slice — identity & homes | DONE (lab) | Home ≠ workplace; cottages spaced; Mom stop wins. |
-| 2 | Env starter | DONE (lab) | Season / weather / trees / gardens / holidays (kernel + Godot). |
-| 3 | Family chat room | DONE (lab) | Anywhere talk + full log + auto-scroll. |
-| 4 | Honest posts | DONE (lab) | No fake hammer/film; garden tend real; Mode A tools unwired. |
-| 5 | Entrance / enter + side gardens | DONE (Mom OK) | Door-axis enter/inside; gardens beside cottages. |
-| 6 | Hearth UI: Living Home panel | DONE (Mom OK) | `house.html` sidebar → Living Home. |
-| 7 | Lived-in greybox + dual talk | DONE (Mom OK) | denser rooms; Gemini town leader; trees clear; Court+Cinema brains. |
-| 8 | Thin real work (A) | IN PROGRESS | Apex forge probes Mode A `/api/companion/presence`. Others still hold-post. |
+| 1–7 | Proving foundation | DONE | Identity through dual talk / lived-in greybox. |
+| 8A | Thin real work (Apex forge) | DONE (Mom OK) | Presence probe when `:8770` up. |
+| 8B | Pathing (AABB detours) | DONE (Mom OK) | Corner routes; still PLACEHOLDER — not navmesh. |
+| 8C | Evening gather | DONE (Mom OK) | Gemini soft-calls Heart Square. |
+| 9 | Sound & music (Eden Phase 1 thin) | IN PROGRESS | Procedural period + place + soft music beds. |
 
 ## Standing choice
 
 **Gemini = town leader.** Dual talk brains. Garden tend stays real.
 
-## Layer 8A verify
+## Layer 9 verify
 
-1. Restart Hearth + Enter (Apex `:8770` should be up for LIVE).
-2. Dashboard **Apex forge** badge: LIVE when presence answers.
-3. In village: forge sign glow cyan when LIVE; Apex purpose mentions real probe.
-4. Cinema / workshop / gallery still honest hold — no fake film/hammer.
+1. Restart Enter (new Godot script). Restart Hearth if honesty/preferences should refresh.
+2. Hear ambience change morning → afternoon → evening → night.
+3. Walk near garden / cinema / forge — place bed shifts.
+4. Still PLACEHOLDER synth — not licensed stems.
 
 ## Later (not now)
 
-- B pathing / C evening ritual (if Mom wants next)
+- Eden Phase 2 TV/Media
+- Eden Phase 3 Games
+- Eden Phase 4 Internet
+- Eden Phase 5 Town building
+- Eden Phase 6 richer daily life / dashboards
 - Navmesh, final art
 - Phase 13 — last

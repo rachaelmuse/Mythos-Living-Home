@@ -50,6 +50,12 @@ var _holiday_props: Array = []
 var _holiday_label: Label
 var _forge_glow_mat: StandardMaterial3D
 var _forge_live_label: Label3D
+var _gather_label: Label3D
+var _amb_period: AudioStreamPlayer
+var _amb_place: AudioStreamPlayer
+var _amb_music: AudioStreamPlayer
+var _sound_period := ""
+var _sound_place := ""
 var _last_holiday_id := ""
 
 
@@ -363,6 +369,7 @@ func _apply_environment(data: Dictionary) -> void:
 	_apply_garden_growth(data)
 	_apply_holiday_decor(data, season)
 	_apply_forge_work_evidence(data)
+	_apply_evening_gather(data)
 	if _world_env and _world_env.environment:
 		var env: Environment = _world_env.environment
 		match weather:
@@ -415,6 +422,33 @@ func _apply_forge_work_evidence(data: Dictionary) -> void:
 		else:
 			_forge_live_label.text = "Forge quiet · honest hold"
 			_forge_live_label.modulate = Color(0.7, 0.55, 0.4)
+
+
+func _apply_evening_gather(data: Dictionary) -> void:
+	## Layer 8C — Gemini soft evening gather cue at Heart Square.
+	if _gather_label == null:
+		_gather_label = Label3D.new()
+		_gather_label.name = "EveningGatherLabel"
+		_gather_label.position = Vector3(0, 3.2, 0)
+		_gather_label.font_size = 56
+		_gather_label.outline_size = 14
+		_gather_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		_gather_label.no_depth_test = true
+		add_child(_gather_label)
+	var eg_v: Variant = data.get("evening_gather")
+	var active := false
+	var plain := ""
+	if eg_v is Dictionary:
+		active = bool((eg_v as Dictionary).get("active", false))
+		plain = str((eg_v as Dictionary).get("plain", ""))
+	if active:
+		_gather_label.visible = true
+		_gather_label.text = "Evening gather · Gemini hosts (by choice)"
+		_gather_label.modulate = Color(0.98, 0.86, 0.45)
+	else:
+		_gather_label.visible = false
+		if plain != "" and life_label:
+			pass
 
 
 func _apply_garden_growth(data: Dictionary) -> void:
@@ -718,7 +752,7 @@ func _play_overhear(data: Dictionary) -> void:
 		return
 	var line := ""
 	if src == "waiting":
-		line = str(rec.get("text", "")).strip()
+		line = str(rec.get("text", "")).strip_edges()
 		if line == "":
 			line = "They heard Mom. Local voice is still cooking — not ignoring her."
 	elif src == "none":
@@ -865,6 +899,7 @@ func _apply_clock(period: String) -> void:
 			_sun.light_color = Color(0.45, 0.55, 0.85)
 		_:
 			pass
+	_apply_period_sound(period)
 
 
 func _add_open_building(pos: Vector3, size: Vector3, color: Color, node_name: String, door := "z+") -> void:
@@ -1499,7 +1534,7 @@ func _build_hud() -> void:
 	honest_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	honest_label.add_theme_font_size_override("font_size", 12)
 	honest_label.modulate = Color(0.72, 0.78, 0.7, 0.85)
-	honest_label.text = "Homes≠jobs · Garden tend is real · Posts are held honestly — no fake forge/film"
+	honest_label.text = "Homes≠jobs · Garden tend real · Sound: period+place PLACEHOLDER beds · Posts honest"
 	_hud_layer.add_child(honest_label)
 
 	var title := Label.new()
@@ -1515,11 +1550,25 @@ func _build_hud() -> void:
 	_hud_layer.add_child(title)
 
 	var amb := AudioStreamPlayer.new()
-	amb.name = "Ambient"
-	amb.volume_db = -18.0
+	amb.name = "AmbientPeriod"
+	amb.volume_db = -20.0
 	amb.autoplay = true
-	amb.stream = _make_ambient_stream()
+	amb.stream = _make_period_ambient("morning")
 	add_child(amb)
+	_amb_period = amb
+
+	_amb_place = AudioStreamPlayer.new()
+	_amb_place.name = "AmbientPlace"
+	_amb_place.volume_db = -28.0
+	_amb_place.autoplay = false
+	add_child(_amb_place)
+
+	_amb_music = AudioStreamPlayer.new()
+	_amb_music.name = "AmbientMusic"
+	_amb_music.volume_db = -26.0
+	_amb_music.autoplay = true
+	_amb_music.stream = _make_music_bed("morning")
+	add_child(_amb_music)
 
 	set_process(true)
 
@@ -1564,26 +1613,130 @@ func _scroll_convo_to_end() -> void:
 
 
 func _make_ambient_stream() -> AudioStreamWAV:
+	## Compat alias — morning bed.
+	return _make_period_ambient("morning")
+
+
+func _synth_loop(freqs: Array, amps: Array, noise: float, seconds: float = 1.2) -> AudioStreamWAV:
+	## Procedural PLACEHOLDER beds — no asset pack required. Honest soft hums.
 	var stream := AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = 22050
 	stream.stereo = false
 	stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
 	stream.loop_begin = 0
-	var n := 22050  # 1 second loop
+	var n := int(22050.0 * seconds)
 	var data := PackedByteArray()
 	data.resize(n * 2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 42
 	for i in range(n):
 		var t := float(i) / 22050.0
-		var sample := int(clamp(
-			(sin(2.0 * PI * 55.0 * t) * 0.25 + sin(2.0 * PI * 82.5 * t) * 0.12) * 8000.0,
-			-32767, 32767
-		))
+		var s := 0.0
+		for fi in range(mini(freqs.size(), amps.size())):
+			s += sin(2.0 * PI * float(freqs[fi]) * t) * float(amps[fi])
+		if noise > 0.0:
+			s += (rng.randf() * 2.0 - 1.0) * noise
+		var sample := int(clampf(s * 9000.0, -32767.0, 32767.0))
 		data[i * 2] = sample & 0xFF
 		data[i * 2 + 1] = (sample >> 8) & 0xFF
 	stream.data = data
 	stream.loop_end = n
 	return stream
+
+
+func _make_period_ambient(period: String) -> AudioStreamWAV:
+	match period:
+		"morning":
+			return _synth_loop([880.0, 1320.0, 220.0], [0.08, 0.04, 0.12], 0.015)  # birds-ish + breeze
+		"afternoon":
+			return _synth_loop([180.0, 240.0, 90.0], [0.1, 0.06, 0.08], 0.02)
+		"evening":
+			return _synth_loop([110.0, 165.0, 55.0], [0.12, 0.07, 0.1], 0.01)
+		"night":
+			return _synth_loop([440.0, 660.0, 70.0], [0.05, 0.03, 0.14], 0.008)  # cricket-ish + soft
+		_:
+			return _synth_loop([55.0, 82.5], [0.2, 0.1], 0.01)
+
+
+func _make_music_bed(period: String) -> AudioStreamWAV:
+	## Soft pad under ambience — not a score library.
+	match period:
+		"morning":
+			return _synth_loop([130.8, 196.0, 261.6], [0.1, 0.07, 0.05], 0.0, 2.0)
+		"afternoon":
+			return _synth_loop([146.8, 220.0, 293.7], [0.09, 0.06, 0.04], 0.0, 2.0)
+		"evening":
+			return _synth_loop([110.0, 164.8, 220.0], [0.11, 0.07, 0.05], 0.0, 2.4)
+		"night":
+			return _synth_loop([98.0, 146.8, 196.0], [0.1, 0.06, 0.04], 0.0, 2.8)
+		_:
+			return _synth_loop([130.8, 196.0], [0.1, 0.06], 0.0, 2.0)
+
+
+func _make_place_ambient(place_key: String) -> AudioStreamWAV:
+	match place_key:
+		"garden":
+			return _synth_loop([520.0, 780.0, 140.0], [0.06, 0.04, 0.08], 0.02)
+		"cinema":
+			return _synth_loop([90.0, 45.0, 180.0], [0.1, 0.08, 0.04], 0.005)  # projector-ish whir
+		"apex_forge":
+			return _synth_loop([70.0, 105.0, 40.0], [0.08, 0.05, 0.06], 0.012)
+		"heart_square", "gather":
+			return _synth_loop([200.0, 300.0, 100.0], [0.05, 0.04, 0.07], 0.01)
+		_:
+			return _synth_loop([160.0, 80.0], [0.04, 0.05], 0.008)
+
+
+func _apply_period_sound(period: String) -> void:
+	if period == "" or period == _sound_period:
+		return
+	_sound_period = period
+	if _amb_period:
+		_amb_period.stream = _make_period_ambient(period)
+		_amb_period.play()
+	if _amb_music:
+		_amb_music.stream = _make_music_bed(period)
+		_amb_music.play()
+
+
+func _apply_place_sound(place_key: String) -> void:
+	if _amb_place == null:
+		return
+	if place_key == _sound_place:
+		return
+	_sound_place = place_key
+	if place_key == "" or place_key == "none":
+		_amb_place.stop()
+		return
+	_amb_place.stream = _make_place_ambient(place_key)
+	_amb_place.play()
+
+
+func _resolve_sound_place() -> String:
+	## Nearest notable place for Mom's ears (thin Layer 9).
+	if _player == null or not is_instance_valid(_player):
+		return "heart_square"
+	var p: Vector3 = _player.global_position
+	var spots := {
+		"garden": Vector3(-18, 0, 12),
+		"cinema": Vector3(26, 0, 14),
+		"apex_forge": Vector3(22, 0, 0),
+		"heart_square": Vector3(0, 0, 0),
+	}
+	var eg_active := _gather_label != null and _gather_label.visible
+	if eg_active and p.distance_to(Vector3(0, 0, 0)) < 10.0:
+		return "gather"
+	var best := "heart_square"
+	var best_d := 9.5
+	for k in spots.keys():
+		var d: float = p.distance_to(spots[k])
+		if d < best_d:
+			best_d = d
+			best = str(k)
+	if best_d > 9.0:
+		return "none"
+	return best
 
 
 func _on_hearth_enter(body: Node3D) -> void:
@@ -1625,6 +1778,7 @@ func _process(delta: float) -> void:
 				who = str(child.get("display_name"))
 				break
 	_update_place_from_player()
+	_apply_place_sound(_resolve_sound_place())
 	var sq_near := false
 	if not near:
 		for sq in get_tree().get_nodes_in_group("squirrel"):
