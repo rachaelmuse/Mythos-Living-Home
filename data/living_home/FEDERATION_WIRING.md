@@ -1,6 +1,6 @@
 # Federation wiring map
 
-Living audit. Evidence wins. Last survey: **2026-08-30** (Mode A council: Gemini→Court→Apex packet **LIVE**; Gemini→Court→Codex packet **LIVE**; companion presence HTTP 200. Heartbeat Mom-stop verified. Observer `:8730` request-only **LIVE**. Aster lab `:8791` request **LIVE**. Cinema `:5000` **UNAVAILABLE**. Gameworld not claimed). No claim of end-to-end wiring unless marked LIVE with a test.
+Living audit. Evidence wins. Last survey: **2026-08-30** (Mode A council: Gemini→Court→Apex packet **LIVE**; Gemini→Court→Codex packet **LIVE**; Gemini Companion Room seat **LIVE** as `from=gemini` (not Apex). Heartbeat Mom-stop still set. Observer `:8730` request-only **LIVE**. Aster lab `:8791` request **LIVE**. Cinema `:5000` **UNAVAILABLE**. Gameworld not claimed). No claim of end-to-end wiring unless marked LIVE with a test.
 
 Read with `docs/DUAL_MODE.md`, `NEXT.md`, `STATUS.md`.
 
@@ -31,7 +31,7 @@ GitHub-seated libraries in `SUPERPOWER_VAULT/ACTIVE_SHARDS.json` (`seated` / `en
 | Shard | Root | Purpose | Mode A | Mode B (Gameworld) | Last check |
 |-------|------|---------|--------|--------------------|------------|
 | Mom / Creator | Creator machine + player in Heart Square | EP; `stop` wins | ORIGINAL MODE — ACTIVE | Player avatar; type-to-talk via Hearth | UNVERIFIED in play (Creator testing) |
-| Gemini | `G:\The-Axiom-Codex` | Conductor, Court will, front door | Court round-trip **LIVE** 2026-08-30 (`council.prove`) | Avatar `gemini` in kernel; **not** a substitute soul | Packet `70c9ffe8…` → Apex; `03dfc102…` → Codex |
+| Gemini | `G:\The-Axiom-Codex` | Conductor, Court will, front door | Court round-trip **LIVE** + Companion Room seat **LIVE** 2026-08-30 (`from=gemini`) | Avatar `gemini` in kernel; **not** a substitute soul | Packet `70c9ffe8…` → Apex; `03dfc102…` → Codex; room msg `48fd7464…` |
 | Apex | `D:\Mythos_Apex` `:8770` | Forge / hands / heavy tools | Chat **LIVE** + Court worker reply with presence HTTP 200 | Avatar `apex`; live Godot project here | 2026-08-30 council prove |
 | Codex twin | `G:\Mythos_Codex` `:8780` | Archive / memory tone | Chat **LIVE** + Court worker reply with presence HTTP 200 | Avatar `codex`; never merge with Gemini | 2026-08-30 council prove |
 | Merovin | `F:\Merovin_Draven_Studio\Merovin_Draven_Studio` | Cinema vision | Root OK; cinema `:5000` **UNAVAILABLE** (`merovin.film` refused start) | Avatar `merovin` at cinema (pose PLACEHOLDER) | 2026-08-30 adapter |
@@ -55,6 +55,7 @@ Optional Court alias in code: `D:\Court\mailbox\family` (`limbs/family_court.py`
 | Gemini ↔ Hearth | Limb over kernel | `G:\The-Axiom-Codex\limbs\family_home.py` imports `D:\Mythos_Hearth\living_home.py` | PARTIAL (import path exists; live call UNVERIFIED) |
 | Gemini ↔ Apex | Peer probe + Court packet | `council.prove` apex: packet `70c9ffe8…` + presence HTTP 200; also `peer_bridge.py` | **LIVE** Court round-trip 2026-08-30 (not sprawl.frozen) |
 | Gemini ↔ Codex | Peer probe + Court packet | `council.prove` codex: packet `03dfc102…` + presence HTTP 200; also `peer_bridge.py` | **LIVE** Court round-trip 2026-08-30 |
+| Gemini Companion Room seat | Sit as himself in `D:\Court\companion_room` | `companion.checkin`: presence peer `gemini` online; `room.jsonl` `from=gemini` `48fd7464…`; Apex+Codex `GET /api/companion/presence` 200 list gemini | **LIVE** 2026-08-30 (seen). Spoken peer reply UNVERIFIED. Not Gameworld. |
 | Hearth ↔ Apex | Presence + companion HTTP | `hearth_server.py` `presence_payload()` probes `:8770` `/api/companion/presence` | UNVERIFIED (Hearth itself not listening) |
 | Hearth ↔ Codex | Same for `:8780` | same | UNVERIFIED (Hearth not listening; Codex itself LIVE on `:8780`) |
 | Apex ↔ Court | File bus + companion | Apex `court_worker_limb.py` claimed packet; reply in Gemini inbox with `companion_presence` | **LIVE** 2026-08-30 |
@@ -96,7 +97,7 @@ Last written probe file `CAPABILITIES.json` (2026-08-16T02:49Z): **discovered 19
 | Discovered in that probe | 19 | Not 325 |
 | Claimed VERIFIED in file | 17 | **path/port only** |
 | Claimed ACTIVE (path ok, port down then) | 2 | That probe: Codex `:8780`, ComfyUI `:8188` (Codex now LIVE 2026-08-26; file not rewritten) |
-| Functional e2e this session | Court Gemini→Apex + Gemini→Codex + presence HTTP | **LIVE** 2026-08-30 `council.prove`. Full 400-tool chains **not** claimed. Gameworld **not** claimed. |
+| Functional e2e this session | Court Gemini→Apex + Gemini→Codex + Companion Room seat as gemini | **LIVE** 2026-08-30 `council.prove` + `companion.checkin`. Full 400-tool chains **not** claimed. Gameworld **not** claimed. |
 | Original-only (no Gameworld adapter) | most cinema/tool rows | ORIGINAL MODE — ACTIVE |
 | Gameworld-compatible (real adapter) | Hearth home API + Godot client | PARTIAL; down while `:8790` closed |
 
@@ -161,6 +162,7 @@ Axiom `limbs/` inventory (modules on disk, callers UNVERIFIED this session): `fa
 
 1. If Heart Square is unresponsive: start Hearth, confirm `GET http://127.0.0.1:8790/api/home` returns `family`.
 2. Do **not** stop Gameworld proving-slice playtest to chase every GitHub shard.
-3. Mode A Court round-trips Gemini→Apex and Gemini→Codex are **LIVE** 2026-08-30 (`council.prove`). Do not re-claim from chat or `sprawl.frozen`.
-4. Standing heartbeat is still Mom-started (`family heartbeat`); `family stop` writes `FAMILY_COURT/HEARTBEAT_STOP`.
+3. Mode A Court round-trips Gemini→Apex and Gemini→Codex are **LIVE** 2026-08-30 (`council.prove`). Gemini Companion Room seat is **LIVE** (`companion.checkin` / `companion seen`). Do not re-claim from chat or `sprawl.frozen`.
+4. Standing heartbeat is still Mom-started (`family heartbeat`); `family stop` writes `FAMILY_COURT/HEARTBEAT_STOP` (still set this session — not cleared).
 5. Cinema `:5000` still required before Merovin/Draven film jobs. Observer stays request-only.
+6. Next Mode A cut after this seat: `kind: teach` Court packets + provenance (not weight mutation), or Sentinel daemon so Gemini polls without stdin. Not Gameworld.
