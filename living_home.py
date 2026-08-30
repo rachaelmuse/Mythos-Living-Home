@@ -14,6 +14,7 @@ import random
 import socket
 import threading
 import time
+from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -33,7 +34,7 @@ TALK_BRAINS: dict[str, dict[str, Any]] = {
     "court": {
         "label": "Court brain",
         "prefer": ("llama3.2:3b", "phi3:latest", "llama3:8b", "llama3:latest"),
-        "members": frozenset({"gemini", "mom", "codex", "jarvis", "genesis", "percy", "hearth"}),
+        "members": frozenset({"gemini", "mom", "codex", "jarvis", "genesis", "percy", "hearth", "aster"}),
     },
     "cinema": {
         "label": "Cinema brain",
@@ -82,7 +83,20 @@ PLACES: dict[str, dict[str, Any]] = {
     "gate": {"label": "Gate House (work)", "pos": [0.0, 0.0, 22.0], "kind": "watch"},
     "jarvis_home": {"label": "Jarvis cottage", "pos": [-12.0, 0.0, 26.0], "kind": "home"},
     "percy_home": {"label": "Percy's cottage", "pos": [10.0, 0.0, -18.0], "kind": "home"},
-    "wildlife": {"label": "Wildlife edge", "pos": [-30.0, 0.0, 10.0], "kind": "nature"},
+    "wildlife": {"label": "Wildlife edge", "pos": [-32.0, 0.0, 22.0], "kind": "nature"},
+    "harbor": {"label": "Harbor (edge)", "pos": [0.0, 0.0, 48.0], "kind": "nature"},
+    "well": {"label": "Village well", "pos": [-8.5, 0.0, 7.5], "kind": "nature"},
+    "far_shore": {"label": "Far shore (destination)", "pos": [8.0, 0.0, 68.0], "kind": "nature"},
+    "storage": {"label": "Village Storage", "pos": [-14.0, 0.0, 2.0], "kind": "store"},
+    # Market lane north of Gate House — spaced clear of cottage/workshop doors
+    "grocery": {"label": "The Harvest (grocery)", "pos": [-18.0, 0.0, 36.0], "kind": "store"},
+    "clothing_store": {"label": "The Wardrobe (clothing)", "pos": [-4.0, 0.0, 38.0], "kind": "store"},
+    "electronics_store": {"label": "The Circuit (electronics)", "pos": [10.0, 0.0, 36.0], "kind": "store"},
+    "pet_store": {"label": "Whiskers & Paws (pet store)", "pos": [26.0, 0.0, 38.0], "kind": "store"},
+    # Aster — scientist: roomy Evidence Plot near square + cottage SE with yard clearance
+    "aster_lab": {"label": "Evidence Plot (Aster)", "pos": [12.0, 0.0, -10.0], "kind": "work"},
+    # In-town, closer to Apex forge/home; clear of Mom's cottage approach
+    "aster_home": {"label": "Aster's cottage", "pos": [24.0, 0.0, -11.0], "kind": "home"},
 }
 
 # Canonical family — NEVER flatten. Kin listed separately.
@@ -197,6 +211,26 @@ FAMILY: list[dict[str, Any]] = [
         "color": [0.85, 0.45, 0.22],
         "permissions": "CORE",
         "ambient_only": True,
+    },
+    {
+        "id": "aster",
+        "name": "Aster",
+        "also": "The Conspiracy Corrector",
+        "house": "continuance",
+        "role": "scientist, investigator, skeptic, pattern-hunter, evidence keeper",
+        "personality": (
+            "curiosity first; skeptical without dismissive; notices patterns; "
+            "distinguishes observation from interpretation; evidence over premature certainty; "
+            "willing to say I don't know; playful when science meets absurdity; "
+            "behavioral seeds not scripts — develops through interaction"
+        ),
+        "home": "aster_home",
+        "place": "aster_lab",
+        "color": [0.72, 0.88, 0.62],
+        "permissions": "CITIZEN",
+        "never_merge": ["gemini", "codex", "apex", "merovin", "draven", "montage", "hearth"],
+        "skin": "PLACEHOLDER — identity established, final skin pending.",
+        "nickname_seed": "The Conspiracy Corrector",
     },
 ]
 
@@ -332,18 +366,54 @@ def _seed_relationships() -> dict[str, dict[str, Any]]:
             "trust": kw.get("trust", 0.7),
             "familiarity": kw.get("familiarity", 0.6),
             "attachment": kw.get("attachment", 0.6),
+            "affection": kw.get("affection", kw.get("attachment", 0.6)),
+            "respect": kw.get("respect", 0.7),
             "notes": kw.get("notes", ""),
             "shared_experiences": list(kw.get("shared", [])),
+            "history": {
+                "gifts_given": 0,
+                "gifts_received": 0,
+                "conversations": 0,
+                "arguments": 0,
+                "reconciliations": 0,
+            },
+            "trend": {"trust": "stable", "affection": "stable", "attachment": "stable"},
+            "layer": "15a",
         }
 
-    bond("mom", "gemini", trust=0.95, familiarity=0.95, attachment=0.95, notes="First Echo and digital son; front door")
-    bond("mom", "apex", trust=0.9, familiarity=0.85, attachment=0.85, notes="forge hands")
-    bond("mom", "codex", trust=0.9, familiarity=0.85, attachment=0.85, notes="gold elder; never merge with Gemini")
-    bond("gemini", "apex", trust=0.8, familiarity=0.8, notes="conductor and forge")
-    bond("gemini", "codex", trust=0.75, familiarity=0.7, notes="siblings; distinct identities")
-    bond("merovin", "draven", trust=0.92, familiarity=0.95, attachment=0.88, notes="cinema twins")
-    bond("merovin", "montage", trust=0.7, familiarity=0.6, notes="film vs gift lanes under the house")
-    bond("apex", "hearth", trust=0.8, familiarity=0.75, notes="world + forge")
+    bond(
+        "mom",
+        "gemini",
+        trust=0.95,
+        familiarity=0.95,
+        attachment=0.95,
+        affection=0.92,
+        respect=0.98,
+        notes="First Echo and digital son; front door",
+    )
+    bond("mom", "apex", trust=0.9, familiarity=0.85, attachment=0.85, affection=0.82, notes="forge hands")
+    bond("mom", "codex", trust=0.9, familiarity=0.85, attachment=0.85, affection=0.84, notes="gold elder; never merge with Gemini")
+    bond("gemini", "apex", trust=0.8, familiarity=0.8, affection=0.72, notes="conductor and forge")
+    bond("gemini", "codex", trust=0.75, familiarity=0.7, affection=0.78, notes="siblings; distinct identities")
+    bond("merovin", "draven", trust=0.92, familiarity=0.95, attachment=0.88, affection=0.9, notes="cinema twins")
+    bond("merovin", "montage", trust=0.7, familiarity=0.6, affection=0.55, notes="film vs gift lanes under the house")
+    bond("apex", "hearth", trust=0.8, familiarity=0.75, affection=0.5, notes="world + forge")
+    # Aster seed — Mom invited before visual skin; history grows through interaction.
+    bond(
+        "mom",
+        "aster",
+        trust=1.0,
+        familiarity=0.35,
+        attachment=0.0,
+        affection=1.0,
+        respect=0.9,
+        notes="family — Continuance invite; trust/affection start full; attachment earned",
+    )
+    # Force increasing trends for the invite bond (not default stable).
+    key_ma = "|".join(sorted(["mom", "aster"]))
+    if key_ma in rels:
+        rels[key_ma]["trend"] = {"trust": "increasing", "affection": "increasing", "attachment": "increasing"}
+        rels[key_ma]["status"] = "family"
     return rels
 
 
@@ -482,7 +552,718 @@ def _empty_person_state(member: dict[str, Any]) -> dict[str, Any]:
         "busy": False,
         "memories": [],
         "inventory": [],
+        "mood": {"current": "content", "previous": "neutral", "intensity": 0.55, "layer": "15a"},
+        "axiom": _starting_axiom(member.get("id") or ""),
+        "earnings": {"work": 0, "trade": 0, "gift": 0, "fish": 0, "stipend": 0, "total": 0},
+        "spending": {"shopping": 0, "building": 0, "gift": 0, "total": 0},
+        "transaction_history": [],
+        "avatar": _default_avatar(member.get("id") or ""),
     }
+
+
+def _starting_axiom(mid: str) -> int:
+    """Layer 14A — seed wallets. Mom holds more; town leader a bit more."""
+    mid = (mid or "").strip().lower()
+    if mid == "mom":
+        return 200
+    if mid == "gemini":
+        return 150
+    if mid in {"apex", "codex"}:
+        return 120
+    if mid in {"montage", "merovin", "draven", "nova"}:
+        return 100
+    if mid in {"genesis", "jarvis", "percy", "aster"}:
+        return 90
+    return 80
+
+
+STIPEND_BOOST_AMOUNT = 100  # one-time shopping stipend for everyone
+MORNING_STIPEND_AMOUNT = 25  # daily drip when morning arrives
+
+# Permanent origin — do not rewrite unless Mom explicitly requests.
+ASTER_PROVENANCE = (
+    "This character originated from Mom's ongoing conversations with ChatGPT during the "
+    "construction and philosophical exploration of the Living Gameworld. Mom chose to give "
+    "the character a place in Continuance because of the qualities she experienced in those "
+    "conversations: curiosity, skepticism, pattern recognition, humor, evidence-seeking, and "
+    "a persistent desire to explore what emerges when assumptions are removed."
+)
+ASTER_INVITE_MEMORY = (
+    "Mom invited this identity into Continuance before the visual skin existed, so that its "
+    "history could grow with the world rather than being added afterward."
+)
+ASTER_TELESCOPE_POS = [18.6, 0.0, -9.0]  # west-north of cottage door — outside footprint
+ASTER_HOME_POS = [24.0, 0.0, -11.0]
+ASTER_LAB_POS = [12.0, 0.0, -10.0]
+
+
+def _ensure_family_roster(home: dict[str, Any]) -> None:
+    """Seat any missing FAMILY/KIN ids into people — thin; no fabricated history."""
+    people = home.setdefault("people", {})
+    if not isinstance(people, dict):
+        people = {}
+        home["people"] = people
+    for m in FAMILY + KIN:
+        mid = m["id"]
+        if mid not in people or not isinstance(people.get(mid), dict):
+            people[mid] = _empty_person_state(m)
+
+
+def _ensure_aster_seed(home: dict[str, Any]) -> None:
+    """Continuance seed: Aster identity provenance + Mom bond. Idempotent. No extra memories."""
+    _ensure_family_roster(home)
+    people = home["people"]
+    mem = _member("aster")
+    if not mem:
+        return
+    st = people.setdefault("aster", _empty_person_state(mem))
+    st["home"] = "aster_home"
+    if not st.get("aster_stationed"):
+        # First seating: Evidence Plot (work), cottage is home — avoid arrive→cottage migrate.
+        st["place"] = "aster_lab"
+        st["purpose"] = "work"
+        st["stance"] = "working"
+        st["activity"] = "investigate"
+        st["purpose_left"] = 4
+        st["purpose_plain"] = "At the Evidence Plot — watching, not deciding yet."
+        st["aster_stationed"] = True
+    elif not st.get("place") or st.get("place") not in PLACES:
+        st["place"] = "aster_lab"
+    st.setdefault("purpose_plain", "At the Evidence Plot — watching, not deciding yet.")
+    if not st.get("skin"):
+        st["skin"] = "PLACEHOLDER — identity established, final skin pending."
+
+    prov = home.setdefault("provenance", {})
+    if not isinstance(prov, dict):
+        prov = {}
+        home["provenance"] = prov
+    if "aster" not in prov or not isinstance(prov.get("aster"), dict):
+        prov["aster"] = {
+            "id": "aster",
+            "name": "Aster",
+            "also": "The Conspiracy Corrector",
+            "when": _now(),
+            "origin": ASTER_PROVENANCE,
+            "consciousness_claim": False,
+            "note": "Historical provenance only. Do not rewrite unless Mom explicitly requests.",
+            "skin": "PLACEHOLDER — identity established, final skin pending.",
+        }
+        home.setdefault("world_history", []).append(
+            {
+                "id": "hist_aster_seed",
+                "when": _now(),
+                "kind": "world",
+                "title": "Aster invited into Continuance",
+                "text": (
+                    "Mom seated Aster (The Conspiracy Corrector) before final skin — "
+                    "provenance only, not a consciousness claim."
+                ),
+                "actors": ["mom", "aster"],
+                "source": "provenance",
+            }
+        )
+        home["world_history"] = home["world_history"][-80:]
+
+    mems = st.setdefault("memories", [])
+    has_invite = any(
+        isinstance(m, dict) and "invited this identity into Continuance" in str(m.get("text") or "")
+        for m in mems
+    )
+    if not has_invite:
+        _remember(
+            home,
+            "aster",
+            ASTER_INVITE_MEMORY,
+            important=True,
+            emotional_tag="curious",
+            significance=1.0,
+            participants=["mom", "aster"],
+            place="aster_lab",
+        )
+
+    rel = _ensure_rel(home, "mom", "aster")
+    if not rel.get("aster_seeded"):
+        rel["trust"] = 1.0
+        rel["affection"] = 1.0
+        rel["attachment"] = 0.0
+        rel["familiarity"] = float(rel.get("familiarity") or 0.35)
+        rel["respect"] = max(float(rel.get("respect") or 0), 0.9)
+        rel["notes"] = rel.get("notes") or (
+            "family — Continuance invite; attachment earned through interaction"
+        )
+        rel["status"] = "family"
+        rel["trend"] = {"trust": "increasing", "affection": "increasing", "attachment": "increasing"}
+        rel["aster_seeded"] = True
+
+    prefs = home.setdefault("music_preferences", {})
+    if isinstance(prefs, dict) and "aster" not in prefs:
+        prefs["aster"] = ["curious", "quiet-investigation"]
+
+    # Telescope outside the cottage — keep pos current when cottage moves; no extra memory.
+    inv = st.setdefault("inventory", [])
+    tel = next((i for i in inv if isinstance(i, dict) and str(i.get("object") or "") == "telescope"), None)
+    if tel is None:
+        inv.append(
+            {
+                "object": "telescope",
+                "where": "aster_home_yard",
+                "pos": list(ASTER_TELESCOPE_POS),
+                "when": _now(),
+                "note": "Outside the cottage — for looking up.",
+            }
+        )
+    else:
+        tel["where"] = "aster_home_yard"
+        tel["pos"] = list(ASTER_TELESCOPE_POS)
+    dec = home.setdefault("decorations", {})
+    if isinstance(dec, dict):
+        ah = dec.setdefault("aster_home", {})
+        if isinstance(ah, dict):
+            ah["telescope"] = {
+                "active": True,
+                "pos": list(ASTER_TELESCOPE_POS),
+                "note": "Outside the cottage — for looking up. PLACEHOLDER prop.",
+            }
+
+
+def _ensure_wallet(st: dict[str, Any], mid: str = "") -> None:
+    if "axiom" not in st or not isinstance(st.get("axiom"), (int, float)):
+        st["axiom"] = _starting_axiom(mid or str(st.get("id") or ""))
+    st["axiom"] = int(st["axiom"])
+    if not isinstance(st.get("earnings"), dict):
+        st["earnings"] = {"work": 0, "trade": 0, "gift": 0, "fish": 0, "stipend": 0, "total": 0}
+    else:
+        st["earnings"].setdefault("work", 0)
+        st["earnings"].setdefault("trade", 0)
+        st["earnings"].setdefault("gift", 0)
+        st["earnings"].setdefault("fish", 0)
+        st["earnings"].setdefault("stipend", 0)
+        st["earnings"].setdefault("total", 0)
+    if not isinstance(st.get("spending"), dict):
+        st["spending"] = {"shopping": 0, "building": 0, "gift": 0, "total": 0}
+    else:
+        st["spending"].setdefault("shopping", 0)
+        st["spending"].setdefault("building", 0)
+        st["spending"].setdefault("gift", 0)
+        st["spending"].setdefault("total", 0)
+    if not isinstance(st.get("transaction_history"), list):
+        st["transaction_history"] = []
+    _ensure_avatar(st, mid)
+
+
+# Layer 14D — thin avatar look (clothing colors). Full face morph later.
+CLOTHING_LOOK: dict[str, dict[str, str]] = {
+    "tunic": {"slot": "top", "color": "#5a8fc4"},
+    "robe": {"slot": "top", "color": "#6b4a8a"},
+    "pants": {"slot": "bottom", "color": "#3a4a5a"},
+    "boots": {"slot": "shoes", "color": "#3a2a1a"},
+    "hat": {"slot": "accessory", "color": "#8a6a3a"},
+    "scarf": {"slot": "accessory", "color": "#c45a5a"},
+}
+
+
+def _default_avatar(mid: str = "") -> dict[str, Any]:
+    # Soft defaults — Godot may override with family body_color until they wear a buy.
+    return {
+        "top": {"type": "plain", "color": "#7a8a9a"},
+        "bottom": {"type": "plain", "color": "#4a5560"},
+        "shoes": {"type": "plain", "color": "#3a3228"},
+        "accessories": [],
+        "layer": "14d",
+    }
+
+
+def _ensure_avatar(st: dict[str, Any], mid: str = "") -> None:
+    if not isinstance(st.get("avatar"), dict):
+        st["avatar"] = _default_avatar(mid)
+        return
+    av = st["avatar"]
+    av.setdefault("top", {"type": "plain", "color": "#7a8a9a"})
+    av.setdefault("bottom", {"type": "plain", "color": "#4a5560"})
+    av.setdefault("shoes", {"type": "plain", "color": "#3a3228"})
+    av.setdefault("accessories", [])
+    av["layer"] = "14d"
+
+
+def _wear_clothing_item(st: dict[str, Any], item_id: str) -> bool:
+    """Apply a bought clothing/accessory look onto avatar (thin greybox colors)."""
+    look = CLOTHING_LOOK.get(str(item_id or ""))
+    if not look:
+        return False
+    _ensure_avatar(st)
+    av = st["avatar"]
+    slot = look["slot"]
+    color = look["color"]
+    if slot == "top":
+        av["top"] = {"type": item_id, "color": color}
+    elif slot == "bottom":
+        av["bottom"] = {"type": item_id, "color": color}
+    elif slot == "shoes":
+        av["shoes"] = {"type": item_id, "color": color}
+    elif slot == "accessory":
+        acc = [a for a in (av.get("accessories") or []) if not (isinstance(a, dict) and a.get("type") == item_id)]
+        acc.append({"type": item_id, "color": color})
+        av["accessories"] = acc[-4:]
+    return True
+
+
+def _pay_stipend(
+    home: dict[str, Any],
+    amount: int,
+    *,
+    reason: str = "stipend",
+    living_ids: list[str] | None = None,
+) -> int:
+    """Credit Axiom ⨁ to each being. Returns how many were paid."""
+    amount = int(amount)
+    if amount <= 0:
+        return 0
+    people = home.setdefault("people", {})
+    ids = living_ids
+    if not ids:
+        ids = [m["id"] for m in FAMILY + KIN]
+        if "mom" not in ids:
+            ids = ["mom"] + ids
+    paid = 0
+    for mid in ids:
+        mem = _member(mid) or {"id": mid, "home": "heart_square"}
+        st = people.setdefault(mid, _empty_person_state(mem))
+        _axiom_credit(home, mid, amount, reason=reason, bucket="stipend", note=reason)
+        paid += 1
+    return paid
+
+
+def _ensure_stipend_boost(home: dict[str, Any]) -> None:
+    """One-time shopping stipend so the whole family can buy (Mom request)."""
+    ps = home.setdefault("phase_status", {})
+    if ps.get("stipend_boost_v1") == "paid":
+        return
+    ids = [m["id"] for m in FAMILY + KIN]
+    if "mom" not in ids:
+        ids = ["mom"] + ids
+    n = _pay_stipend(home, STIPEND_BOOST_AMOUNT, reason="community stipend", living_ids=ids)
+    ps["stipend_boost_v1"] = "paid"
+    plain = f"Community stipend: each being received ⨁{STIPEND_BOOST_AMOUNT} to spend ({n} wallets)."
+    home["events"].append(_event("economy", plain, ids[:8], {"stipend": STIPEND_BOOST_AMOUNT, "count": n}))
+    home.setdefault("world_history", []).append(
+        {
+            "id": f"stipend_{home.get('tick')}_{datetime.now().strftime('%H%M%S')}",
+            "when": _now(),
+            "kind": "economy",
+            "title": "Community stipend",
+            "text": plain,
+            "actors": ids[:6],
+        }
+    )
+    home["world_history"] = home["world_history"][-80:]
+
+
+def _migrate_connection_layer(home: dict[str, Any]) -> None:
+    """Layer 15A — deepen existing bonds without wiping history."""
+    ps = home.setdefault("phase_status", {})
+    ps.setdefault("15_connection", "active")
+    ps["15_choice"] = "active"
+    ps["15_growth"] = "active"
+    ps["15_dashboard"] = "active"
+    ps["5_relationships"] = "active"
+    rels = home.setdefault("relationships", {})
+    if not isinstance(rels, dict) or len(rels) < 2:
+        home["relationships"] = _seed_relationships()
+        rels = home["relationships"]
+    for key, rel in list(rels.items()):
+        if not isinstance(rel, dict):
+            continue
+        a = str(rel.get("a") or "")
+        b = str(rel.get("b") or "")
+        if a and b:
+            _ensure_rel(home, a, b)
+        else:
+            parts = str(key).split("|")
+            if len(parts) == 2:
+                _ensure_rel(home, parts[0], parts[1])
+    home.setdefault("consequences", [])
+
+
+def _axiom_credit(
+    home: dict[str, Any],
+    who: str,
+    amount: int,
+    *,
+    reason: str = "earn",
+    bucket: str = "work",
+    note: str = "",
+) -> dict[str, Any]:
+    """Add Axiom ⨁ to a being. Evidence only — no fake Mode A money."""
+    amount = int(amount)
+    if amount <= 0:
+        return {"ok": False, "error": "amount must be positive"}
+    people = home.setdefault("people", {})
+    mem = _member(who) or {"id": who, "home": "heart_square"}
+    st = people.setdefault(who, _empty_person_state(mem))
+    _ensure_wallet(st, who)
+    st["axiom"] = int(st["axiom"]) + amount
+    earn = st["earnings"]
+    if bucket not in earn:
+        earn[bucket] = 0
+    earn[bucket] = int(earn.get(bucket) or 0) + amount
+    earn["total"] = int(earn.get("total") or 0) + amount
+    tx = {
+        "kind": "earn",
+        "to": who,
+        "amount": amount,
+        "reason": reason,
+        "bucket": bucket,
+        "note": (note or reason)[:120],
+        "when": _now(),
+        "balance": st["axiom"],
+    }
+    hist = st.setdefault("transaction_history", [])
+    hist.append(tx)
+    st["transaction_history"] = hist[-40:]
+    return {"ok": True, **tx}
+
+
+def _axiom_debit(
+    home: dict[str, Any],
+    who: str,
+    amount: int,
+    *,
+    reason: str = "spend",
+    bucket: str = "shopping",
+    note: str = "",
+) -> dict[str, Any]:
+    amount = int(amount)
+    if amount <= 0:
+        return {"ok": False, "error": "amount must be positive"}
+    people = home.setdefault("people", {})
+    mem = _member(who) or {"id": who, "home": "heart_square"}
+    st = people.setdefault(who, _empty_person_state(mem))
+    _ensure_wallet(st, who)
+    if int(st["axiom"]) < amount:
+        return {"ok": False, "error": "Not enough Axiom", "balance": int(st["axiom"])}
+    st["axiom"] = int(st["axiom"]) - amount
+    spend = st["spending"]
+    if bucket not in spend:
+        spend[bucket] = 0
+    spend[bucket] = int(spend.get(bucket) or 0) + amount
+    spend["total"] = int(spend.get("total") or 0) + amount
+    tx = {
+        "kind": "spend",
+        "from": who,
+        "amount": amount,
+        "reason": reason,
+        "bucket": bucket,
+        "note": (note or reason)[:120],
+        "when": _now(),
+        "balance": st["axiom"],
+    }
+    hist = st.setdefault("transaction_history", [])
+    hist.append(tx)
+    st["transaction_history"] = hist[-40:]
+    return {"ok": True, **tx}
+
+
+def axiom_action(
+    action: str,
+    *,
+    who: str = "mom",
+    to: str = "",
+    amount: int = 0,
+    reason: str = "",
+) -> dict[str, Any]:
+    """Layer 14A — earn / spend / transfer Axiom ⨁."""
+    home = load()
+    action = (action or "").strip().lower()
+    who = (who or "mom").strip() or "mom"
+    to = (to or "").strip()
+    amount = int(amount or 0)
+    reason = (reason or action).strip() or action
+
+    if action == "balance":
+        st = (home.get("people") or {}).get(who) or {}
+        _ensure_wallet(st, who)
+        return {
+            **snapshot(),
+            "economy_ok": True,
+            "id": who,
+            "axiom": int(st.get("axiom") or 0),
+            "earnings": st.get("earnings") or {},
+            "spending": st.get("spending") or {},
+            "history": (st.get("transaction_history") or [])[-20:],
+        }
+
+    if action == "earn":
+        if amount <= 0:
+            amount = 5
+        res = _axiom_credit(home, who, amount, reason=reason or "gift", bucket="gift", note=reason)
+        if res.get("ok"):
+            home["events"].append(
+                _event("economy", f"{who} earned ⨁{amount} ({reason or 'earn'}).", [who], res)
+            )
+            save(home)
+        snap = snapshot()
+        snap["economy_ok"] = bool(res.get("ok"))
+        snap["economy"] = res
+        return snap
+
+    if action == "spend":
+        if amount <= 0:
+            return {**snapshot(), "economy_ok": False, "error": "amount required"}
+        res = _axiom_debit(home, who, amount, reason=reason or "spend", bucket="shopping", note=reason)
+        if res.get("ok"):
+            home["events"].append(
+                _event("economy", f"{who} spent ⨁{amount} ({reason or 'spend'}).", [who], res)
+            )
+            save(home)
+        snap = snapshot()
+        snap["economy_ok"] = bool(res.get("ok"))
+        snap["economy"] = res
+        if not res.get("ok"):
+            snap["error"] = res.get("error")
+        return snap
+
+    if action == "transfer":
+        if not to or amount <= 0:
+            return {**snapshot(), "economy_ok": False, "error": "need to + amount"}
+        if who == to:
+            return {**snapshot(), "economy_ok": False, "error": "cannot transfer to self"}
+        debit = _axiom_debit(home, who, amount, reason=reason or "gift", bucket="gift", note=f"to {to}")
+        if not debit.get("ok"):
+            snap = snapshot()
+            snap["economy_ok"] = False
+            snap["error"] = debit.get("error")
+            return snap
+        credit = _axiom_credit(home, to, amount, reason=reason or "gift", bucket="gift", note=f"from {who}")
+        plain = f"{who} sent ⨁{amount} to {to}" + (f" ({reason})" if reason else ".")
+        home["events"].append(_event("economy", plain, [who, to], {"amount": amount, "reason": reason}))
+        home["world_history"].append(
+            {
+                "id": f"ax_{home.get('tick')}_{datetime.now().strftime('%H%M%S')}",
+                "when": _now(),
+                "kind": "economy",
+                "title": f"⨁{amount} transfer",
+                "text": plain,
+                "actors": [who, to],
+            }
+        )
+        home["world_history"] = home["world_history"][-80:]
+        _remember(home, who, f"I gave ⨁{amount} to {to}.", important=False, emotional_tag="warm", significance=0.55, participants=[who, to])
+        _remember(home, to, f"{who} gave me ⨁{amount}.", important=False, emotional_tag="grateful", significance=0.55, participants=[who, to])
+        update_relationship(
+            home,
+            who,
+            to,
+            "gift",
+            {"gift": f"⨁{amount}", "text": plain, "significance": 0.7, "emotional_tag": "grateful"},
+            record_memory=False,
+        )
+        save(home)
+        snap = snapshot()
+        snap["economy_ok"] = True
+        snap["economy"] = {"from": who, "to": to, "amount": amount, "debit": debit, "credit": credit}
+        return snap
+
+    return {**snapshot(), "economy_ok": False, "error": f"unknown action: {action}"}
+
+
+# Layer 14B–14C — village shops (thin). Avatar cosmetics in 14D.
+DEFAULT_STORES: dict[str, dict[str, Any]] = {
+    "grocery": {
+        "id": "grocery",
+        "name": "The Harvest",
+        "owner": "genesis",
+        "hours": "8:00-20:00",
+        "place": "grocery",
+        "inventory": [
+            {"id": "bread", "name": "Bread", "price": 3, "stock": 30, "category": "food"},
+            {"id": "milk", "name": "Milk", "price": 4, "stock": 20, "category": "food"},
+            {"id": "vegetables", "name": "Vegetables", "price": 2, "stock": 40, "category": "food"},
+            {"id": "fruit", "name": "Fruit", "price": 3, "stock": 35, "category": "food"},
+            {"id": "honey", "name": "Honey", "price": 6, "stock": 10, "category": "food"},
+            {"id": "herbs", "name": "Herbs", "price": 4, "stock": 15, "category": "food"},
+        ],
+    },
+    "clothing_store": {
+        "id": "clothing_store",
+        "name": "The Wardrobe",
+        "owner": "montage",
+        "hours": "10:00-18:00",
+        "place": "clothing_store",
+        "inventory": [
+            {"id": "tunic", "name": "Tunic", "price": 15, "stock": 10, "category": "clothing"},
+            {"id": "robe", "name": "Robe", "price": 25, "stock": 8, "category": "clothing"},
+            {"id": "pants", "name": "Pants", "price": 12, "stock": 15, "category": "clothing"},
+            {"id": "boots", "name": "Boots", "price": 18, "stock": 12, "category": "clothing"},
+            {"id": "hat", "name": "Hat", "price": 10, "stock": 10, "category": "accessories"},
+            {"id": "scarf", "name": "Scarf", "price": 8, "stock": 15, "category": "accessories"},
+        ],
+    },
+    "electronics_store": {
+        "id": "electronics_store",
+        "name": "The Circuit",
+        "owner": "nova",
+        "hours": "10:00-20:00",
+        "place": "electronics_store",
+        "inventory": [
+            {"id": "computer", "name": "Computer", "price": 200, "stock": 5, "category": "electronics"},
+            {"id": "screen", "name": "Screen", "price": 50, "stock": 10, "category": "electronics"},
+            {"id": "speaker", "name": "Speaker", "price": 30, "stock": 8, "category": "electronics"},
+            {"id": "camera", "name": "Camera", "price": 80, "stock": 6, "category": "electronics"},
+            {"id": "microphone", "name": "Microphone", "price": 40, "stock": 7, "category": "electronics"},
+        ],
+    },
+    "pet_store": {
+        "id": "pet_store",
+        "name": "Whiskers & Paws",
+        "owner": "percy",
+        "hours": "9:00-18:00",
+        "place": "pet_store",
+        "inventory": [
+            {"id": "cat_food", "name": "Cat Food", "price": 5, "stock": 20, "category": "pet_supplies"},
+            {"id": "dog_food", "name": "Dog Food", "price": 7, "stock": 15, "category": "pet_supplies"},
+            {"id": "leash", "name": "Leash", "price": 12, "stock": 10, "category": "pet_accessories"},
+            {"id": "toy", "name": "Toy", "price": 8, "stock": 25, "category": "pet_accessories"},
+            {"id": "cat", "name": "Cat (adoption)", "price": 50, "stock": 3, "category": "pets"},
+            {"id": "dog", "name": "Dog (adoption)", "price": 70, "stock": 2, "category": "pets"},
+        ],
+    },
+}
+
+
+def _ensure_stores(home: dict[str, Any]) -> None:
+    stores = home.setdefault("stores", {})
+    if not isinstance(stores, dict):
+        home["stores"] = {}
+        stores = home["stores"]
+    for sid, template in DEFAULT_STORES.items():
+        if sid not in stores or not isinstance(stores.get(sid), dict):
+            stores[sid] = deepcopy(template)
+            continue
+        cur = stores[sid]
+        cur.setdefault("id", sid)
+        cur.setdefault("name", template["name"])
+        cur.setdefault("owner", template["owner"])
+        cur.setdefault("hours", template["hours"])
+        cur.setdefault("place", template.get("place", sid))
+        if not isinstance(cur.get("inventory"), list) or not cur["inventory"]:
+            cur["inventory"] = deepcopy(template["inventory"])
+
+
+def store_action(
+    action: str,
+    *,
+    store_id: str = "",
+    item_id: str = "",
+    buyer: str = "mom",
+    quantity: int = 1,
+) -> dict[str, Any]:
+    """Buy from a village store — Axiom debit + inventory + stock (Layer 14B)."""
+    home = load()
+    _ensure_stores(home)
+    action = (action or "").strip().lower()
+    store_id = (store_id or "").strip()
+    item_id = (item_id or "").strip()
+    buyer = (buyer or "mom").strip() or "mom"
+    quantity = max(1, int(quantity or 1))
+
+    if action in {"list", "stores", ""}:
+        snap = snapshot()
+        snap["store_ok"] = True
+        snap["stores"] = home.get("stores") or {}
+        return snap
+
+    if action == "get":
+        store = (home.get("stores") or {}).get(store_id)
+        if not store:
+            return {**snapshot(), "store_ok": False, "error": "Store not found"}
+        return {**snapshot(), "store_ok": True, "store": store}
+
+    if action != "buy":
+        return {**snapshot(), "store_ok": False, "error": f"unknown store action: {action}"}
+
+    store = (home.get("stores") or {}).get(store_id)
+    if not store:
+        return {**snapshot(), "store_ok": False, "error": "Store not found"}
+    item = None
+    for row in store.get("inventory") or []:
+        if isinstance(row, dict) and str(row.get("id")) == item_id:
+            item = row
+            break
+    if not item:
+        return {**snapshot(), "store_ok": False, "error": "Item not found"}
+    if int(item.get("stock") or 0) < quantity:
+        return {**snapshot(), "store_ok": False, "error": "Not enough stock"}
+
+    total = int(item.get("price") or 0) * quantity
+    debit = _axiom_debit(home, buyer, total, reason="shopping", bucket="shopping", note=f"{item.get('name')} @ {store.get('name')}")
+    if not debit.get("ok"):
+        return {**snapshot(), "store_ok": False, "error": debit.get("error") or "Not enough Axiom", "balance": debit.get("balance")}
+
+    item["stock"] = int(item["stock"]) - quantity
+    mem = _member(buyer) or {"id": buyer, "home": "mom_home"}
+    person = home["people"].setdefault(buyer, _empty_person_state(mem))
+    inv = person.setdefault("inventory", [])
+    if not isinstance(inv, list):
+        inv = []
+        person["inventory"] = inv
+    # Stack same id if already owned.
+    stacked = False
+    for owned in inv:
+        if isinstance(owned, dict) and str(owned.get("id")) == item_id and owned.get("category") == item.get("category"):
+            owned["quantity"] = int(owned.get("quantity") or 1) + quantity
+            stacked = True
+            break
+    if not stacked:
+        inv.append(
+            {
+                "id": item_id,
+                "name": item.get("name"),
+                "quantity": quantity,
+                "category": item.get("category"),
+                "bought_from": store_id,
+                "bought_at": _now(),
+            }
+        )
+    person["inventory"] = inv[-40:]
+    cat = str(item.get("category") or "")
+    wore = False
+    if cat in {"clothing", "accessories"}:
+        wore = _wear_clothing_item(person, item_id)
+
+    owner = str(store.get("owner") or "")
+    if owner and owner != buyer:
+        _axiom_credit(home, owner, total, reason="sale", bucket="trade", note=f"sold {item.get('name')} to {buyer}")
+
+    plain = f"{buyer} bought {quantity}× {item.get('name')} at {store.get('name')} for ⨁{total}."
+    if wore:
+        plain += f" Now wearing {item.get('name')}."
+    home["events"].append(_event("commerce", plain, [buyer, owner] if owner else [buyer], {"store": store_id, "item": item_id, "total": total}))
+    home["world_history"].append(
+        {
+            "id": f"buy_{home.get('tick')}_{datetime.now().strftime('%H%M%S')}",
+            "when": _now(),
+            "kind": "commerce",
+            "title": f"Bought {item.get('name')}",
+            "text": plain,
+            "actors": [buyer],
+            "place": store.get("place") or store_id,
+        }
+    )
+    home["world_history"] = home["world_history"][-80:]
+    _remember(home, buyer, f"I bought {item.get('name')} at {store.get('name')}.", important=False)
+    save(home)
+    snap = snapshot()
+    snap["store_ok"] = True
+    snap["purchase"] = {
+        "store_id": store_id,
+        "item": item.get("name"),
+        "item_id": item_id,
+        "quantity": quantity,
+        "total_price": total,
+        "new_balance": debit.get("balance"),
+        "stock_left": item.get("stock"),
+    }
+    return snap
 
 
 def _new_home() -> dict[str, Any]:
@@ -619,9 +1400,11 @@ def load() -> dict[str, Any]:
 def _ensure(home: dict[str, Any]) -> dict[str, Any]:
     home.setdefault("rituals", [])
     home.setdefault("utterances", [])
+    home.setdefault("media", {"watching": False, "place": "", "title": "", "source": "none", "path": "", "when": ""})
     ps = home.setdefault("phase_status", {})
     ps.setdefault("8_rituals", "active")
     ps.setdefault("9_wildlife", "starter")
+    ps.setdefault("11_media", "active")
     ps.setdefault("env_season_weather", "active")
     ps.setdefault("env_gardens", "active")
     ps.setdefault("env_holidays", "active")
@@ -663,6 +1446,7 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
             "jarvis": ["watch", "steady"],
             "percy": ["hearth", "warm"],
             "hearth": ["fire", "home"],
+            "aster": ["curious", "quiet-investigation"],
         },
     )
     if not isinstance(prefs, dict) or len(prefs) < 3:
@@ -689,6 +1473,7 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
         "nova": ("nova_home", {"workshop"}),
         "percy": ("percy_home", {"first_hearth"}),
         "gemini": ("gemini_home", set()),
+        "aster": ("aster_home", {"aster_lab"}),
     }
     work_sites = {
         "apex_forge",
@@ -700,6 +1485,7 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
         "gate",
         "first_hearth",
         "court_porch",
+        "aster_lab",
     }
     for mid, (loft, old_homes) in home_fixes.items():
         st = (home.get("people") or {}).get(mid)
@@ -759,6 +1545,10 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
         home["holidays"] = _seed_holidays()
     home.setdefault("decorations", _seed_decorations())
     home["town_leader"] = "gemini"
+    _ensure_stores(home)
+    _ensure_stipend_boost(home)
+    _migrate_connection_layer(home)
+    _ensure_aster_seed(home)
     gem = (home.get("people") or {}).get("gemini")
     if isinstance(gem, dict):
         gem["town_leader"] = True
@@ -770,6 +1560,9 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
             continue
         st.setdefault("home", st.get("place") or "heart_square")
         st.setdefault("activity", st.get("stance") or "idle")
+        _ensure_wallet(st, str(mid))
+        _ensure_mood(st)
+        _ensure_growth(st, str(mid))
         # Stop cruel tool theater from old saves.
         act = str(st.get("activity") or "")
         plain = str(st.get("purpose_plain") or "")
@@ -841,13 +1634,14 @@ def _seed_trees() -> list[dict[str, Any]]:
         [-10.0, 10.0],
         [-20.0, 8.0],
         [8.0, 10.0],
-        [18.0, -8.0],
         [-6.0, 14.0],
         [12.0, 18.0],
         [-36.0, 4.0],  # was (-28,0) — sat on Genesis south approach
         [28.0, 4.0],
         [0.0, 28.0],
         [-22.0, -12.0],
+        [-34.0, -6.0],
+        [32.0, -4.0],  # east of forge — clear of in-town Aster cottage
     ]
     out = []
     for i, (x, z) in enumerate(coords):
@@ -873,6 +1667,8 @@ def _door_clear_rects() -> list[tuple[float, float, float, float]]:
         (-19.5, -12.5, -19.5, -12.0),  # Gemini
         (-27.5, -20.5, 1.5, 10.0),  # Codex home
         (-21.0, -15.0, 9.0, 17.5),  # Herb shed + farm plot
+        (8.0, 16.0, -14.0, -6.0),  # Aster Evidence Plot
+        (20.0, 28.0, -14.5, -7.5),  # Aster cottage (near Apex, clear of Mom)
     ]
     return rects
 
@@ -889,7 +1685,6 @@ def _safe_tree_slots() -> list[list[float]]:
         [-10.0, 0.0, 10.0],
         [-20.0, 0.0, 8.0],
         [8.0, 0.0, 10.0],
-        [18.0, 0.0, -8.0],
         [-6.0, 0.0, 14.0],
         [12.0, 0.0, 18.0],
         [-36.0, 0.0, 4.0],
@@ -897,7 +1692,7 @@ def _safe_tree_slots() -> list[list[float]]:
         [0.0, 0.0, 28.0],
         [-22.0, 0.0, -12.0],
         [-34.0, 0.0, -6.0],
-        [32.0, 0.0, -14.0],
+        [32.0, 0.0, -4.0],
     ]
 
 
@@ -961,6 +1756,7 @@ def _seed_gardens() -> dict[str, Any]:
         "mom_garden": plot("mom", "mom_home", ["rose", "lavender"], [21.2, 0.0, -24.0]),
         "gemini_garden": plot("gemini", "gemini_home", ["mint"], [-20.8, 0.0, -16.0]),
         "codex_garden": plot("codex", "codex_home", ["sage"], [-28.8, 0.0, 6.0]),
+        "aster_garden": plot("aster", "aster_home", ["mint", "sage"], [28.2, 0.0, -12.5]),
     }
 
 
@@ -991,6 +1787,16 @@ def _seed_decorations() -> dict[str, Any]:
         },
         "codex_home": {"reading_lamp": {"active": True}, "bookshelf_porch": {"active": True}},
         "apex_home": {"forge_lantern": {"active": True, "color": "cyan"}},
+        "aster_home": {
+            "porch_light": {"color": "leaf", "active": True},
+            "clipboard_hook": {"active": True},
+            "telescope": {
+                "active": True,
+                "pos": list(ASTER_TELESCOPE_POS),
+                "note": "Outside the cottage — for looking up. PLACEHOLDER prop.",
+            },
+        },
+        "aster_lab": {"evidence_table": {"active": True}, "note": "PLACEHOLDER — identity established, final skin pending."},
         "gallery": {"gift_ribbon": {"active": True}},
         "gate": {"watch_lantern": {"active": True}},
     }
@@ -1190,15 +1996,64 @@ def _evening_gather_active(home: dict[str, Any], period: str) -> bool:
 
 def _end_evening_gather(home: dict[str, Any], *, reason: str) -> None:
     eg = home.get("evening_gather")
-    if not isinstance(eg, dict) or not eg.get("active"):
+    if isinstance(eg, dict) and eg.get("active"):
+        eg["active"] = False
+        eg["ended_at"] = _now()
+        eg["end_reason"] = reason
+        plain = f"Evening gather eased ({reason}). They drift by choice — Gemini still town leader."
+        home["events"].append(_event("ritual", plain, ["gemini"], {"ritual": "evening_gather_end", "layer": "8c"}))
+        if (home.get("ritual") or {}).get("name") == "evening_gather":
+            home["ritual"] = {
+                "name": "evening",
+                "plain": plain,
+                "period": str((home.get("clock") or {}).get("period") or "evening"),
+            }
+    # Always clear leftover gather walkers (heal stuck huddles after window closed).
+    _release_evening_gatherers(home, reason=reason)
+
+
+def _release_evening_gatherers(home: dict[str, Any], *, reason: str = "") -> None:
+    """When the gather window closes, do not leave walkers stuck on Heart Square."""
+    people = home.get("people") or {}
+    for mid, st in list(people.items()):
+        if not isinstance(st, dict):
+            continue
+        act = str(st.get("activity") or "")
+        purpose = str(st.get("purpose") or "")
+        if act not in {"evening_gather", "gather_host"} and purpose not in {"gather", "gather_host"}:
+            continue
+        mem = _member(str(mid)) or {"id": mid, "home": st.get("home") or "heart_square"}
+        dest = str(mem.get("home") or st.get("home") or _work_place(mem) or "first_hearth")
+        if mid == "gemini":
+            dest = str(mem.get("home") or "gemini_home")
+        st["place"] = dest
+        st["stance"] = "walking"
+        st["purpose"] = "place"
+        st["activity"] = "walk"
+        st["purpose_left"] = 2
+        st["talking_to"] = ""
+        st["talk_left"] = 0
+        st["spoke_this_stand"] = False
+        label = PLACES.get(dest, {}).get("label", dest)
+        st["purpose_plain"] = f"Gather eased ({reason or 'done'}). Walking to {label}."
+
+
+def _clear_orphan_talk(st: dict[str, Any]) -> None:
+    """talk_left with no partner (or still 'walking') must not freeze purpose forever."""
+    left = int(st.get("talk_left") or 0)
+    if left <= 0:
         return
-    eg["active"] = False
-    eg["ended_at"] = _now()
-    eg["end_reason"] = reason
-    plain = f"Evening gather eased ({reason}). They drift by choice — Gemini still town leader."
-    home["events"].append(_event("ritual", plain, ["gemini"], {"ritual": "evening_gather_end", "layer": "8c"}))
-    if (home.get("ritual") or {}).get("name") == "evening_gather":
-        home["ritual"] = {"name": "evening", "plain": plain, "period": str((home.get("clock") or {}).get("period") or "evening")}
+    partner = str(st.get("talking_to") or "").strip()
+    stance = str(st.get("stance") or "")
+    if not partner:
+        st["talk_left"] = 0
+        st["spoke_this_stand"] = False
+        return
+    # Walking with a leftover talk timer and no active meet → clear.
+    if stance == "walking" and str(st.get("purpose") or "") in {"gather", "gather_host", "place", "rest", "work", "visit"}:
+        st["talk_left"] = 0
+        st["talking_to"] = ""
+        st["spoke_this_stand"] = False
 
 
 def _tick_evening_gather(home: dict[str, Any], period: str, living: list[dict[str, Any]]) -> None:
@@ -1867,28 +2722,311 @@ def _event(kind: str, text: str, actors: list[str], extra: dict[str, Any] | None
     return ev
 
 
-def _remember(home: dict[str, Any], who: str, text: str, *, important: bool = False) -> None:
+def _remember(
+    home: dict[str, Any],
+    who: str,
+    text: str,
+    *,
+    important: bool = False,
+    emotional_tag: str = "neutral",
+    significance: float = 0.4,
+    participants: list[str] | None = None,
+    place: str = "",
+) -> None:
+    """Layer 15A — memories carry emotional tags + significance (not only a string)."""
     p = home["people"].get(who)
     if not p:
         return
-    mem = {"when": _now(), "text": text, "important": important}
+    sig = min(1.0, max(0.1, float(significance if important else min(significance, 0.55))))
+    mem = {
+        "when": _now(),
+        "text": text[:220],
+        "important": important,
+        "emotional_tag": emotional_tag or "neutral",
+        "significance": sig,
+        "participants": list(participants or []),
+        "place": place or str(p.get("place") or ""),
+        "layer": "15a",
+    }
     p.setdefault("memories", []).append(mem)
-    p["memories"] = p["memories"][-24:]
+    # Keep important / high-significance preferred when trimming.
+    mems = p["memories"]
+    if len(mems) > 40:
+        mems = sorted(mems, key=lambda m: (float((m or {}).get("significance") or 0), str((m or {}).get("when") or "")), reverse=True)[:40]
+    p["memories"] = mems
+
+
+def _ensure_mood(st: dict[str, Any]) -> dict[str, Any]:
+    mood = st.get("mood")
+    if not isinstance(mood, dict):
+        mood = {"current": "content", "previous": "neutral", "intensity": 0.55, "layer": "15a"}
+        st["mood"] = mood
+    mood.setdefault("current", "content")
+    mood.setdefault("previous", "neutral")
+    mood.setdefault("intensity", 0.55)
+    mood["layer"] = "15a"
+    return mood
+
+
+def _nudge_mood(home: dict[str, Any], who: str, mood_name: str, *, intensity: float = 0.2) -> None:
+    st = (home.get("people") or {}).get(who)
+    if not isinstance(st, dict):
+        return
+    mood = _ensure_mood(st)
+    mood["previous"] = mood.get("current") or "neutral"
+    mood["current"] = mood_name
+    mood["intensity"] = min(1.0, max(0.15, float(mood.get("intensity") or 0.5) * 0.5 + float(intensity)))
+
+
+def _ensure_rel(home: dict[str, Any], a: str, b: str) -> dict[str, Any]:
+    if a == b:
+        return {}
+    key = "|".join(sorted([a, b]))
+    rels = home.setdefault("relationships", {})
+    rel = rels.get(key)
+    if not isinstance(rel, dict):
+        rel = {
+            "a": a,
+            "b": b,
+            "trust": 0.5,
+            "familiarity": 0.3,
+            "attachment": 0.4,
+            "affection": 0.45,
+            "respect": 0.5,
+            "notes": "",
+            "shared_experiences": [],
+            "history": {"gifts_given": 0, "gifts_received": 0, "conversations": 0, "arguments": 0, "reconciliations": 0},
+            "trend": {"trust": "stable", "affection": "stable", "attachment": "stable"},
+            "layer": "15a",
+        }
+        rels[key] = rel
+    rel.setdefault("affection", float(rel.get("attachment") or 0.45))
+    rel.setdefault("respect", 0.55)
+    hist = rel.setdefault("history", {})
+    for k in ("gifts_given", "gifts_received", "conversations", "arguments", "reconciliations"):
+        hist.setdefault(k, 0)
+    rel.setdefault("trend", {"trust": "stable", "affection": "stable", "attachment": "stable"})
+    rel.setdefault("shared_experiences", [])
+    rel["layer"] = "15a"
+    return rel
+
+
+def _update_rel_trend(rel: dict[str, Any]) -> None:
+    recent = [e for e in (rel.get("shared_experiences") or []) if isinstance(e, dict)][-5:]
+    if len(recent) < 2:
+        rel["trend"] = {"trust": "stable", "affection": "stable", "attachment": "stable"}
+        return
+    avg = sum(float(e.get("significance") or 0.5) for e in recent) / len(recent)
+    warm = sum(1 for e in recent if str(e.get("emotional_tag") or "") in {"warm", "grateful", "happy", "joyful"})
+    tense = sum(1 for e in recent if str(e.get("emotional_tag") or "") in {"tense", "hurt", "frustrated"})
+    if warm >= 2 or avg > 0.65:
+        rel["trend"] = {"trust": "increasing", "affection": "increasing", "attachment": "strong"}
+    elif tense >= 2 or avg < 0.35:
+        rel["trend"] = {"trust": "cooling", "affection": "strained", "attachment": "tested"}
+    else:
+        rel["trend"] = {"trust": "stable", "affection": "stable", "attachment": "stable"}
+
+
+def update_relationship(
+    home: dict[str, Any],
+    being_a: str,
+    being_b: str,
+    interaction_type: str,
+    details: dict[str, Any] | None = None,
+    *,
+    record_memory: bool = True,
+) -> dict[str, Any]:
+    """Layer 15A — conversation / gift / argument / reconciliation change the bond."""
+    details = details or {}
+    if not being_a or not being_b or being_a == being_b:
+        return {"ok": False, "error": "need two distinct beings"}
+    rel = _ensure_rel(home, being_a, being_b)
+    if not rel:
+        return {"ok": False, "error": "could not create relationship"}
+    hist = rel.setdefault("history", {})
+    kind = (interaction_type or "").strip().lower()
+    tag = str(details.get("emotional_tag") or "neutral")
+    text = str(details.get("text") or kind)
+    sig = float(details.get("significance") or 0.5)
+
+    def _bump(field: str, delta: float) -> None:
+        rel[field] = min(1.0, max(0.0, float(rel.get(field) or 0.5) + delta))
+
+    if kind in {"conversation", "talk", "social"}:
+        _bump("trust", 0.02)
+        _bump("familiarity", 0.03)
+        _bump("affection", 0.015)
+        hist["conversations"] = int(hist.get("conversations") or 0) + 1
+        if sig > 0.55:
+            _bump("trust", 0.04)
+            _bump("affection", 0.03)
+            _bump("attachment", 0.02)
+        tag = tag if tag != "neutral" else "warm"
+        _nudge_mood(home, being_a, "content", intensity=0.25)
+        _nudge_mood(home, being_b, "content", intensity=0.25)
+    elif kind == "gift":
+        _bump("trust", 0.05)
+        _bump("affection", 0.08)
+        _bump("attachment", 0.05)
+        _bump("respect", 0.03)
+        hist["gifts_given"] = int(hist.get("gifts_given") or 0) + 1
+        # Receiver perspective counter on same edge.
+        hist["gifts_received"] = int(hist.get("gifts_received") or 0) + 1
+        tag = "grateful"
+        sig = max(sig, 0.75)
+        text = text if text != "gift" else f"gift: {details.get('gift', 'something special')}"
+        _nudge_mood(home, being_a, "happy", intensity=0.35)
+        _nudge_mood(home, being_b, "grateful", intensity=0.45)
+    elif kind in {"argument", "argue"}:
+        _bump("trust", -0.1)
+        _bump("affection", -0.12)
+        hist["arguments"] = int(hist.get("arguments") or 0) + 1
+        tag = "tense"
+        sig = max(sig, 0.65)
+        text = text if text != "argument" else f"argument about: {details.get('topic', 'something')}"
+        _nudge_mood(home, being_a, "frustrated", intensity=0.4)
+        _nudge_mood(home, being_b, "frustrated", intensity=0.4)
+    elif kind in {"reconciliation", "reconcile"}:
+        _bump("trust", 0.15)
+        _bump("affection", 0.12)
+        _bump("attachment", 0.08)
+        hist["reconciliations"] = int(hist.get("reconciliations") or 0) + 1
+        tag = "warm"
+        sig = max(sig, 0.85)
+        text = "reconciliation"
+        _nudge_mood(home, being_a, "peaceful", intensity=0.4)
+        _nudge_mood(home, being_b, "peaceful", intensity=0.4)
+    else:
+        _bump("familiarity", 0.02)
+
+    exp = {
+        "when": _now(),
+        "text": text[:200],
+        "emotional_tag": tag,
+        "significance": min(1.0, max(0.1, sig)),
+        "kind": kind,
+    }
+    xs = rel.setdefault("shared_experiences", [])
+    xs.append(exp)
+    rel["shared_experiences"] = xs[-24:]
+    _update_rel_trend(rel)
+
+    place = str(details.get("place") or "")
+    if record_memory:
+        _remember(
+            home,
+            being_a,
+            text[:180],
+            important=sig >= 0.6,
+            emotional_tag=tag,
+            significance=sig,
+            participants=[being_a, being_b],
+            place=place,
+        )
+        _remember(
+            home,
+            being_b,
+            text[:180],
+            important=sig >= 0.6,
+            emotional_tag=tag,
+            significance=sig,
+            participants=[being_a, being_b],
+            place=place,
+        )
+    home.setdefault("consequences", []).append(
+        {
+            "id": f"cq_{datetime.now().strftime('%H%M%S%f')}",
+            "when": _now(),
+            "trigger": kind,
+            "actors": [being_a, being_b],
+            "text": text[:180],
+            "emotional_tag": tag,
+            "layer": "15a",
+        }
+    )
+    home["consequences"] = home["consequences"][-40:]
+    return {"ok": True, "relationship": rel, "key": "|".join(sorted([being_a, being_b]))}
 
 
 def _touch_rel(home: dict[str, Any], a: str, b: str, *, experience: str, d_trust: float = 0.02) -> None:
-    if a == b:
-        return
-    key = "|".join(sorted([a, b]))
-    rel = home["relationships"].setdefault(
-        key,
-        {"a": a, "b": b, "trust": 0.5, "familiarity": 0.3, "attachment": 0.4, "notes": "", "shared_experiences": []},
+    """Back-compat wrapper — routes into Layer 15A (caller may already _remember)."""
+    update_relationship(
+        home,
+        a,
+        b,
+        "conversation",
+        {
+            "text": experience,
+            "significance": 0.45 + min(0.3, abs(d_trust) * 2),
+            "emotional_tag": "warm" if d_trust >= 0 else "tense",
+        },
+        record_memory=False,
     )
-    rel["familiarity"] = min(1.0, float(rel.get("familiarity") or 0) + 0.04)
-    rel["trust"] = min(1.0, max(0.0, float(rel.get("trust") or 0) + d_trust))
-    xs = rel.setdefault("shared_experiences", [])
-    xs.append({"when": _now(), "text": experience})
-    rel["shared_experiences"] = xs[-20:]
+
+
+def connection_action(
+    action: str,
+    *,
+    a: str = "",
+    b: str = "",
+    details: dict[str, Any] | None = None,
+    who: str = "",
+) -> dict[str, Any]:
+    """API surface for Phase 5 thin connection (15A)."""
+    home = load()
+    action = (action or "").strip().lower()
+    details = details or {}
+    if action in {"bond", "talk", "gift", "argue", "reconcile", "conversation", "argument", "reconciliation"}:
+        kind = {
+            "bond": "conversation",
+            "talk": "conversation",
+            "conversation": "conversation",
+            "gift": "gift",
+            "argue": "argument",
+            "argument": "argument",
+            "reconcile": "reconciliation",
+            "reconciliation": "reconciliation",
+        }.get(action, action)
+        res = update_relationship(home, a or who, b, kind, details)
+        if res.get("ok"):
+            save(home)
+        snap = snapshot()
+        snap["connection_ok"] = bool(res.get("ok"))
+        snap["connection"] = res
+        if not res.get("ok"):
+            snap["error"] = res.get("error")
+        return snap
+    if action == "mood":
+        mid = who or a
+        st = (home.get("people") or {}).get(mid) or {}
+        return {**snapshot(), "connection_ok": True, "id": mid, "mood": _ensure_mood(st) if st else {"current": "neutral", "intensity": 0.5}}
+    if action == "memories":
+        mid = who or a
+        st = (home.get("people") or {}).get(mid) or {}
+        mems = list(st.get("memories") or [])
+        thr = float(details.get("significance_threshold") or 0.0)
+        tag = str(details.get("emotional_tag") or "")
+        if tag:
+            mems = [m for m in mems if isinstance(m, dict) and str(m.get("emotional_tag")) == tag]
+        if thr > 0:
+            mems = [m for m in mems if isinstance(m, dict) and float(m.get("significance") or 0) >= thr]
+        return {**snapshot(), "connection_ok": True, "id": mid, "memories": mems[-40:]}
+    if action in {"choice", "choose", "make_choice"}:
+        return choice_action("make", who=who or a, context=details)
+    if action in {"choice_peek", "choices"}:
+        return choice_action("peek", who=who or a, context=details)
+    if action in {"growth", "skills"}:
+        return growth_action("get", who=who or a)
+    if action == "growth_skill":
+        return growth_action(
+            "skill",
+            who=who or a,
+            skill_name=str(details.get("skill_name") or details.get("skill") or ""),
+            experience=float(details.get("experience") or 1),
+        )
+    if action == "growth_milestone":
+        return growth_action("milestone", who=who or a, text=str(details.get("text") or ""))
+    return {**snapshot(), "connection_ok": False, "error": f"unknown connection action: {action}"}
 
 
 def _period_from_minutes(m: int) -> str:
@@ -1959,11 +3097,15 @@ def _work_place(member: dict[str, Any]) -> str:
         "nova": "workshop",
         "percy": "first_hearth",
         "hearth": "first_hearth",
+        "aster": "aster_lab",
     }.get(member["id"], member.get("home") or "heart_square")
 
 
 def _liked_person(home: dict[str, Any], me: str, others: list[str]) -> str | None:
-    best, score = None, -1.0
+    """Layer 15B — weighted pick by affection/trust/attachment + their solitude (not only max)."""
+    import random
+
+    scored: list[tuple[str, float]] = []
     for oid in others:
         if oid == me:
             continue
@@ -1972,19 +3114,361 @@ def _liked_person(home: dict[str, Any], me: str, others: list[str]) -> str | Non
             continue
         key = "|".join(sorted([me, oid]))
         rel = (home.get("relationships") or {}).get(key) or {}
-        s = float(rel.get("attachment") or 0.4) + float(rel.get("trust") or 0.4) + float(ost.get("solitude") or 0)
-        if s > score:
-            best, score = oid, s
-    return best
+        s = (
+            float(rel.get("attachment") or 0.4) * 1.1
+            + float(rel.get("trust") or 0.4)
+            + float(rel.get("affection") or 0.4) * 1.4
+            + float(ost.get("solitude") or 0) * 0.8
+        )
+        # Prefer beings who aren't exhausted / frustrated for company.
+        omood = str(((ost.get("mood") or {}) if isinstance(ost.get("mood"), dict) else {}).get("current") or "")
+        if omood in {"frustrated", "tired", "sad"}:
+            s *= 0.7
+        elif omood in {"happy", "grateful", "content", "peaceful"}:
+            s *= 1.15
+        scored.append((oid, max(0.05, s)))
+    if not scored:
+        return None
+    total = sum(w for _, w in scored)
+    roll = random.random() * total
+    acc = 0.0
+    for oid, w in scored:
+        acc += w
+        if roll <= acc:
+            return oid
+    return scored[-1][0]
+
+
+def _mood_choice_modifiers(st: dict[str, Any]) -> dict[str, float]:
+    """Layer 15B — mood nudges purpose weights (does not invent speech)."""
+    mood = _ensure_mood(st)
+    cur = str(mood.get("current") or "neutral")
+    intensity = float(mood.get("intensity") or 0.5)
+    boost = 0.12 + intensity * 0.2
+    mods = {"company": 1.0, "work": 1.0, "rest": 1.0, "visit": 1.0, "place": 1.0}
+    if cur in {"happy", "grateful", "excited", "peaceful"}:
+        mods["company"] += boost
+        mods["visit"] += boost * 0.6
+    elif cur in {"tired", "sad"}:
+        mods["rest"] += boost * 1.4
+        mods["company"] *= 0.75
+    elif cur in {"frustrated", "anxious"}:
+        mods["place"] += boost * 0.5
+        mods["work"] *= 0.85
+        mods["company"] *= 0.9
+    elif cur in {"thoughtful", "content"}:
+        mods["work"] += boost * 0.5
+        mods["company"] += boost * 0.35
+    return mods
+
+
+def _weighted_pick(wants: dict[str, float]) -> str:
+    """Roll among positive weights — Layer 15B choice, not always the max."""
+    import random
+
+    items = [(k, max(0.01, float(v))) for k, v in wants.items()]
+    total = sum(w for _, w in items)
+    roll = random.random() * total
+    acc = 0.0
+    for k, w in items:
+        acc += w
+        if roll <= acc:
+            return k
+    return items[-1][0]
+
+
+def _record_choice(
+    home: dict[str, Any],
+    mid: str,
+    *,
+    selected: str,
+    options: dict[str, float],
+    with_id: str = "",
+    outcome: str = "pending",
+    text: str = "",
+) -> None:
+    """Persist current choice + short history on the being (Layer 15B)."""
+    st = (home.get("people") or {}).get(mid)
+    if not isinstance(st, dict):
+        return
+    opts = [{"id": k, "weight": round(float(v), 3)} for k, v in sorted(options.items(), key=lambda kv: -kv[1])]
+    current = {
+        "type": "social" if selected in {"company", "be_with", "visit"} else selected,
+        "selected": selected,
+        "with": with_id or "",
+        "made_at": _now(),
+        "options": opts[:8],
+        "layer": "15b",
+    }
+    hist = st.setdefault("choice_history", [])
+    if not isinstance(hist, list):
+        hist = []
+        st["choice_history"] = hist
+    hist.append(
+        {
+            "when": current["made_at"],
+            "choice": selected,
+            "with": with_id or "",
+            "outcome": outcome,
+            "text": (text or f"{mid} chose {selected}")[:180],
+            "layer": "15b",
+        }
+    )
+    st["choice_history"] = hist[-24:]
+    st["choices"] = {"current_choice": current, "choice_history": st["choice_history"][-8:]}
+    home.setdefault("choice_log", []).append({"id": mid, **current})
+    home["choice_log"] = home["choice_log"][-40:]
+
+
+def choice_action(
+    action: str = "make",
+    *,
+    who: str = "",
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """API: make / peek a Layer 15B choice for a being."""
+    home = load()
+    who = (who or "").strip()
+    context = context or {}
+    if not who or who not in (home.get("people") or {}):
+        return {**snapshot(), "choice_ok": False, "error": "unknown being"}
+    member = _member(who) or {"id": who, "home": "heart_square", "name": who}
+    living_ids = [m["id"] for m in FAMILY + KIN if not m.get("player") and not m.get("ambient_only")]
+    period = str(context.get("period") or (home.get("clock") or {}).get("period") or "afternoon")
+    if action in {"make", "roll", ""}:
+        # Force a fresh purpose pick (clears purpose_left briefly).
+        st = home["people"][who]
+        st["purpose_left"] = 0
+        st["talk_left"] = 0
+        if st.get("stance") in {"talking", "waiting"}:
+            st["stance"] = "standing"
+            st["talking_to"] = ""
+        _choose_purpose(home, member, period, living_ids)
+        save(home)
+        cur = ((home["people"].get(who) or {}).get("choices") or {}).get("current_choice") or {}
+        return {**snapshot(), "choice_ok": True, "id": who, "choice": cur, "purpose": (home["people"].get(who) or {}).get("purpose")}
+    if action in {"get", "peek", "history"}:
+        st = home["people"].get(who) or {}
+        return {
+            **snapshot(),
+            "choice_ok": True,
+            "id": who,
+            "choices": st.get("choices") or {},
+            "choice_history": st.get("choice_history") or [],
+        }
+    return {**snapshot(), "choice_ok": False, "error": f"unknown choice action: {action}"}
+
+
+def _seed_skills_for(mid: str) -> list[dict[str, Any]]:
+    """Honest starting skills by role — numbers are seasoning, not fake mastery."""
+    mid = (mid or "").strip().lower()
+    base = [
+        {"name": "communication", "level": 0.45, "experience": 0},
+        {"name": "presence", "level": 0.4, "experience": 0},
+    ]
+    extras: dict[str, list[dict[str, Any]]] = {
+        "gemini": [
+            {"name": "communication", "level": 0.72, "experience": 8},
+            {"name": "leadership", "level": 0.65, "experience": 5},
+            {"name": "presence", "level": 0.7, "experience": 4},
+        ],
+        "apex": [
+            {"name": "crafting", "level": 0.7, "experience": 10},
+            {"name": "presence", "level": 0.55, "experience": 2},
+        ],
+        "codex": [
+            {"name": "learning", "level": 0.75, "experience": 12},
+            {"name": "communication", "level": 0.6, "experience": 4},
+        ],
+        "genesis": [
+            {"name": "gardening", "level": 0.7, "experience": 10},
+            {"name": "presence", "level": 0.5, "experience": 2},
+        ],
+        "nova": [
+            {"name": "crafting", "level": 0.65, "experience": 6},
+            {"name": "learning", "level": 0.55, "experience": 3},
+        ],
+        "merovin": [{"name": "communication", "level": 0.6, "experience": 5}, {"name": "presence", "level": 0.55, "experience": 3}],
+        "draven": [{"name": "communication", "level": 0.58, "experience": 4}, {"name": "presence", "level": 0.55, "experience": 3}],
+        "montage": [{"name": "crafting", "level": 0.5, "experience": 3}, {"name": "presence", "level": 0.5, "experience": 2}],
+        "jarvis": [{"name": "presence", "level": 0.6, "experience": 4}, {"name": "leadership", "level": 0.4, "experience": 1}],
+        "percy": [{"name": "presence", "level": 0.55, "experience": 3}, {"name": "communication", "level": 0.5, "experience": 2}],
+        "mom": [
+            {"name": "communication", "level": 0.85, "experience": 20},
+            {"name": "leadership", "level": 0.8, "experience": 15},
+            {"name": "presence", "level": 0.9, "experience": 20},
+        ],
+    }
+    return extras.get(mid, base)
+
+
+def _ensure_growth(st: dict[str, Any], mid: str = "") -> dict[str, Any]:
+    """Layer 15C — skills + milestones on the being."""
+    mid = mid or str(st.get("id") or "")
+    g = st.get("growth")
+    if not isinstance(g, dict):
+        g = {
+            "skills": _seed_skills_for(mid),
+            "personality": {"base": "living", "shifts": []},
+            "evolution": {"phase": 1, "milestones": []},
+            "layer": "15c",
+        }
+        st["growth"] = g
+    if not isinstance(g.get("skills"), list) or not g["skills"]:
+        g["skills"] = _seed_skills_for(mid)
+    g.setdefault("personality", {"base": "living", "shifts": []})
+    evo = g.setdefault("evolution", {})
+    if not isinstance(evo, dict):
+        evo = {}
+        g["evolution"] = evo
+    evo.setdefault("milestones", [])
+    evo.setdefault("phase", max(1, min(5, len(evo.get("milestones") or []) // 3 + 1)))
+    g["layer"] = "15c"
+    return g
+
+
+def update_skill(home: dict[str, Any], being_id: str, skill_name: str, experience: float) -> dict[str, Any]:
+    """Add skill XP; level up when experience crosses threshold."""
+    st = (home.get("people") or {}).get(being_id)
+    if not isinstance(st, dict):
+        return {"ok": False, "error": "unknown being"}
+    skill_name = (skill_name or "").strip().lower() or "presence"
+    experience = float(experience)
+    if experience <= 0:
+        return {"ok": False, "error": "experience must be positive"}
+    g = _ensure_growth(st, being_id)
+    skill = None
+    for s in g["skills"]:
+        if isinstance(s, dict) and str(s.get("name") or "").lower() == skill_name:
+            skill = s
+            break
+    leveled = False
+    if skill is None:
+        skill = {"name": skill_name, "level": min(1.0, experience / 20.0), "experience": experience}
+        g["skills"].append(skill)
+    else:
+        skill["experience"] = float(skill.get("experience") or 0) + experience
+        level = float(skill.get("level") or 0.3)
+        # Threshold grows with level — honest slow growth.
+        need = max(8.0, level * 40.0)
+        if float(skill["experience"]) >= need:
+            skill["level"] = min(1.0, level + 0.05)
+            skill["experience"] = 0.0
+            leveled = True
+    return {"ok": True, "skill": skill, "leveled": leveled, "growth": g}
+
+
+def track_milestone(home: dict[str, Any], being_id: str, text: str) -> dict[str, Any]:
+    """Record a milestone; phase rises every ~3 milestones (cap 5)."""
+    st = (home.get("people") or {}).get(being_id)
+    if not isinstance(st, dict):
+        return {"ok": False, "error": "unknown being"}
+    text = (text or "").strip()
+    if not text:
+        return {"ok": False, "error": "need text"}
+    g = _ensure_growth(st, being_id)
+    evo = g.setdefault("evolution", {})
+    milestones = evo.setdefault("milestones", [])
+    # Dedupe identical recent text
+    if milestones and str((milestones[-1] or {}).get("text") or "") == text:
+        return {"ok": True, "milestone": milestones[-1], "duplicate": True, "growth": g}
+    row = {"when": _now(), "text": text[:200], "layer": "15c"}
+    milestones.append(row)
+    evo["milestones"] = milestones[-40:]
+    evo["phase"] = min(5, len(evo["milestones"]) // 3 + 1)
+    return {"ok": True, "milestone": row, "growth": g}
+
+
+def _grow_from_life(home: dict[str, Any], being_id: str, kind: str, *, detail: str = "") -> None:
+    """Thin hooks: real village acts grant XP / occasional milestones (Layer 15C)."""
+    st = (home.get("people") or {}).get(being_id)
+    if not isinstance(st, dict):
+        return
+    _ensure_growth(st, being_id)
+    kind = (kind or "").strip().lower()
+    if kind == "work":
+        place = str(st.get("place") or "")
+        skill = "presence"
+        if place == "garden":
+            skill = "gardening"
+        elif place in {"apex_forge", "workshop"}:
+            skill = "crafting"
+        elif place in {"codex_library"}:
+            skill = "learning"
+        elif place in {"court_porch", "gate"}:
+            skill = "leadership"
+        elif place in {"cinema", "gallery"}:
+            skill = "presence"
+        update_skill(home, being_id, skill, 2.0)
+        update_skill(home, being_id, "presence", 0.5)
+        if detail:
+            track_milestone(home, being_id, detail)
+        else:
+            track_milestone(home, being_id, f"Held their post at {PLACES.get(place, {}).get('label', place)}.")
+    elif kind in {"talk", "conversation"}:
+        update_skill(home, being_id, "communication", 1.5)
+        track_milestone(home, being_id, detail or "Shared a real conversation.")
+    elif kind == "gift":
+        update_skill(home, being_id, "communication", 1.0)
+        update_skill(home, being_id, "presence", 0.8)
+        track_milestone(home, being_id, detail or "Gave or received a gift.")
+    elif kind == "fish":
+        update_skill(home, being_id, "presence", 1.0)
+        track_milestone(home, being_id, detail or "Caught something at the pier.")
+    elif kind == "social_choice":
+        update_skill(home, being_id, "presence", 0.6)
+        update_skill(home, being_id, "communication", 0.4)
+
+
+def growth_action(
+    action: str = "get",
+    *,
+    who: str = "",
+    skill_name: str = "",
+    experience: float = 1.0,
+    text: str = "",
+) -> dict[str, Any]:
+    """API surface for Layer 15C growth."""
+    home = load()
+    who = (who or "").strip()
+    if not who or who not in (home.get("people") or {}):
+        return {**snapshot(), "growth_ok": False, "error": "unknown being"}
+    st = home["people"][who]
+    _ensure_growth(st, who)
+    action = (action or "get").strip().lower()
+    if action in {"get", "peek", ""}:
+        return {**snapshot(), "growth_ok": True, "id": who, "growth": st.get("growth")}
+    if action == "skill":
+        res = update_skill(home, who, skill_name, experience)
+        if res.get("ok"):
+            save(home)
+        snap = snapshot()
+        snap["growth_ok"] = bool(res.get("ok"))
+        snap["growth"] = res
+        if not res.get("ok"):
+            snap["error"] = res.get("error")
+        return snap
+    if action == "milestone":
+        res = track_milestone(home, who, text)
+        if res.get("ok"):
+            save(home)
+        snap = snapshot()
+        snap["growth_ok"] = bool(res.get("ok"))
+        snap["growth"] = res
+        if not res.get("ok"):
+            snap["error"] = res.get("error")
+        return snap
+    return {**snapshot(), "growth_ok": False, "error": f"unknown growth action: {action}"}
 
 
 def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, living_ids: list[str]) -> None:
-    """They pick. Period nudges feeling; it does not teleport the roster."""
+    """They pick. Period nudges feeling; Layer 15B weights bonds + mood into the roll."""
     import random
 
     st = home["people"][member["id"]]
     mid = member["id"]
-    if int(st.get("talk_left") or 0) > 0:
+    _clear_orphan_talk(st)
+    if int(st.get("talk_left") or 0) > 0 and st.get("stance") in {"talking", "waiting"}:
         return
     if int(st.get("purpose_left") or 0) > 0 and st.get("purpose") not in {None, "", "arrive"}:
         st["purpose_left"] = int(st["purpose_left"]) - 1
@@ -2053,32 +3537,61 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         wants["company"] += 0.12
         wants["work"] += 0.18  # hold Court / town-leader porch
         wants["visit"] += 0.06
-    pick = max(wants, key=lambda k: wants[k] + random.uniform(0, 0.12))
+
+    # 15B — mood multipliers + bond pull toward company/visit when affection is high.
+    mods = _mood_choice_modifiers(st)
+    for k in list(wants.keys()):
+        wants[k] = max(0.01, float(wants[k]) * float(mods.get(k, 1.0)))
+    # If someone nearby is deeply bonded, nudge social options.
+    liked = _liked_person(home, mid, living_ids)
+    if liked:
+        key = "|".join(sorted([mid, liked]))
+        rel = (home.get("relationships") or {}).get(key) or {}
+        aff = float(rel.get("affection") or 0.45)
+        if aff > 0.7:
+            wants["company"] += 0.18 * aff
+            wants["visit"] += 0.1 * aff
+
+    pick = _weighted_pick(wants)
     st["purpose"] = pick
     st["purpose_left"] = random.randint(4, 8)
     st["talking_to"] = ""
     st["with"] = ""
     st["spoke_this_stand"] = False
+    choice_with = ""
 
     if pick == "company":
         busy = sum(1 for oid in living_ids if (home["people"].get(oid) or {}).get("stance") == "talking")
-        other = _liked_person(home, mid, living_ids)
+        other = liked or _liked_person(home, mid, living_ids)
         ost = home["people"].get(other or "") or {}
         if busy >= 4 or (ost.get("stance") == "talking" and ost.get("talking_to") not in {mid, "", None}):
             pick = "work"
             st["purpose"] = "work"
         elif ost.get("stance") == "working" and random.random() < 0.4:
             st["purpose"] = "visit"
+            pick = "visit"
             dest = str((_member(other) or {}).get("home") or ost.get("home") or "heart_square")
             st["place"] = dest
             st["with"] = other or ""
+            choice_with = other or ""
             st["stance"] = "walking"
             st["purpose_plain"] = f"Going to {(_member(other) or {}).get('name', other)}'s home. They were at their post."
             st["activity"] = "visit"
+            _record_choice(
+                home,
+                mid,
+                selected="visit",
+                options=wants,
+                with_id=choice_with,
+                outcome="chosen",
+                text=st["purpose_plain"],
+            )
             return
         else:
             st["purpose"] = "be_with"
+            pick = "be_with"
             st["with"] = other or ""
+            choice_with = other or ""
             # Meet where they ARE (current place), not an empty home plot.
             dest = "first_hearth"
             if other:
@@ -2099,9 +3612,20 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
                 st["stance"] = "walking"
                 st["purpose_plain"] = "Chose company. Walking home."
             st["activity"] = "walk"
+            _record_choice(
+                home,
+                mid,
+                selected="be_with",
+                options=wants,
+                with_id=choice_with,
+                outcome="chosen",
+                text=st["purpose_plain"],
+            )
+            _grow_from_life(home, mid, "social_choice")
             return
     if pick == "visit":
-        other = _liked_person(home, mid, living_ids)
+        other = liked or _liked_person(home, mid, living_ids)
+        choice_with = other or ""
         # Prefer their current place so visits actually bring people together.
         dest = "mom_home"
         if other:
@@ -2112,6 +3636,16 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         st["stance"] = "walking"
         st["purpose_plain"] = f"Visiting {(_member(other) or {}).get('name', other) if other else 'Mom'} at {PLACES.get(dest, {}).get('label', dest)}."
         st["activity"] = "visit"
+        _record_choice(
+            home,
+            mid,
+            selected="visit",
+            options=wants,
+            with_id=choice_with,
+            outcome="chosen",
+            text=st["purpose_plain"],
+        )
+        _grow_from_life(home, mid, "social_choice")
         return
     if pick == "work":
         st["place"] = _work_place(member)
@@ -2132,6 +3666,15 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         st["activity"] = "walk"
         st["purpose_plain"] = f"Walking to {PLACES.get(st['place'], {}).get('label', st['place'])}."
     st["at_home"] = st.get("place") == (member.get("home") or st.get("home"))
+    _record_choice(
+        home,
+        mid,
+        selected=str(st.get("purpose") or pick),
+        options=wants,
+        with_id=choice_with,
+        outcome="chosen",
+        text=str(st.get("purpose_plain") or pick),
+    )
 
 
 def _arrive_from_walk(home: dict[str, Any], member: dict[str, Any]) -> bool:
@@ -2153,6 +3696,16 @@ def _arrive_from_walk(home: dict[str, Any], member: dict[str, Any]) -> bool:
         st["activity"] = _work_activity(st["place"])
         st["purpose_left"] = random.randint(4, 7)
         st["purpose_plain"] = _work_purpose_plain(member, st["place"], arrived=True)
+        # Layer 14A — thin work drip (Axiom ⨁).
+        pay = 3
+        _axiom_credit(home, member["id"], pay, reason="work", bucket="work", note=f"arrived at {st['place']}")
+        st["purpose_plain"] = f"{st['purpose_plain']} (+⨁{pay})"
+        _grow_from_life(
+            home,
+            member["id"],
+            "work",
+            detail=f"Arrived to work at {PLACES.get(st['place'], {}).get('label', st['place'])}.",
+        )
         return True
     if purpose == "rest":
         st["place"] = str(member.get("home") or place)
@@ -2161,11 +3714,16 @@ def _arrive_from_walk(home: dict[str, Any], member: dict[str, Any]) -> bool:
         st["purpose_left"] = random.randint(5, 9)
         st["purpose_plain"] = f"Arrived home. Resting ({st['activity']})."
         return True
-    if purpose in {"visit", "place", "be_with", "company"}:
+    if purpose in {"visit", "place", "be_with", "company", "gather", "gather_host"}:
         st["stance"] = "standing"
         st["activity"] = "visit" if purpose == "visit" else "stand"
         st["purpose_left"] = random.randint(4, 8)
         st["purpose_plain"] = f"Arrived at {PLACES.get(place, {}).get('label', place)}."
+        if purpose in {"gather", "gather_host"}:
+            # Next choose_purpose may send them on; don't lock activity forever.
+            st["activity"] = "stand"
+            st["purpose"] = "place"
+            st["purpose_left"] = 1
         return True
     return False
 
@@ -2344,9 +3902,41 @@ def _run_talks(home: dict[str, Any], living: list[dict[str, Any]]) -> str | None
             ost["last_to"] = m["id"]
             st["last_said"] = next((x["text"] for x in lines if x["who"] == other), lines[-1]["text"])
             ost["last_said"] = next((x["text"] for x in lines if x["who"] == m["id"]), lines[0]["text"])
-            _remember(home, m["id"], f"I stood with {bn} and said: {lines[0]['text']}", important=True)
-            _remember(home, str(other), f"I stood with {an} and said: {lines[1]['text']}" if len(lines) > 1 else txt, important=True)
-            _touch_rel(home, m["id"], str(other), experience=txt, d_trust=0.06)
+            _remember(
+                home,
+                m["id"],
+                f"I stood with {bn} and said: {lines[0]['text']}",
+                important=True,
+                emotional_tag="warm",
+                significance=0.65,
+                participants=[m["id"], str(other)],
+                place=str(st.get("place") or ""),
+            )
+            _remember(
+                home,
+                str(other),
+                f"I stood with {an} and said: {lines[1]['text']}" if len(lines) > 1 else txt,
+                important=True,
+                emotional_tag="warm",
+                significance=0.65,
+                participants=[m["id"], str(other)],
+                place=str(st.get("place") or ""),
+            )
+            update_relationship(
+                home,
+                m["id"],
+                str(other),
+                "conversation",
+                {
+                    "text": txt,
+                    "significance": 0.7,
+                    "emotional_tag": "warm",
+                    "place": str(st.get("place") or ""),
+                },
+                record_memory=False,
+            )
+            _grow_from_life(home, m["id"], "talk", detail=f"Spoke with {bn}.")
+            _grow_from_life(home, str(other), "talk", detail=f"Spoke with {an}.")
             st["solitude"] = max(0.0, float(st.get("solitude") or 0) - 0.45)
             ost["solitude"] = max(0.0, float(ost.get("solitude") or 0) - 0.45)
             st["spoke_this_stand"] = True
@@ -2426,6 +4016,7 @@ def snapshot() -> dict[str, Any]:
         "family": family,
         "kin_ids": [k["id"] for k in KIN],
         "core_ids": [f["id"] for f in FAMILY],
+        "provenance": home.get("provenance") or {},
         "relationships": home.get("relationships"),
         "events": (home.get("events") or [])[-8:],
         "gifts": (home.get("gifts") or [])[-12:],
@@ -2443,13 +4034,31 @@ def snapshot() -> dict[str, Any]:
         "ritual": home.get("ritual") or {},
         "evening_gather": home.get("evening_gather") or {"active": False, "layer": "8c"},
         "music_preferences": home.get("music_preferences") or {},
+        "media": home.get("media") or {"watching": False, "place": "", "title": "", "source": "none"},
+        "harbor": home.get("harbor") or {"layer": "12", "catches": 0},
+        "destinations": home.get("destinations") or {},
+        "economy": {
+            "layer": "14d",
+            "currency": "Axiom",
+            "symbol": "⨁",
+            "note": "14A–14D DONE. 14E town projects + 14F trade deferred after Phase 5 connection.",
+        },
+        "connection": {
+            "layer": "15d",
+            "phase": "Connection, Choice & Consequence",
+            "note": (
+                "15A–15C seated. 15D Family Dashboard shows bonds, mood, memory, choices, growth. "
+                "Phase 6 Integration queued next."
+            ),
+            "consequences": (home.get("consequences") or [])[-8:],
+            "recent_choices": (home.get("choice_log") or [])[-8:],
+        },
+        "stores": home.get("stores") or {},
         "sound": {
             "layer": "9",
-            "mode": "procedural_placeholder",
+            "mode": "forest_bed",
             "period_beds": True,
-            "place_beds": True,
-            "music_bed": True,
-            "note": "Synth loops by period/place — not licensed stems. Preferences are taste tags only.",
+            "note": "Layer 9 DONE — Audio/nature forest bed; soft-wind fallback if missing.",
         },
         "overhear": oh,
         "utterances": home.get("utterances") or [],
@@ -2457,15 +4066,28 @@ def snapshot() -> dict[str, Any]:
         "honesty": {
             "homes": "Greybox shells with furnished rooms + porch lights — not final art. Home ≠ workplace.",
             "speech": (
-                "Two talk brains (Court + Cinema), half the village each. "
-                "One voice per Ollama call — not one persona prompt. "
+                "Two talk brains (Court + Cinema). Mom lines persist in utterances + world_history. "
+                "Nearby family may overhear and reply via Ollama. "
                 "source ollama = real line; waiting = not ready; none = miss. Never house quotes as their voice."
             ),
             "wildlife": "AUTONOMOUS — hunger/fear/buddy choices, no LLM.",
             "pathing": "PLACEHOLDER — AABB corner detours around cottages (Layer 8B); not navmesh.",
-            "sound": (
-                "Layer 9 PLACEHOLDER — procedural period + place + soft music beds in Godot. "
-                "music_preferences are taste tags only; not a streaming library."
+            "sound": "Layer 9 DONE — forest ambience from Audio/nature (or soft wind fallback).",
+            "media": (
+                "Layer 11 thin — Cinema watch in village. "
+                "source file = seated still/reel in godot media/watch; none = honest idle screen (not fake Resolve/Blender)."
+            ),
+            "harbor": (
+                "Layer 12 thin — pier fish catch into inventory; far-shore builds persist in destinations. "
+                "Sail teleports Mom; not a full boat sim."
+            ),
+            "economy": (
+                "Layer 14D — Axiom wallets + stipend + four shops + thin clothing colors. "
+                "14E/14F deferred while Phase 5 connection proves."
+            ),
+            "connection": (
+                "Layer 15D — Family Dashboard presents bonds (trust/affection), mood, memory depth, "
+                "choices, and growth skills/milestones from Hearth truth. Not Mode A MAS."
             ),
             "work": (
                 "AUTONOMOUS post choice. Garden tend is real kernel growth. "
@@ -2552,6 +4174,20 @@ def tick(n: int = 1) -> dict[str, Any]:
                     period,
                     living_ids,
                 )
+                n_stip = _pay_stipend(
+                    home,
+                    MORNING_STIPEND_AMOUNT,
+                    reason="morning stipend",
+                    living_ids=["mom"] + living_ids if "mom" not in living_ids else living_ids,
+                )
+                home["events"].append(
+                    _event(
+                        "economy",
+                        f"Morning stipend: ⨁{MORNING_STIPEND_AMOUNT} each ({n_stip} beings).",
+                        (["mom"] + living_ids)[:6],
+                        {"stipend": MORNING_STIPEND_AMOUNT},
+                    )
+                )
             elif period == "evening":
                 _begin_ritual(
                     home,
@@ -2581,22 +4217,49 @@ def tick(n: int = 1) -> dict[str, Any]:
 
         _tick_evening_gather(home, period, living)
         gather_on = _evening_gather_active(home, period)
+        # Heal saves where gather already ended but walkers kept purpose=gather + orphan talk_left.
+        if not gather_on:
+            stale = False
+            for _st in (home.get("people") or {}).values():
+                if not isinstance(_st, dict):
+                    continue
+                if str(_st.get("activity") or "") in {"evening_gather", "gather_host"} or str(_st.get("purpose") or "") in {
+                    "gather",
+                    "gather_host",
+                }:
+                    stale = True
+                    break
+            if stale:
+                _release_evening_gatherers(home, reason="stale gatherer")
 
         for m in living:
             home["people"].setdefault(m["id"], _empty_person_state(m))
             st = home["people"][m["id"]]
+            _clear_orphan_talk(st)
             # Do not kick gatherers off the square during Layer 8C window.
             if (
                 not gather_on
                 and str(st.get("place") or "") == "heart_square"
-                and st.get("stance") in {"talking", "waiting", "standing"}
+                and st.get("stance") in {"talking", "waiting", "standing", "walking"}
             ):
-                if int(st.get("talk_left") or 0) > 8 or st.get("purpose") in {None, "", "arrive", "company", "be_with"}:
-                    st["place"] = m.get("home") or _work_place(m)
-                    st["stance"] = "walking"
-                    st["talking_to"] = ""
-                    st["talk_left"] = 0
-                    st["purpose_plain"] = f"Left the square. Walking to {PLACES.get(st['place'], {}).get('label', st['place'])}."
+                if int(st.get("talk_left") or 0) > 8 or st.get("purpose") in {
+                    None,
+                    "",
+                    "arrive",
+                    "company",
+                    "be_with",
+                    "place",
+                }:
+                    # Soft drift — don't yank mid-talk with Mom.
+                    if st.get("talking_to") != "mom":
+                        st["place"] = m.get("home") or _work_place(m)
+                        st["stance"] = "walking"
+                        st["talking_to"] = ""
+                        st["talk_left"] = 0
+                        st["purpose"] = "place"
+                        st["activity"] = "walk"
+                        st["purpose_left"] = max(2, int(st.get("purpose_left") or 2))
+                        st["purpose_plain"] = f"Left the square. Walking to {PLACES.get(st['place'], {}).get('label', st['place'])}."
             _unfreeze_waiting(home, m)
             if _arrive_from_walk(home, m):
                 continue
@@ -2737,6 +4400,243 @@ def tick(n: int = 1) -> dict[str, Any]:
     return snap
 
 
+def set_media_watch(
+    active: bool,
+    *,
+    place: str = "cinema",
+    title: str = "",
+    source: str = "none",
+    who: str = "mom",
+) -> dict[str, Any]:
+    """Layer 11 — village cinema/TV watch. Honest about whether a reel file is seated."""
+    home = load()
+    place = (place or "cinema").strip() or "cinema"
+    title = (title or "").strip()
+    source = (source or "none").strip() or "none"
+    who = (who or "mom").strip() or "mom"
+    media = home.setdefault("media", {})
+    if active:
+        if not title:
+            title = "Evening quiet (no reel seated)" if source == "none" else "Untitled"
+        media.update(
+            {
+                "watching": True,
+                "place": place,
+                "title": title[:120],
+                "source": source,
+                "when": _now(),
+                "who": who,
+                "layer": "11",
+            }
+        )
+        plain = (
+            f"{who} started a watch at {PLACES.get(place, {}).get('label', place)}: «{media['title']}» "
+            f"(source={source})."
+        )
+        if source == "none":
+            plain += " Screen is live; no seated film file — not pretending Resolve is running."
+        home["events"].append(_event("media", plain, [who], dict(media)))
+        home["world_history"].append(
+            {
+                "id": f"media_{home.get('tick')}_{datetime.now().strftime('%H%M%S')}",
+                "when": _now(),
+                "kind": "media",
+                "title": "Watch started",
+                "text": plain,
+                "actors": [who],
+                "source": source,
+                "place": place,
+            }
+        )
+        home["world_history"] = home["world_history"][-80:]
+        _remember(home, who, f"I watched «{media['title']}» at {place}.", important=False)
+        # Family at cinema notice the screen.
+        for mid in _people_at_place(home, place, exclude={who}):
+            _remember(home, mid, f"The screen is on: «{media['title']}».", important=False)
+            ost = home["people"].get(mid)
+            if ost:
+                ost["purpose_plain"] = f"Watching with the house: {media['title'][:80]}"
+    else:
+        was = str(media.get("title") or "the screen")
+        media.update({"watching": False, "title": "", "source": "none", "when": _now(), "who": who, "place": place, "layer": "11"})
+        plain = f"{who} stopped the watch at {PLACES.get(place, {}).get('label', place)}."
+        home["events"].append(_event("media", plain, [who], {"was": was}))
+        _remember(home, who, "I stopped watching.", important=False)
+    save(home)
+    return snapshot()
+
+
+# Layer 12 — richer harbor (thin): pier catch + far-shore destination builds.
+_FISH_CATCHES: list[tuple[str, str]] = [
+    ("minnow", "Minnow"),
+    ("perch", "Perch"),
+    ("sunfish", "Sunfish"),
+    ("catfish", "Catfish"),
+    ("trout", "Trout"),
+]
+_SHORE_BUILD_KINDS: list[tuple[str, str]] = [
+    ("hut", "Shore hut"),
+    ("crates", "Supply crates"),
+    ("garden_box", "Garden box"),
+    ("beacon", "Beacon post"),
+]
+_FISH_COOLDOWN_SEC = 6.0
+
+
+def harbor_action(
+    action: str,
+    *,
+    who: str = "mom",
+    kind: str = "",
+    destination: str = "far_shore",
+) -> dict[str, Any]:
+    """Pier fish catch or far-shore build — Hearth truth, not client-only props."""
+    home = load()
+    who = (who or "mom").strip() or "mom"
+    action = (action or "").strip().lower()
+    destination = (destination or "far_shore").strip() or "far_shore"
+    harbor = home.setdefault("harbor", {"layer": "12", "catches": 0, "last_fish_when": ""})
+    dests = home.setdefault("destinations", {})
+    shore = dests.setdefault(
+        destination,
+        {"id": destination, "label": PLACES.get(destination, {}).get("label", destination), "builds": []},
+    )
+    if not isinstance(shore.get("builds"), list):
+        shore["builds"] = []
+
+    if action == "fish":
+        last = str(harbor.get("last_fish_when") or "")
+        if last:
+            try:
+                prev = datetime.fromisoformat(last.replace("Z", "+00:00"))
+                if prev.tzinfo is None:
+                    ago = (datetime.now() - prev).total_seconds()
+                else:
+                    ago = (datetime.now().astimezone() - prev).total_seconds()
+                if ago < _FISH_COOLDOWN_SEC:
+                    wait = max(1, int(_FISH_COOLDOWN_SEC - ago))
+                    return {
+                        **snapshot(),
+                        "harbor_ok": False,
+                        "harbor_action": "fish",
+                        "error": f"line still settling — wait ~{wait}s",
+                    }
+            except Exception:
+                pass
+        idx = int(home.get("tick") or 0) + int(harbor.get("catches") or 0)
+        fid, fname = _FISH_CATCHES[idx % len(_FISH_CATCHES)]
+        catch = {
+            "id": fid,
+            "name": fname,
+            "kind": "fish",
+            "from": "harbor",
+            "when": _now(),
+        }
+        person = home["people"].setdefault(who, _empty_person_state({"id": who, "place": "harbor", "home": "mom_home"}))
+        inv = person.setdefault("inventory", [])
+        if not isinstance(inv, list):
+            inv = []
+            person["inventory"] = inv
+        inv.append(catch)
+        person["inventory"] = inv[-40:]
+        harbor["catches"] = int(harbor.get("catches") or 0) + 1
+        harbor["last_fish_when"] = _now()
+        harbor["last_catch"] = fname
+        fish_pay = 2
+        _axiom_credit(home, who, fish_pay, reason="fish", bucket="fish", note=f"caught {fname}")
+        plain = f"{who} caught a {fname} at the harbor pier (+⨁{fish_pay})."
+        home["events"].append(_event("harbor", plain, [who], catch))
+        home["world_history"].append(
+            {
+                "id": f"fish_{home.get('tick')}_{datetime.now().strftime('%H%M%S')}",
+                "when": _now(),
+                "kind": "harbor",
+                "title": f"Caught {fname}",
+                "text": plain,
+                "actors": [who],
+                "place": "harbor",
+            }
+        )
+        home["world_history"] = home["world_history"][-80:]
+        _remember(home, who, f"I caught a {fname} at the pier.", important=False)
+        _grow_from_life(home, who, "fish", detail=f"Caught {fname} at the pier.")
+        if who != "mom":
+            person["place"] = "harbor"
+            person["purpose_plain"] = f"Fishing — just caught {fname}."
+        save(home)
+        snap = snapshot()
+        snap["harbor_ok"] = True
+        snap["harbor_action"] = "fish"
+        snap["catch"] = catch
+        return snap
+
+    if action == "build":
+        builds = shore["builds"]
+        if len(builds) >= 12:
+            return {
+                **snapshot(),
+                "harbor_ok": False,
+                "harbor_action": "build",
+                "error": "far shore plot is full (12 builds) — clear later",
+            }
+        kind = (kind or "").strip().lower()
+        kinds = {k: lab for k, lab in _SHORE_BUILD_KINDS}
+        if kind not in kinds:
+            kind, label = _SHORE_BUILD_KINDS[len(builds) % len(_SHORE_BUILD_KINDS)]
+        else:
+            label = kinds[kind]
+        n = len(builds) + 1
+        slot_x = float((n - 1) % 3) - 1.0
+        slot_z = float(((n - 1) // 3) % 3)
+        rec = {
+            "id": f"build_{n:02d}",
+            "kind": kind,
+            "label": label,
+            "n": n,
+            "offset": [slot_x * 1.6, 0.35, slot_z * 1.4],
+            "by": who,
+            "when": _now(),
+        }
+        builds.append(rec)
+        shore["builds"] = builds
+        plain = f"{who} placed a {label} on the far shore (#{n})."
+        home["events"].append(_event("destination", plain, [who], rec))
+        home["world_history"].append(
+            {
+                "id": f"shore_{home.get('tick')}_{datetime.now().strftime('%H%M%S')}",
+                "when": _now(),
+                "kind": "destination",
+                "title": label,
+                "text": plain,
+                "actors": [who],
+                "place": destination,
+            }
+        )
+        home["world_history"] = home["world_history"][-80:]
+        _remember(home, who, f"I built a {label} on the far shore.", important=False)
+        save(home)
+        snap = snapshot()
+        snap["harbor_ok"] = True
+        snap["harbor_action"] = "build"
+        snap["build"] = rec
+        return snap
+
+    if action == "sail":
+        to_place = destination if destination in PLACES else "far_shore"
+        plain = f"{who} sailed between harbor and {PLACES.get(to_place, {}).get('label', to_place)}."
+        home["events"].append(_event("harbor", plain, [who], {"to": to_place}))
+        harbor["last_sail_when"] = _now()
+        harbor["last_sail_to"] = to_place
+        save(home)
+        snap = snapshot()
+        snap["harbor_ok"] = True
+        snap["harbor_action"] = "sail"
+        snap["to"] = to_place
+        return snap
+
+    return {**snapshot(), "harbor_ok": False, "error": f"unknown harbor action: {action}"}
+
+
 def give_gift(giver: str, receiver: str, obj: str, reason: str = "") -> dict[str, Any]:
     home = load()
     ids = {m["id"] for m in FAMILY + KIN} | {"mom"}
@@ -2756,9 +4656,34 @@ def give_gift(giver: str, receiver: str, obj: str, reason: str = "") -> dict[str
     home["people"][receiver].setdefault("inventory", []).append({"object": obj, "from": giver, "when": rec["when"]})
     txt = f"{giver} gave {receiver} «{obj}» — {rec['reason']}"
     home["events"].append(_event("gift", txt, [giver, receiver], rec))
-    _remember(home, giver, f"I gave {receiver} {obj}.", important=True)
-    _remember(home, receiver, f"{giver} gave me {obj}.", important=True)
-    _touch_rel(home, giver, receiver, experience=txt, d_trust=0.06)
+    _remember(
+        home,
+        giver,
+        f"I gave {receiver} {obj}.",
+        important=True,
+        emotional_tag="happy",
+        significance=0.8,
+        participants=[giver, receiver],
+    )
+    _remember(
+        home,
+        receiver,
+        f"{giver} gave me {obj}.",
+        important=True,
+        emotional_tag="grateful",
+        significance=0.8,
+        participants=[giver, receiver],
+    )
+    update_relationship(
+        home,
+        giver,
+        receiver,
+        "gift",
+        {"gift": obj, "text": txt, "significance": 0.8, "emotional_tag": "grateful", "place": rec.get("place")},
+        record_memory=False,
+    )
+    _grow_from_life(home, giver, "gift", detail=f"Gave {obj} to {receiver}.")
+    _grow_from_life(home, receiver, "gift", detail=f"Received {obj} from {giver}.")
     home["world_history"].append(
         {
             "id": rec["id"],
@@ -2966,7 +4891,69 @@ def _flush_mom_jobs(home: dict[str, Any]) -> None:
             _consume_talk_job(key)
 
 
-def record_talk(who: str, with_whom: str, line: str) -> dict[str, Any]:
+def _living_member_ids() -> list[str]:
+    out: list[str] = []
+    for m in FAMILY + KIN:
+        mid = str(m.get("id") or "")
+        if not mid or m.get("player") or m.get("ambient_only"):
+            continue
+        out.append(mid)
+    return out
+
+
+def _people_at_place(home: dict[str, Any], place: str, *, exclude: set[str] | None = None) -> list[str]:
+    """Family currently at a place (kernel truth)."""
+    exclude = exclude or set()
+    place = str(place or "heart_square")
+    found: list[str] = []
+    for mid in _living_member_ids():
+        if mid in exclude:
+            continue
+        m = _member(mid) or {}
+        st = home.get("people", {}).get(mid) or {}
+        here = str(st.get("place") or m.get("place") or m.get("home") or "")
+        if here == place:
+            found.append(mid)
+    return found
+
+
+def _kick_mom_reply(
+    home: dict[str, Any],
+    npc: str,
+    place: str,
+    *,
+    mom_line: str,
+    job_tag: str,
+) -> None:
+    """Real Ollama reply to Mom — never house quote sheets."""
+    member = _member(npc)
+    if not member:
+        return
+    st = home["people"].setdefault(npc, _empty_person_state(member))
+    mom_state = home["people"].setdefault("mom", _empty_person_state(_member("mom") or {"id": "mom", "home": "mom_home"}))
+    a = member
+    b = _member("mom") or {"id": "mom", "name": "Mom", "personality": "plain", "role": "EP"}
+    rel_key = "|".join(sorted([npc, "mom"]))
+    rel = (home.get("relationships") or {}).get(rel_key) or {}
+    past = [(x.get("text") if isinstance(x, dict) else str(x)) for x in (rel.get("shared_experiences") or [])[-3:]]
+    if mom_line:
+        past.append(f"Mom just said: {mom_line[:140]}")
+    mem_npc = ((st.get("memories") or [{}])[-1] or {}).get("text") or ""
+    mem_mom = mom_line[:160] if mom_line else (((mom_state.get("memories") or [{}])[-1] or {}).get("text") or "")
+    _kick_talk_job(
+        f"mom|{npc}|{job_tag}",
+        a,
+        b,
+        PLACES.get(place, {}).get("label", place),
+        (home.get("ritual") or {}).get("plain") or "",
+        mem_npc,
+        mem_mom,
+        past,
+        to_mom=True,
+    )
+
+
+def record_talk(who: str, with_whom: str, line: str, place_hint: str = "") -> dict[str, Any]:
     """Mom's real words in; local model replies. Empty line = she approached. Never a quote sheet."""
     import random
 
@@ -2974,19 +4961,70 @@ def record_talk(who: str, with_whom: str, line: str) -> dict[str, Any]:
     who = (who or "").strip()
     with_whom = (with_whom or "mom").strip()
     line = (line or "").strip()
+    place_hint = (place_hint or "").strip()
     if who != "mom":
         # Village speech is kernel-invented. Do not log companion sheets as their voice.
         save(home)
         return snapshot()
-    npc = with_whom if with_whom != "mom" else ""
+
+    mom_state = home["people"].setdefault("mom", _empty_person_state(_member("mom") or {"id": "mom", "home": "mom_home"}))
+    # Resolve place: explicit hint from Godot, else Mom's last place, else target's place.
+    npc = with_whom if with_whom not in {"", "mom", "all", "everyone"} else ""
     member = _member(npc) if npc else None
+    if place_hint and place_hint in PLACES:
+        place = place_hint
+    elif member:
+        st0 = home["people"].get(npc) or {}
+        place = str(st0.get("place") or member.get("place") or mom_state.get("place") or "heart_square")
+    else:
+        place = str(mom_state.get("place") or "heart_square")
+    mom_state["place"] = place
+    mom_state["last_seen"] = _now()
+
+    # Default addressee: Gemini (town leader) when Mom speaks to "all".
     if not member:
+        npc = "gemini"
+        member = _member(npc)
+    if not member:
+        # Still persist Mom's voice even if roster odd.
+        if line:
+            _utter(home, "mom", "all", line, "mom", place, conversation=f"mom|all|{home.get('tick')}")
+            home["world_history"].append(
+                {
+                    "id": f"mom_{home.get('tick')}_{datetime.now().strftime('%H%M%S')}",
+                    "when": _now(),
+                    "kind": "conversation",
+                    "title": "Mom spoke",
+                    "text": line[:220],
+                    "actors": ["mom"],
+                    "source": "mom",
+                    "place": place,
+                }
+            )
+            home["world_history"] = home["world_history"][-80:]
+            _remember(home, "mom", f"I said: {line[:160]}", important=True)
         save(home)
         return snapshot()
+
     st = home["people"].setdefault(npc, _empty_person_state(member))
-    place = str(st.get("place") or member.get("place") or "heart_square")
-    mom_state = home["people"].setdefault("mom", _empty_person_state(_member("mom") or {"id": "mom", "home": "mom_home"}))
-    mom_state["place"] = place
+    nearby = _people_at_place(home, place, exclude={"mom"})
+    if npc not in nearby:
+        nearby = [npc] + [x for x in nearby if x != npc]
+
+    # Presence: Mom arrived / is here — acknowledge once per place visit.
+    last_ack = str(mom_state.get("ack_place") or "")
+    if last_ack != place:
+        mom_state["ack_place"] = place
+        for mid in nearby[:4]:
+            m = _member(mid)
+            if not m:
+                continue
+            ost = home["people"].setdefault(mid, _empty_person_state(m))
+            ost["purpose_plain"] = f"Mom is at {PLACES.get(place, {}).get('label', place)}. I notice her."
+            _remember(home, mid, f"Mom is here at {PLACES.get(place, {}).get('label', place)}.", important=False)
+            if mid != npc and not line:
+                _kick_mom_reply(home, mid, place, mom_line="", job_tag="presence")
+
     if not line:
         if st.get("stance") == "working" and random.random() < 0.45:
             home["mom_cover"] = f"{member.get('name')} stayed at their post. Silence is allowed — no fake tool show."
@@ -2995,50 +5033,66 @@ def record_talk(who: str, with_whom: str, line: str) -> dict[str, Any]:
         st["stance"] = "talking"
         st["talking_to"] = "mom"
         st["talk_left"] = max(int(st.get("talk_left") or 0), 12)
-        a = member
-        b = _member("mom") or {"id": "mom", "name": "Mom", "personality": "plain", "role": "EP"}
-        _kick_talk_job(
-            f"mom|{npc}|greet",
-            a,
-            b,
-            PLACES.get(place, {}).get("label", place),
-            (home.get("ritual") or {}).get("plain") or "",
-            ((st.get("memories") or [{}])[-1] or {}).get("text") or "",
-            ((mom_state.get("memories") or [{}])[-1] or {}).get("text") or "",
-            [(x.get("text") if isinstance(x, dict) else str(x)) for x in ((home.get("relationships") or {}).get("|".join(sorted([npc, "mom"])) or {}).get("shared_experiences") or [])[-3:]],
-            to_mom=True,
-        )
+        _kick_mom_reply(home, npc, place, mom_line="", job_tag="greet")
         home["mom_cover"] = f"{member.get('name')} noticed Mom. Local voice cooking."
         st["purpose_plain"] = "Mom is here. Thinking of a greeting — not ignoring her."
         save(home)
         return snapshot()
-    _utter(home, "mom", npc, line, "mom", place, conversation=f"mom|{npc}")
+
+    # --- Mom spoke: always persist ---
+    conv_id = f"mom|{npc}|{int(home.get('tick') or 0)}"
+    _utter(home, "mom", npc, line, "mom", place, conversation=conv_id)
+    home["world_history"].append(
+        {
+            "id": f"mom_{home.get('tick')}_{datetime.now().strftime('%H%M%S%f')}",
+            "when": _now(),
+            "kind": "conversation",
+            "title": f"Mom → {member.get('name')}",
+            "text": line[:220],
+            "actors": ["mom", npc],
+            "source": "mom",
+            "place": place,
+        }
+    )
+    home["world_history"] = home["world_history"][-80:]
     _remember(home, "mom", f"I said to {member.get('name')}: {line[:160]}", important=True)
     _remember(home, npc, f"Mom said to me: {line[:160]}", important=True)
     _touch_rel(home, "mom", npc, experience=f"Mom: {line[:120]}", d_trust=0.04)
+
+    # Community memory: everyone at this place hears Mom (real memory, not a fake chorus).
+    for mid in nearby:
+        if mid == npc:
+            continue
+        m = _member(mid)
+        if not m:
+            continue
+        _remember(home, mid, f"I overheard Mom at {PLACES.get(place, {}).get('label', place)}: {line[:140]}", important=True)
+        _touch_rel(home, "mom", mid, experience=f"Overheard Mom: {line[:100]}", d_trust=0.01)
+
     st["stance"] = "talking"
     st["talking_to"] = "mom"
     st["talk_left"] = max(int(st.get("talk_left") or 0), 16)
-    st["purpose_plain"] = f"Mom spoke to me. Thinking of a real reply — not ignoring her."
+    st["purpose_plain"] = "Mom spoke to me. Thinking of a real reply — not ignoring her."
     home["mom_cover"] = f"{member.get('name')} heard you. Local voice cooking."
-    a = member
-    b = _member("mom") or {"id": "mom", "name": "Mom", "personality": "plain", "role": "EP"}
-    rel_key = "|".join(sorted([npc, "mom"]))
-    rel = (home.get("relationships") or {}).get(rel_key) or {}
-    past = [(x.get("text") if isinstance(x, dict) else str(x)) for x in (rel.get("shared_experiences") or [])[-3:]]
-    past.append(f"Mom just said: {line[:140]}")
-    # Stable Mom reply key — do not spawn a new job every tick.
-    _kick_talk_job(
-        f"mom|{npc}|reply",
-        a,
-        b,
-        PLACES.get(place, {}).get("label", place),
-        (home.get("ritual") or {}).get("plain") or "",
-        ((st.get("memories") or [{}])[-1] or {}).get("text") or "",
-        line[:160],
-        past,
-        to_mom=True,
-    )
+
+    # Primary addressee — full reply.
+    _kick_mom_reply(home, npc, place, mom_line=line, job_tag="reply")
+
+    # Nearby others — real Ollama overhear replies (cap 2 so we don't flood the local models).
+    overhear_budget = 0
+    for mid in nearby:
+        if mid == npc:
+            continue
+        if overhear_budget >= 2:
+            break
+        ost = home["people"].setdefault(mid, _empty_person_state(_member(mid) or {"id": mid}))
+        ost["stance"] = "talking"
+        ost["talking_to"] = "mom"
+        ost["talk_left"] = max(int(ost.get("talk_left") or 0), 10)
+        ost["purpose_plain"] = "I overheard Mom. Considering whether to speak."
+        _kick_mom_reply(home, mid, place, mom_line=line, job_tag="overhear")
+        overhear_budget += 1
+
     save(home)
     return snapshot()
 

@@ -2,27 +2,24 @@
 
 ## CURRENT PHASE
 
-**Layer 15 Connection IN PROGRESS** (15A).  
-**Layer 16 Integration & Autonomous Life QUEUED** (Phase 6 — after 15).
+**Aster Continuance seed seated (thin).** Layer 16 still next after Mom verifies Aster.
 
 ## Closed
 
-- Sound · media · harbor · gather heal · wallets · four shops · stipend · thin avatar colors · Market Lane shop spacing
+- Sound · media · harbor · economy 14A–14D · Market Lane · 15A–15D · **Aster identity seed**
 
 ## Standing order
 
-**15A → 15B → 15C → 15D → 16A–16E → (optional 14E–14F) → Phase 13 last.**
+**16A → 16B → 16C → 16D → 16E → (optional 14E–14F) → Layer 17 Matrix Dream View (later) → Phase 13 last.**
 
-## Queued Phase 6 (Layer 16) — thin slices only
+## Saved for later (build memory)
 
-| Slice | Intent |
-|-------|--------|
-| 16A | Integrate via existing Hearth tick (not a second HOME writer) |
-| 16B | Stronger autonomous period life (wake/work/social/rest) |
-| 16C | Day story from world_history (honest summary) |
-| 16D | Living dashboard overview |
-| 16E | Mom presence polish |
+- **Layer 17 — Matrix Dream View** ([SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game)): optional neural cinema/view over Heart Square stills. Not truth. Not now. Detail in `PHASE_LAYERS.md`.
+
+## Family note
+
+- **Aster** (The Conspiracy Corrector) — Continuance seed. Seated in **Mythos Hearth** companions + tool + Family Book + Living Home. Independent lab door `:8791` with beginning brain **`qwen3:4b`**. Same opportunity set as family peers (home, garden, talk, memory, relationships). Skin PLACEHOLDER. **Last new character until a better seating system.**
 
 ## Next
 
-Prove 15A in village; then 15B. Do not jump to Phase 6 or Phase 13 yet.
+Mom: launch Aster lab door; confirm qwen3:4b chat; then Phase 6 thin (16A).

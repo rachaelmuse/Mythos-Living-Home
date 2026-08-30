@@ -28,6 +28,7 @@
     filterPerson: document.getElementById("filterPerson"),
     filterPlace: document.getElementById("filterPlace"),
     filterCapStatus: document.getElementById("filterCapStatus"),
+    btnCopyConvo: document.getElementById("btnCopyConvo"),
     talkDialog: document.getElementById("talkDialog"),
     talkForm: document.getElementById("talkForm"),
     talkToLabel: document.getElementById("talkToLabel"),
@@ -127,23 +128,54 @@
     el.filterPlace.value = cur;
   }
 
+  function bar(pct) {
+    const n = Math.max(0, Math.min(1, Number(pct) || 0));
+    const w = Math.round(n * 100);
+    return `<span class="meter" title="${w}%"><span class="meter-fill" style="width:${w}%"></span></span> <span class="meter-num">${n.toFixed(2)}</span>`;
+  }
+
+  function moodLabel(person) {
+    const m = person.mood;
+    if (!m || typeof m !== "object") return { current: "neutral", intensity: 0.5 };
+    return {
+      current: m.current || "neutral",
+      previous: m.previous || "",
+      intensity: Number(m.intensity ?? 0.5),
+    };
+  }
+
   function relRowsFor(id) {
     const rels = state.relationships || {};
     const out = [];
     for (const [key, rec] of Object.entries(rels)) {
-      if (!key.includes(id)) continue;
-      const parts = key.split("|");
-      const other = parts.find((x) => x !== id) || key;
+      if (!rec || typeof rec !== "object") continue;
+      const a = rec.a || "";
+      const b = rec.b || "";
+      if (a !== id && b !== id && !String(key).includes(id)) continue;
+      const other = a === id ? b : b === id ? a : String(key).split("|").find((x) => x !== id) || key;
       const otherName = (state.family.find((f) => f.id === other) || {}).name || other;
+      const shared = Array.isArray(rec.shared_experiences) ? rec.shared_experiences : [];
+      const last = shared.slice(-1)[0];
+      const lastText =
+        last && typeof last === "object"
+          ? `${last.emotional_tag || "note"} · ${last.text || ""}`
+          : last
+            ? String(last)
+            : "";
       out.push({
         other,
         otherName,
-        trust: rec.trust ?? rec.familiarity ?? 0,
-        text: (rec.shared_experiences || []).slice(-1)[0],
+        trust: Number(rec.trust ?? 0.5),
+        affection: Number(rec.affection ?? rec.attachment ?? 0.5),
+        attachment: Number(rec.attachment ?? 0.5),
+        respect: Number(rec.respect ?? 0.5),
+        trend: rec.trend || {},
+        history: rec.history || {},
+        lastText,
       });
     }
-    out.sort((a, b) => Number(b.trust) - Number(a.trust));
-    return out.slice(0, 8);
+    out.sort((a, b) => Number(b.affection) - Number(a.affection));
+    return out.slice(0, 10);
   }
 
   function capabilityChips(person) {
@@ -163,7 +195,83 @@
     return rows.filter((r) => r.whoId === id || r.toId === id).slice(0, 6);
   }
 
-  function renderBeingDetail(person) {
+  function renderGrowthBlock(growth) {
+    const g = growth && typeof growth === "object" ? growth : {};
+    const skills = Array.isArray(g.skills) ? g.skills : [];
+    const evo = g.evolution && typeof g.evolution === "object" ? g.evolution : {};
+    const milestones = Array.isArray(evo.milestones) ? evo.milestones.slice(-6).reverse() : [];
+    const phase = evo.phase ?? "—";
+    const skillHtml = skills.length
+      ? skills
+          .map((s) => {
+            const name = s.name || "?";
+            const level = Number(s.level || 0);
+            const xp = Number(s.experience || 0);
+            return `<div class="skill-row"><span class="skill-name">${escapeHtml(name)}</span>${bar(level)}<span class="muted xp">xp ${xp}</span></div>`;
+          })
+          .join("")
+      : `<span class="muted">No skills seated yet.</span>`;
+    const msHtml = milestones.length
+      ? `<ul class="milestone-list">${milestones
+          .map((m) => `<li><time>${escapeHtml(String(m.when || "").slice(0, 16))}</time> ${escapeHtml(m.text || "")}</li>`)
+          .join("")}</ul>`
+      : `<span class="muted">No milestones yet — work, talk, and gifts write them.</span>`;
+    return `
+      <div class="subpanel growth-panel">
+        <h4>Growth · phase ${escapeHtml(String(phase))}</h4>
+        ${skillHtml}
+        <h5 class="subhead">Milestones</h5>
+        ${msHtml}
+      </div>`;
+  }
+
+  function renderMemoriesBlock(memories) {
+    const mems = Array.isArray(memories) ? memories.slice().reverse().slice(0, 8) : [];
+    if (!mems.length) return `<div class="subpanel"><h4>Memory depth</h4><span class="muted">No tagged memories yet.</span></div>`;
+    return `
+      <div class="subpanel">
+        <h4>Memory depth</h4>
+        <ul class="memory-list">
+          ${mems
+            .map((m) => {
+              const tag = m.emotional_tag || (m.important ? "important" : "note");
+              const sig = m.significance != null ? Number(m.significance).toFixed(1) : "—";
+              return `<li><span class="tag">${escapeHtml(tag)}</span> <span class="muted">sig ${sig}</span> ${escapeHtml(m.text || "")}</li>`;
+            })
+            .join("")}
+        </ul>
+      </div>`;
+  }
+
+  function renderChoiceBlock(choices, choiceHistory) {
+    const cur = (choices && choices.current_choice) || null;
+    const hist = Array.isArray(choiceHistory)
+      ? choiceHistory
+      : Array.isArray(choices && choices.choice_history)
+        ? choices.choice_history
+        : [];
+    const recent = hist.slice(-4).reverse();
+    let curHtml = `<span class="muted">No current choice recorded.</span>`;
+    if (cur && cur.selected) {
+      const withName = cur.with
+        ? (state.family.find((f) => f.id === cur.with) || {}).name || cur.with
+        : "";
+      curHtml = `<strong>${escapeHtml(cur.selected)}</strong>${withName ? ` · with ${escapeHtml(withName)}` : ""} <span class="muted">${escapeHtml(String(cur.made_at || "").slice(11, 19))}</span>`;
+    }
+    const histHtml = recent.length
+      ? `<ul class="choice-list">${recent
+          .map((c) => `<li>${escapeHtml(c.choice || "?")}${c.with ? ` → ${escapeHtml(c.with)}` : ""} — ${escapeHtml((c.text || "").slice(0, 80))}</li>`)
+          .join("")}</ul>`
+      : "";
+    return `
+      <div class="subpanel">
+        <h4>Choice (15B)</h4>
+        <div>${curHtml}</div>
+        ${histHtml}
+      </div>`;
+  }
+
+  function renderBeingDetail(person, extras = {}) {
     if (!person || person.error) {
       el.beingDetail.innerHTML = `<p class="empty">${escapeHtml(person?.error || "Being not found")}</p>`;
       return;
@@ -173,6 +281,12 @@
     const rels = relRowsFor(person.id);
     const recent = recentForBeing(person.id);
     const initial = String(person.name || "?").slice(0, 1).toUpperCase();
+    const mood = moodLabel(person);
+    const axiom = person.axiom != null ? `⨁${person.axiom}` : "—";
+    const growth = extras.growth || person.growth || {};
+    const memories = extras.memories || person.memories || [];
+    const choices = extras.choices || person.choices || {};
+    const choiceHistory = extras.choice_history || person.choice_history || [];
 
     el.beingDetail.innerHTML = `
       <div class="being-hero">
@@ -182,15 +296,49 @@
           <p class="role">${escapeHtml(person.role || person.personality || "family")}</p>
           <span class="dot ${stance}"></span>
           <strong style="margin-left:0.35rem;text-transform:capitalize">${escapeHtml(stance)}</strong>
+          <span class="mood-pill">${escapeHtml(mood.current)} · ${Math.round(mood.intensity * 100)}%</span>
         </div>
       </div>
       <div class="stats">
         <div class="stat"><label>Location</label><span>${escapeHtml(placeLabel(person.place))}</span></div>
         <div class="stat"><label>Activity</label><span>${escapeHtml(person.activity || "—")}</span></div>
-        <div class="stat"><label>Stance</label><span>${escapeHtml(person.stance || "—")}</span></div>
+        <div class="stat"><label>Axiom</label><span>${escapeHtml(axiom)}</span></div>
         <div class="stat"><label>Talking to</label><span>${escapeHtml(person.talking_to || "—")}</span></div>
       </div>
       <div class="stat"><label>Purpose</label><span>${escapeHtml(person.purpose_plain || person.purpose || "—")}</span></div>
+
+      <div class="subpanel">
+        <h4>Mood</h4>
+        <p>Current <strong>${escapeHtml(mood.current)}</strong>${mood.previous ? ` · was ${escapeHtml(mood.previous)}` : ""}</p>
+        <div class="skill-row"><span class="skill-name">intensity</span>${bar(mood.intensity)}</div>
+      </div>
+
+      <div class="subpanel">
+        <h4>Relationship web</h4>
+        ${
+          rels.length
+            ? rels
+                .map((r) => {
+                  const trendAff = (r.trend && r.trend.affection) || "—";
+                  const hist = r.history || {};
+                  return `
+            <div class="rel-card">
+              <div class="rel-head"><strong>${escapeHtml(r.otherName)}</strong> <span class="muted">trend ${escapeHtml(String(trendAff))}</span></div>
+              <div class="skill-row"><span class="skill-name">trust</span>${bar(r.trust)}</div>
+              <div class="skill-row"><span class="skill-name">affection</span>${bar(r.affection)}</div>
+              <div class="skill-row"><span class="skill-name">attachment</span>${bar(r.attachment)}</div>
+              <p class="muted tiny">talks ${hist.conversations || 0} · gifts ${hist.gifts_given || 0}/${hist.gifts_received || 0}</p>
+              ${r.lastText ? `<p class="tiny">${escapeHtml(String(r.lastText).slice(0, 120))}</p>` : ""}
+            </div>`;
+                })
+                .join("")
+            : `<span class="muted">No relationship rows yet.</span>`
+        }
+      </div>
+
+      ${renderChoiceBlock(choices, choiceHistory)}
+      ${renderGrowthBlock(growth)}
+      ${renderMemoriesBlock(memories)}
 
       <div class="subpanel">
         <h4>Tools & capabilities</h4>
@@ -206,22 +354,6 @@
                   )
                   .join("")
               : `<span class="muted">No house-tagged tools in registry yet — see full registry below.</span>`
-          }
-        </div>
-      </div>
-
-      <div class="subpanel">
-        <h4>Relationships</h4>
-        <div class="chip-row">
-          ${
-            rels.length
-              ? rels
-                  .map(
-                    (r) =>
-                      `<span class="chip">${escapeHtml(r.otherName)} · trust ${Number(r.trust).toFixed(2)}</span>`
-                  )
-                  .join("")
-              : `<span class="muted">No relationship rows yet.</span>`
           }
         </div>
       </div>
@@ -247,13 +379,23 @@
       <div class="actions">
         <button type="button" class="btn" id="btnSend">Send message</button>
         <button type="button" class="btn ghost" id="btnStance">Change stance</button>
+        <button type="button" class="btn ghost" id="btnChoice">Roll choice</button>
         <button type="button" class="btn ghost" id="btnTools">View tools</button>
       </div>
-      <p class="hint" style="margin-top:0.7rem">Writes go through Hearth APIs only. Godot is presentation; identities never merge.</p>
+      <p class="hint" style="margin-top:0.7rem">Layer 15D — bonds, mood, memory, growth via Hearth. Godot is presentation; identities never merge.</p>
     `;
 
     document.getElementById("btnSend")?.addEventListener("click", () => openTalk(person));
     document.getElementById("btnStance")?.addEventListener("click", () => openStance(person));
+    document.getElementById("btnChoice")?.addEventListener("click", async () => {
+      try {
+        await postJson("/api/home/choice", { who: person.id, action: "make" });
+        await refreshAll();
+        selectBeing(person.id);
+      } catch (err) {
+        alert(err.message || "Choice failed");
+      }
+    });
     document.getElementById("btnTools")?.addEventListener("click", () => {
       el.filterCapStatus.value = "";
       document.querySelector(".caps-panel")?.scrollIntoView({ behavior: "smooth" });
@@ -353,8 +495,25 @@
     state.selectedId = id;
     renderFamily(state.family);
     try {
-      const data = await getJson(`/api/dashboard/being/${encodeURIComponent(id)}`);
-      renderBeingDetail(data);
+      const [data, memPack, growthPack, choicePack] = await Promise.all([
+        getJson(`/api/dashboard/being/${encodeURIComponent(id)}`),
+        getJson(`/api/dashboard/memories/${encodeURIComponent(id)}`).catch(() => null),
+        getJson(`/api/dashboard/growth/${encodeURIComponent(id)}`).catch(() => null),
+        getJson(`/api/dashboard/choices/${encodeURIComponent(id)}`).catch(() => null),
+      ]);
+      const extras = {
+        memories: (memPack && (memPack.memories || memPack)) || data.memories || [],
+        growth: (growthPack && (growthPack.growth || growthPack)) || data.growth || {},
+        choices: (choicePack && (choicePack.choices || choicePack)) || data.choices || {},
+        choice_history:
+          (choicePack && (choicePack.choice_history || (choicePack.choices && choicePack.choices.choice_history))) ||
+          data.choice_history ||
+          [],
+      };
+      if (Array.isArray(extras.memories) === false && extras.memories && extras.memories.memories) {
+        extras.memories = extras.memories.memories;
+      }
+      renderBeingDetail(data, extras);
     } catch (err) {
       const local = state.family.find((f) => f.id === id);
       if (local) renderBeingDetail(local);
@@ -454,15 +613,19 @@
           el.forgeBadge.textContent = "not probed yet";
         }
       }
+      const layer = (home.connection || {}).layer || "15d";
+      const connBadge = document.getElementById("connectionBadge");
+      if (connBadge) connBadge.textContent = String(layer).toUpperCase();
       fillPlaceFilter();
       renderFamily(home.family || []);
       renderConversations();
       renderCapabilities(state.capabilities);
-      if (state.selectedId) {
-        const person = (home.family || []).find((f) => f.id === state.selectedId);
-        if (person) renderBeingDetail(person);
+      if (el.connStatus) {
+        el.connStatus.textContent = `Connected to Hearth · Layer ${layer} · window only · identities unmerged`;
       }
-      el.connStatus.textContent = "Connected to Hearth · window only · identities unmerged";
+      if (state.selectedId) {
+        selectBeing(state.selectedId);
+      }
       el.lastUpdate.textContent = `Last update: ${new Date().toLocaleTimeString()}`;
     } catch (err) {
       el.connStatus.textContent = `Hearth unreachable — ${err.message}`;
@@ -473,6 +636,37 @@
   el.filterPerson.addEventListener("change", renderConversations);
   el.filterPlace.addEventListener("change", renderConversations);
   el.filterCapStatus.addEventListener("change", () => renderCapabilities(state.capabilities));
+  el.btnCopyConvo?.addEventListener("click", async () => {
+    const sel = window.getSelection()?.toString()?.trim();
+    let text = sel || "";
+    if (!text && el.convoLog) {
+      text = Array.from(el.convoLog.querySelectorAll(".convo-row"))
+        .map((row) => {
+          const t = row.querySelector("time")?.textContent?.trim() || "";
+          const who = row.querySelector(".who")?.textContent?.trim() || "";
+          const place = row.querySelector(".place")?.textContent?.trim() || "";
+          const body = row.querySelector("div > div")?.textContent?.trim() || "";
+          return [t, who, place ? `@ ${place}` : "", body].filter(Boolean).join(" ");
+        })
+        .join("\n");
+    }
+    if (!text.trim()) {
+      el.btnCopyConvo.textContent = "Empty";
+      setTimeout(() => {
+        el.btnCopyConvo.textContent = "Copy";
+      }, 1000);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      el.btnCopyConvo.textContent = "Copied";
+    } catch (_err) {
+      el.btnCopyConvo.textContent = "Failed";
+    }
+    setTimeout(() => {
+      el.btnCopyConvo.textContent = "Copy";
+    }, 1200);
+  });
   document.getElementById("talkCancel")?.addEventListener("click", () => el.talkDialog.close());
   document.getElementById("stanceCancel")?.addEventListener("click", () => el.stanceDialog.close());
 
