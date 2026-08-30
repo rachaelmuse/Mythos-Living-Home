@@ -379,6 +379,12 @@ func _door_spec(place_id: String) -> Dictionary:
 			return {"face": "x-", "hw": 3.5, "hd": 3.1}
 		"codex_library":
 			return {"face": "x+", "hw": 3.1, "hd": 2.9}
+		"aster_home":
+			return {"face": "x-", "hw": 3.2, "hd": 2.7}
+		"aster_lab":
+			return {"face": "none", "hw": 3.75, "hd": 3.75}
+		"windmill":
+			return {"face": "x-", "hw": 2.6, "hd": 2.6}
 		"garden", "wildlife", "heart_square", "harbor", "well", "far_shore", "storage", "grocery", "clothing_store", "electronics_store", "pet_store":
 			return {"face": "none", "hw": 0.0, "hd": 0.0}
 		_:

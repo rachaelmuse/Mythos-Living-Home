@@ -97,6 +97,8 @@ PLACES: dict[str, dict[str, Any]] = {
     "aster_lab": {"label": "Evidence Plot (Aster)", "pos": [12.0, 0.0, -10.0], "kind": "work"},
     # In-town, closer to Apex forge/home; clear of Mom's cottage approach
     "aster_home": {"label": "Aster's cottage", "pos": [24.0, 0.0, -11.0], "kind": "home"},
+    # East pasture — clear of Mom / Aster / Apex; village talk already claimed a windmill
+    "windmill": {"label": "Village Windmill", "pos": [36.0, 0.0, -18.0], "kind": "landmark"},
 }
 
 # Canonical family — NEVER flatten. Kin listed separately.
@@ -243,9 +245,17 @@ KIN: list[dict[str, Any]] = [
 
 AMBIENT_BY_PERIOD = {
     "morning": ["wake", "visit_square", "tend_garden", "check_court"],
-    "afternoon": ["work", "visit_library", "visit_cinema", "help_family", "walk"],
-    "evening": ["sit_square", "gallery", "talk", "share_food", "cinema_night"],
+    "afternoon": ["work", "visit_library", "visit_cinema", "help_family", "walk", "visit_windmill"],
+    "evening": ["sit_square", "gallery", "talk", "share_food", "cinema_night", "walk"],
     "night": ["go_home", "rest", "observe", "sleep"],
+}
+
+# Layer 16B — period multiplies existing purpose wants (not a second brain).
+PERIOD_LIFE_BIAS: dict[str, dict[str, float]] = {
+    "morning": {"work": 1.35, "place": 1.28, "visit": 1.08, "company": 1.05, "rest": 0.42},
+    "afternoon": {"work": 1.48, "place": 1.0, "visit": 0.95, "company": 0.9, "rest": 0.52},
+    "evening": {"work": 0.68, "place": 1.05, "visit": 1.38, "company": 1.42, "rest": 0.88},
+    "night": {"work": 0.22, "place": 0.65, "visit": 0.4, "company": 0.35, "rest": 2.35},
 }
 
 
@@ -1544,6 +1554,9 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
     if not home.get("holidays"):
         home["holidays"] = _seed_holidays()
     home.setdefault("decorations", _seed_decorations())
+    dec = home.get("decorations")
+    if isinstance(dec, dict) and "windmill" not in dec:
+        dec["windmill"] = (_seed_decorations().get("windmill") or {})
     home["town_leader"] = "gemini"
     _ensure_stores(home)
     _ensure_stipend_boost(home)
@@ -1669,6 +1682,7 @@ def _door_clear_rects() -> list[tuple[float, float, float, float]]:
         (-21.0, -15.0, 9.0, 17.5),  # Herb shed + farm plot
         (8.0, 16.0, -14.0, -6.0),  # Aster Evidence Plot
         (20.0, 28.0, -14.5, -7.5),  # Aster cottage (near Apex, clear of Mom)
+        (33.0, 39.0, -22.0, -14.0),  # Village Windmill footprint + door approach
     ]
     return rects
 
@@ -1797,6 +1811,10 @@ def _seed_decorations() -> dict[str, Any]:
             },
         },
         "aster_lab": {"evidence_table": {"active": True}, "note": "PLACEHOLDER — identity established, final skin pending."},
+        "windmill": {
+            "sails": {"active": True, "note": "PLACEHOLDER greybox — village landmark."},
+            "door_lantern": {"active": True, "color": "amber"},
+        },
         "gallery": {"gift_ribbon": {"active": True}},
         "gate": {"watch_lantern": {"active": True}},
     }
@@ -3054,6 +3072,8 @@ def _work_activity(place: str) -> str:
         "first_hearth": "tend_fire",
         "mom_home": "visit_mom",
         "gemini_home": "sit",
+        "windmill": "observe",
+        "aster_lab": "investigate",
     }.get(place, "present")
 
 
@@ -3462,7 +3482,7 @@ def growth_action(
 
 
 def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, living_ids: list[str]) -> None:
-    """They pick. Period nudges feeling; Layer 15B weights bonds + mood into the roll."""
+    """They pick. Period nudges feeling; Layer 15B weights bonds + mood; 16B strengthens daily rhythm."""
     import random
 
     st = home["people"][member["id"]]
@@ -3503,6 +3523,9 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
     st["solitude"] = min(1.0, float(st.get("solitude") or 0.3) + (0.0 if st.get("stance") == "talking" else 0.11))
     st["tired"] = min(1.0, float(st.get("tired") or 0.2) + 0.03)
     st["duty"] = min(1.0, float(st.get("duty") or 0.3) + (0.06 if period == "afternoon" else 0.02))
+    if period == "morning":
+        st["tired"] = max(0.0, float(st["tired"]) - 0.08)
+        st["duty"] = min(1.0, float(st["duty"]) + 0.05)
     if period == "evening":
         st["solitude"] = min(1.0, float(st["solitude"]) + 0.16)
     if period == "night":
@@ -3516,6 +3539,10 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         "visit": 0.32 + (0.16 if period == "evening" else 0.1),
         "place": 0.16,
     }
+    if period == "morning":
+        wants["place"] += 0.18  # wake / square / garden drift
+        wants["work"] += 0.12
+        wants["rest"] *= 0.55
     if mid == "genesis":
         wants["work"] += 0.18  # garden real — still leave room to talk
         wants["company"] += 0.14
@@ -3537,11 +3564,19 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         wants["company"] += 0.12
         wants["work"] += 0.18  # hold Court / town-leader porch
         wants["visit"] += 0.06
+    if mid == "aster":
+        wants["work"] += 0.1  # Evidence Plot / observation
+        wants["place"] += 0.08
+        wants["company"] += 0.06
 
     # 15B — mood multipliers + bond pull toward company/visit when affection is high.
     mods = _mood_choice_modifiers(st)
     for k in list(wants.keys()):
         wants[k] = max(0.01, float(wants[k]) * float(mods.get(k, 1.0)))
+    # 16B — period life bias (wake / work / social / rest).
+    for k, mult in (PERIOD_LIFE_BIAS.get(period) or {}).items():
+        if k in wants:
+            wants[k] = max(0.01, float(wants[k]) * float(mult))
     # If someone nearby is deeply bonded, nudge social options.
     liked = _liked_person(home, mid, living_ids)
     if liked:
@@ -3553,6 +3588,8 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
             wants["visit"] += 0.1 * aff
 
     pick = _weighted_pick(wants)
+    ambient = random.choice(AMBIENT_BY_PERIOD.get(period) or ["walk"])
+    st["ambient"] = ambient
     st["purpose"] = pick
     st["purpose_left"] = random.randint(4, 8)
     st["talking_to"] = ""
@@ -3649,6 +3686,13 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         return
     if pick == "work":
         st["place"] = _work_place(member)
+        # Morning garden tend / court check stay place-true, not speech.
+        if ambient == "tend_garden" and mid == "genesis":
+            st["place"] = "garden"
+        elif ambient == "tend_garden" and mid == "aster":
+            st["place"] = "aster_lab"
+        if ambient == "check_court" and mid == "gemini":
+            st["place"] = _work_place(member)
         st["stance"] = "walking"
         st["activity"] = _work_activity(st["place"])
         st["purpose_plain"] = _work_purpose_plain(member, st["place"], arrived=False)
@@ -3657,13 +3701,27 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
     elif pick == "rest":
         st["place"] = member.get("home") or "first_hearth"
         st["stance"] = "walking"
-        st["activity"] = "sleep" if period == "night" else "sit"
+        st["activity"] = "sleep" if period == "night" or ambient in {"sleep", "go_home", "rest"} else "sit"
         st["purpose_plain"] = f"Walking home to rest ({st['activity']})."
         st["tired"] = max(0.0, float(st["tired"]) - 0.4)
+        if period == "night":
+            st["purpose_left"] = random.randint(6, 10)
     else:
-        st["place"] = member.get("home") or _work_place(member)
+        # place — 16B ambient can steer morning square / evening sit without inventing voice.
+        dest = member.get("home") or _work_place(member)
+        if ambient in {"visit_square", "sit_square", "wake"}:
+            dest = "heart_square"
+        elif ambient == "tend_garden":
+            dest = "garden"
+        elif ambient in {"gallery", "cinema_night", "visit_cinema"}:
+            dest = "cinema" if "cinema" in ambient else "gallery"
+        elif ambient == "visit_windmill":
+            dest = "windmill"
+        elif ambient == "check_court" and mid == "gemini":
+            dest = _work_place(member)
+        st["place"] = dest
         st["stance"] = "walking"
-        st["activity"] = "walk"
+        st["activity"] = "wake" if ambient == "wake" else ("observe" if dest == "windmill" else "walk")
         st["purpose_plain"] = f"Walking to {PLACES.get(st['place'], {}).get('label', st['place'])}."
     st["at_home"] = st.get("place") == (member.get("home") or st.get("home"))
     _record_choice(
@@ -3710,9 +3768,11 @@ def _arrive_from_walk(home: dict[str, Any], member: dict[str, Any]) -> bool:
     if purpose == "rest":
         st["place"] = str(member.get("home") or place)
         st["stance"] = "resting"
-        st["activity"] = "sleep" if (home.get("clock") or {}).get("period") == "night" else "sit"
-        st["purpose_left"] = random.randint(5, 9)
+        period = str((home.get("clock") or {}).get("period") or "")
+        st["activity"] = "sleep" if period == "night" else "sit"
+        st["purpose_left"] = random.randint(7, 12) if period == "night" else random.randint(5, 9)
         st["purpose_plain"] = f"Arrived home. Resting ({st['activity']})."
+        st["tired"] = max(0.0, float(st.get("tired") or 0) * (0.35 if period == "night" else 0.55))
         return True
     if purpose in {"visit", "place", "be_with", "company", "gather", "gather_host"}:
         st["stance"] = "standing"
@@ -3999,7 +4059,13 @@ def snapshot() -> dict[str, Any]:
     oh = home.get("overhear")
     if isinstance(oh, dict) and str(oh.get("source") or "") == "house":
         oh = None
-    return {
+    try:
+        from living_home_gameplay import gameplay_snapshot_fields
+
+        gp_fields = gameplay_snapshot_fields(home)
+    except Exception:
+        gp_fields = {}
+    out = {
         "ok": True,
         "home": True,
         "updated": home.get("updated"),
@@ -4048,10 +4114,33 @@ def snapshot() -> dict[str, Any]:
             "phase": "Connection, Choice & Consequence",
             "note": (
                 "15A–15C seated. 15D Family Dashboard shows bonds, mood, memory, choices, growth. "
-                "Phase 6 Integration queued next."
+                "16A integration heartbeat runs inside tick."
             ),
             "consequences": (home.get("consequences") or [])[-8:],
             "recent_choices": (home.get("choice_log") or [])[-8:],
+        },
+        "integration": home.get("integration")
+        or {
+            "layer": "16a",
+            "status": "pending_first_tick",
+            "note": "Heartbeat writes on next tick — mood + bond + economy in one cycle.",
+        },
+        "daily_life": home.get("daily_life")
+        or {
+            "layer": "16b",
+            "status": "pending_first_tick",
+            "note": "Period wake/work/social/rest strengthens inside _choose_purpose.",
+        },
+        "day_story": home.get("day_story")
+        or {
+            "layer": "16c",
+            "status": "pending_first_tick",
+            "note": "Honest distill of world_history — not LLM fanfic as family voice.",
+        },
+        "living_dashboard": {
+            "layer": "16d",
+            "status": (home.get("phase_status") or {}).get("16_dashboard") or "pending",
+            "note": "Overview + family grid + feed on /dashboard. Window only — not a second brain.",
         },
         "stores": home.get("stores") or {},
         "sound": {
@@ -4088,6 +4177,27 @@ def snapshot() -> dict[str, Any]:
             "connection": (
                 "Layer 15D — Family Dashboard presents bonds (trust/affection), mood, memory depth, "
                 "choices, and growth skills/milestones from Hearth truth. Not Mode A MAS."
+            ),
+            "integration": (
+                "Layer 16A — thin heartbeat inside existing tick: mood soft-decay + period pull, "
+                "co-located familiarity nudge, wallet awareness. Status at /api/home/integration. "
+                "Not a second IntegrationEngine. No house-voice speech."
+            ),
+            "daily_life": (
+                "Layer 16B — period bias + ambient tags in _choose_purpose; morning soft-wake; "
+                "night rest weight. No scripted family speech."
+            ),
+            "day_story": (
+                "Layer 16C — extractive day story from world_history (ritual noise filtered). "
+                "Not spoken as anyone's voice. Feeds later away-summary."
+            ),
+            "living_dashboard": (
+                "Layer 16D — Family Dashboard window: overview + family grid + feed + "
+                "integration/gameplay badges. Not a second brain; Hearth snapshot is truth."
+            ),
+            "gameplay": (
+                "Phase 1 Human Gameplay — optional world leads/conditions, Mom journal, "
+                "player action log, while-you-were-away. Not quest dispensers."
             ),
             "work": (
                 "AUTONOMOUS post choice. Garden tend is real kernel growth. "
@@ -4132,6 +4242,439 @@ def snapshot() -> dict[str, Any]:
             "This is home, not a demo park."
         ),
     }
+    if isinstance(gp_fields, dict) and gp_fields:
+        # Merge Phase 1 gameplay fields; keep day_story honesty note under honesty.gameplay if present.
+        honesty_extra = gp_fields.pop("honesty", None)
+        out.update(gp_fields)
+        if honesty_extra and isinstance(out.get("honesty"), dict):
+            out["honesty"]["gameplay_layer"] = honesty_extra
+    return out
+
+
+def _soft_wake_living(home: dict[str, Any], living: list[dict[str, Any]]) -> int:
+    """Layer 16B — morning soft-wake. Stance/purpose only; never invents speech."""
+    n = 0
+    people = home.setdefault("people", {})
+    for m in living:
+        mid = str(m.get("id") or "")
+        st = people.get(mid)
+        if not isinstance(st, dict):
+            continue
+        if st.get("stance") == "resting" or (
+            str(st.get("purpose") or "") == "rest" and st.get("activity") in {"sleep", "sit"}
+        ):
+            st["purpose_left"] = 0
+            st["talk_left"] = 0
+            st["talking_to"] = ""
+            st["stance"] = "standing"
+            st["activity"] = "wake"
+            st["purpose"] = "place"
+            st["ambient"] = "wake"
+            st["purpose_plain"] = "Morning. Waking."
+            st["tired"] = max(0.0, float(st.get("tired") or 0) * 0.4)
+            n += 1
+    return n
+
+
+def _daily_life_pulse(
+    home: dict[str, Any],
+    period: str,
+    woken: int,
+    living: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Layer 16B — record wake/work/social/rest rhythm for this tick. No house-voice."""
+    ps = home.setdefault("phase_status", {})
+    ps["16_daily_life"] = "16b_active"
+
+    tally: dict[str, int] = {}
+    for m in living:
+        st = (home.get("people") or {}).get(m["id"]) or {}
+        key = str(st.get("purpose") or st.get("stance") or "idle")
+        tally[key] = int(tally.get(key) or 0) + 1
+
+    pulse = {
+        "layer": "16b",
+        "status": "active",
+        "tick": home.get("tick"),
+        "when": _now(),
+        "period": period,
+        "woken": int(woken or 0),
+        "purpose_tally": tally,
+        "ambient_pool": list(AMBIENT_BY_PERIOD.get(period) or []),
+        "note": "Period routines via _choose_purpose + soft wake. Speech stays ollama/mom/waiting/none.",
+    }
+    home["daily_life"] = pulse
+    return pulse
+
+
+_DAY_STORY_NOISE = (
+    "morning light",
+    "gemini holds the town",
+    "evening gather eased",
+    "night. gemini still",
+    "morning stipend",
+    "gather window closed",
+    "they choose the day",
+    "they still choose",
+    "gemini calls a soft evening gather",
+    "company weighs more",
+)
+
+
+def _day_story_pulse(home: dict[str, Any], period: str) -> dict[str, Any]:
+    """Layer 16C — honest extractive day story from world_history. Not LLM fanfic voice."""
+    ps = home.setdefault("phase_status", {})
+    ps["16_story"] = "16c_active"
+    clock = home.get("clock") or {}
+    day = int(clock.get("day") or 1)
+    history = home.get("world_history") or []
+
+    beats: list[dict[str, Any]] = []
+    actors: list[str] = []
+    for entry in reversed(history):
+        if not isinstance(entry, dict):
+            continue
+        text = str(entry.get("text") or "").strip()
+        title = str(entry.get("title") or entry.get("kind") or "note").strip()
+        low = f"{title} {text}".lower()
+        if any(n in low for n in _DAY_STORY_NOISE):
+            continue
+        kind = str(entry.get("kind") or "event")
+        beat = {
+            "kind": kind,
+            "title": title[:80],
+            "text": text[:160],
+            "when": entry.get("when"),
+            "actors": list(entry.get("actors") or [])[:4],
+            "source": entry.get("source"),
+        }
+        beats.append(beat)
+        for a in beat["actors"]:
+            if a and a not in actors:
+                actors.append(str(a))
+        if len(beats) >= 5:
+            break
+    beats.reverse()
+
+    motif_needles = (
+        "windmill",
+        "old key",
+        "tracks",
+        "harvest shed",
+        "singing well",
+        "crow",
+        "nightshroud",
+        "firefly",
+        "forging",
+        "blacksmith",
+        "salt",
+    )
+    blob = " ".join(f"{b.get('title')} {b.get('text')}" for b in beats).lower()
+    # Also peek a wider window for recurring threads without dumping chatter into beats.
+    wider = " ".join(
+        f"{(e.get('title') or '')} {(e.get('text') or '')}"
+        for e in history[-24:]
+        if isinstance(e, dict)
+    ).lower()
+    motifs = [m for m in motif_needles if m in wider]
+
+    if beats:
+        beat_bits = [f"{b['title']}" + (f" ({', '.join(b['actors'])})" if b.get("actors") else "") for b in beats[:4]]
+        plain = f"Day {day} {period}. Village notes: " + "; ".join(beat_bits) + "."
+    else:
+        plain = f"Day {day} {period}. Quiet chronicle — mostly routines; no strong lore beat this window."
+    if motifs:
+        plain += " Recurring threads: " + ", ".join(motifs[:6]) + "."
+
+    story = {
+        "layer": "16c",
+        "status": "active",
+        "tick": home.get("tick"),
+        "when": _now(),
+        "day": day,
+        "period": period,
+        "plain": plain[:700],
+        "beats": beats,
+        "actors": actors[:12],
+        "motifs": motifs[:8],
+        "note": "Extractive summary of world_history. Not spoken as family voice. Mysteries stay unresolved.",
+    }
+    home["day_story"] = story
+    return story
+
+
+def _integration_heartbeat(
+    home: dict[str, Any],
+    period: str,
+    living: list[dict[str, Any]],
+    last_social: str | None,
+) -> dict[str, Any]:
+    """Layer 16A — deepen existing tick coordination. No mega engine. No fabricated speech."""
+    import random
+
+    ps = home.setdefault("phase_status", {})
+    ps["16_integration"] = "16a_active"
+    people = home.setdefault("people", {})
+    mood_tally: dict[str, int] = {}
+    by_place: dict[str, list[str]] = {}
+    wallets_total = 0
+    low_wallet: list[str] = []
+    period_pull = {
+        "morning": ("content", 0.12),
+        "afternoon": ("thoughtful", 0.1),
+        "evening": ("peaceful", 0.12),
+        "night": ("tired", 0.14),
+    }
+    tick_n = int(home.get("tick") or 0)
+
+    for m in living:
+        mid = str(m.get("id") or "")
+        if not mid:
+            continue
+        st = people.setdefault(mid, _empty_person_state(m))
+        mood = _ensure_mood(st)
+        cur = str(mood.get("current") or "neutral")
+        mood_tally[cur] = int(mood_tally.get(cur) or 0) + 1
+        # Soft intensity decay — feelings fade unless life renews them.
+        intens = float(mood.get("intensity") or 0.5)
+        mood["intensity"] = round(max(0.2, intens * 0.97), 3)
+        # Mild period pull only when the current mood is not intense.
+        if float(mood.get("intensity") or 0) < 0.55 and tick_n % 3 == 0:
+            target, nudge = period_pull.get(period, ("content", 0.08))
+            if cur != target and random.random() < 0.35:
+                _nudge_mood(home, mid, target, intensity=nudge)
+        _ensure_wallet(st, mid)
+        bal = int(st.get("axiom") or 0)
+        wallets_total += bal
+        if bal < 5:
+            low_wallet.append(mid)
+            # Rare economy→mood hook: empty pocket can worry, not invent a speech line.
+            if tick_n % 7 == 0 and cur not in {"anxious", "frustrated", "sad", "tired"}:
+                _nudge_mood(home, mid, "anxious", intensity=0.16)
+        place = str(st.get("place") or "")
+        if place:
+            by_place.setdefault(place, []).append(mid)
+
+    co_pairs = 0
+    for _place, ids in by_place.items():
+        if len(ids) < 2:
+            continue
+        for i in range(len(ids)):
+            for j in range(i + 1, len(ids)):
+                rel = _ensure_rel(home, ids[i], ids[j])
+                fam = float(rel.get("familiarity") or 0.0)
+                if fam < 0.92:
+                    rel["familiarity"] = round(min(0.92, fam + 0.002), 4)
+                co_pairs += 1
+
+    pulse = {
+        "layer": "16a",
+        "status": "active",
+        "tick": tick_n,
+        "when": _now(),
+        "period": period,
+        "living": len(living),
+        "mood_tally": mood_tally,
+        "wallets_total": wallets_total,
+        "low_wallet": low_wallet[:8],
+        "co_located_pairs": co_pairs,
+        "last_social": last_social,
+        "hooks": {"mood": True, "bond": True, "economy": True},
+        "note": "One cycle inside tick — not a second brain. Speech stays ollama/mom/waiting/none.",
+    }
+    home["integration"] = pulse
+    return pulse
+
+
+def integration_status() -> dict[str, Any]:
+    """Layer 16A — status endpoint only (no second simulation)."""
+    home = load()
+    pulse = home.get("integration")
+    if not isinstance(pulse, dict):
+        pulse = {
+            "layer": "16a",
+            "status": "pending_first_tick",
+            "note": "Call tick (or wait for auto-tick) to write the first heartbeat.",
+        }
+    return {
+        "ok": True,
+        "layer": "16a",
+        "phase_status": (home.get("phase_status") or {}).get("16_integration"),
+        "tick": home.get("tick"),
+        "integration": pulse,
+        "endpoint": "/api/home/integration",
+    }
+
+
+def day_story_status() -> dict[str, Any]:
+    """Layer 16C — day story status (no second simulation)."""
+    home = load()
+    story = home.get("day_story")
+    if not isinstance(story, dict):
+        story = {
+            "layer": "16c",
+            "status": "pending_first_tick",
+            "note": "Call tick to distill the first day story from world_history.",
+        }
+    return {
+        "ok": True,
+        "layer": "16c",
+        "phase_status": (home.get("phase_status") or {}).get("16_story"),
+        "tick": home.get("tick"),
+        "day_story": story,
+        "endpoint": "/api/home/day_story",
+    }
+
+
+def gameplay_status() -> dict[str, Any]:
+    """Phase 1 Human Gameplay Layer — status window only."""
+    home = load()
+    try:
+        from living_home_gameplay import gameplay_snapshot_fields, ensure_gameplay
+
+        ensure_gameplay(home)
+        fields = gameplay_snapshot_fields(home)
+    except Exception as e:
+        return {"ok": False, "error": str(e), "layer": "18a"}
+    return {
+        "ok": True,
+        "layer": "18a",
+        "phase": "1_foundation",
+        "tick": home.get("tick"),
+        "gameplay": fields.get("gameplay"),
+        "world_leads": fields.get("world_leads"),
+        "world_conditions": fields.get("world_conditions"),
+        "mom_journal": fields.get("mom_journal"),
+        "opportunities": fields.get("opportunities"),
+        "away_summary": fields.get("away_summary"),
+        "endpoint": "/api/home/gameplay",
+        "note": "Optional leads — not quest dispensers. Pods/vendors not in Phase 1.",
+    }
+
+
+def dashboard_overview(persist: bool = True) -> dict[str, Any]:
+    """Layer 16D — thin living-dashboard aggregate from existing snapshot fields. No second sim."""
+    home = load()
+    ps = home.setdefault("phase_status", {})
+    ps["16_dashboard"] = "16d_active"
+    if persist:
+        try:
+            save(home)
+        except Exception:
+            pass
+
+    snap = snapshot()
+    clock = snap.get("clock") or {}
+    weather = snap.get("weather") or {}
+    integ = snap.get("integration") or {}
+    daily = snap.get("daily_life") or {}
+    story = snap.get("day_story") or {}
+    gp = snap.get("gameplay") or {}
+    away = snap.get("away_summary") or {}
+    leads = snap.get("world_leads") or []
+    purpose_tally = daily.get("purpose_tally") if isinstance(daily, dict) else {}
+    open_leads = [
+        l
+        for l in leads
+        if isinstance(l, dict) and str(l.get("status") or "") not in {"resolved", "disproven", "abandoned"}
+    ]
+    feed = []
+    for entry in list(snap.get("world_history") or [])[-8:]:
+        if isinstance(entry, dict):
+            feed.append(
+                {
+                    "kind": entry.get("kind") or "history",
+                    "when": entry.get("when"),
+                    "text": (entry.get("text") or entry.get("title") or "")[:160],
+                    "actors": list(entry.get("actors") or [])[:4],
+                }
+            )
+    for entry in list(snap.get("events") or [])[-6:]:
+        if isinstance(entry, dict):
+            feed.append(
+                {
+                    "kind": entry.get("kind") or "event",
+                    "when": entry.get("when"),
+                    "text": (entry.get("text") or entry.get("plain") or "")[:160],
+                    "actors": list(entry.get("actors") or [])[:4],
+                }
+            )
+    feed.sort(key=lambda r: str(r.get("when") or ""), reverse=True)
+
+    family_grid = []
+    for person in snap.get("family") or []:
+        if not isinstance(person, dict) or person.get("ambient_only"):
+            continue
+        mood = person.get("mood") if isinstance(person.get("mood"), dict) else {}
+        family_grid.append(
+            {
+                "id": person.get("id"),
+                "name": person.get("name") or person.get("id"),
+                "place": person.get("place"),
+                "purpose": person.get("purpose"),
+                "purpose_plain": person.get("purpose_plain"),
+                "stance": person.get("stance"),
+                "activity": person.get("activity"),
+                "mood": mood.get("current") or "neutral",
+                "mood_intensity": mood.get("intensity"),
+            }
+        )
+
+    layers = {
+        "16a_integration": (ps.get("16_integration") or integ.get("layer") or "16a"),
+        "16b_daily_life": (ps.get("16_daily_life") or daily.get("layer") or "16b"),
+        "16c_day_story": (ps.get("16_story") or story.get("layer") or "16c"),
+        "16d_dashboard": ps.get("16_dashboard") or "16d_active",
+        "18a_gameplay": (gp.get("layer") if isinstance(gp, dict) else None) or "18a",
+        "15d_connection": (snap.get("connection") or {}).get("layer") or "15d",
+    }
+
+    return {
+        "ok": True,
+        "layer": "16d",
+        "status": "16d_active",
+        "phase_status": ps.get("16_dashboard"),
+        "tick": snap.get("tick"),
+        "town_leader": snap.get("town_leader") or "gemini",
+        "clock": {
+            "day": clock.get("day"),
+            "period": clock.get("period"),
+            "season": clock.get("season"),
+            "minutes": clock.get("minutes"),
+        },
+        "weather": {
+            "current": weather.get("current"),
+            "temperature": weather.get("temperature"),
+        },
+        "day_story": {
+            "plain": (story or {}).get("plain"),
+            "motifs": (story or {}).get("motifs") or [],
+            "layer": (story or {}).get("layer") or "16c",
+            "status": (story or {}).get("status"),
+        },
+        "integration": {
+            "status": integ.get("status"),
+            "period": integ.get("period"),
+            "living": integ.get("living"),
+            "co_located_pairs": integ.get("co_located_pairs"),
+            "mood_tally": integ.get("mood_tally") or {},
+            "layer": integ.get("layer") or "16a",
+        },
+        "daily_life": {
+            "woken": daily.get("woken"),
+            "purpose_tally": purpose_tally or {},
+            "period": daily.get("period"),
+            "layer": daily.get("layer") or "16b",
+        },
+        "away_summary": away if isinstance(away, dict) else {"pending": False, "plain": ""},
+        "world_leads_open": len(open_leads),
+        "gameplay": {"layer": layers["18a_gameplay"], "open_leads": len(open_leads)},
+        "family_grid": family_grid,
+        "feed": feed[:16],
+        "layers": layers,
+        "endpoint": "/api/home/dashboard",
+        "note": "Window into Hearth — not a second brain. Identities never merge.",
+    }
 
 
 def tick(n: int = 1) -> dict[str, Any]:
@@ -4140,6 +4683,7 @@ def tick(n: int = 1) -> dict[str, Any]:
 
     home = load()
     last_social = None
+    last_pulse: dict[str, Any] | None = None
     for _ in range(max(1, min(n, 8))):
         home["tick"] = int(home.get("tick") or 0) + 1
         clock = home.setdefault("clock", {"minutes": 480, "period": "morning", "day": 1})
@@ -4154,6 +4698,7 @@ def tick(n: int = 1) -> dict[str, Any]:
 
         living = [m for m in FAMILY + KIN if not m.get("player") and not m.get("ambient_only")]
         living_ids = [m["id"] for m in living]
+        woken = 0
 
         # Layer 8C — one-shot seed so Mom can see gather without waiting a full day.
         ps = home.setdefault("phase_status", {})
@@ -4188,6 +4733,8 @@ def tick(n: int = 1) -> dict[str, Any]:
                         {"stipend": MORNING_STIPEND_AMOUNT},
                     )
                 )
+                # Layer 16B — soft wake before purpose picks this tick.
+                woken = _soft_wake_living(home, living)
             elif period == "evening":
                 _begin_ritual(
                     home,
@@ -4206,6 +4753,11 @@ def tick(n: int = 1) -> dict[str, Any]:
                     living_ids,
                 )
                 _end_evening_gather(home, reason="night fell")
+                # Soft wrap: working folk finish soon so rest can win.
+                for m in living:
+                    stn = (home.get("people") or {}).get(m["id"])
+                    if isinstance(stn, dict) and stn.get("stance") == "working":
+                        stn["purpose_left"] = min(int(stn.get("purpose_left") or 1), 1)
             elif period == "afternoon":
                 _begin_ritual(
                     home,
@@ -4394,9 +4946,32 @@ def tick(n: int = 1) -> dict[str, Any]:
         if home["tick"] % 8 == 0:
             health_scan(home, persist=False)
 
+        # Layer 16A — one integration pulse per tick (mood + bond + economy hooks).
+        last_pulse = _integration_heartbeat(home, period, living, last_social)
+        # Layer 16B — tally only here; soft-wake runs on period change before purpose picks.
+        _daily_life_pulse(home, period, woken, living)
+        # Layer 16C — honest day story from chronicle (not LLM fanfic voice).
+        _day_story_pulse(home, period)
+        # Layer 16D — living dashboard window is active (UI reads snapshot; no second sim).
+        ps["16_dashboard"] = "16d_active"
+        # Human Gameplay Phase 1 — optional leads/conditions/away hooks (not quests).
+        try:
+            from living_home_gameplay import gameplay_tick_hooks
+
+            gameplay_tick_hooks(home)
+        except Exception:
+            pass
+
     save(home)
     snap = snapshot()
     snap["last_social"] = last_social
+    snap["integration"] = last_pulse or home.get("integration")
+    snap["day_story"] = home.get("day_story")
+    snap["living_dashboard"] = {
+        "layer": "16d",
+        "status": "16d_active",
+        "note": "Overview + family grid + feed on /dashboard. Window only.",
+    }
     return snap
 
 
@@ -4980,6 +5555,18 @@ def record_talk(who: str, with_whom: str, line: str, place_hint: str = "") -> di
         place = str(mom_state.get("place") or "heart_square")
     mom_state["place"] = place
     mom_state["last_seen"] = _now()
+    try:
+        from living_home_gameplay import log_player_action
+
+        log_player_action(
+            home,
+            "talk" if line else "approach",
+            line[:220] if line else f"Mom approached {npc or 'someone'}",
+            place=place,
+            actors=["mom", npc] if npc else ["mom"],
+        )
+    except Exception:
+        pass
 
     # Default addressee: Gemini (town leader) when Mom speaks to "all".
     if not member:
@@ -5138,7 +5725,15 @@ def set_person_stance(member_id: str, stance: str) -> dict[str, Any]:
 
 def status_phases() -> dict[str, Any]:
     home = load()
-    return {"ok": True, "phases": home.get("phase_status"), "save": str(HOME_JSON), "tick": home.get("tick")}
+    return {
+        "ok": True,
+        "phases": home.get("phase_status"),
+        "save": str(HOME_JSON),
+        "tick": home.get("tick"),
+        "integration": home.get("integration"),
+        "day_story": home.get("day_story"),
+        "living_dashboard": (home.get("phase_status") or {}).get("16_dashboard"),
+    }
 
 
 if __name__ == "__main__":
@@ -5154,11 +5749,17 @@ if __name__ == "__main__":
         print(json.dumps(health_scan(), indent=2)[:8000])
     elif cmd == "phases":
         print(json.dumps(status_phases(), indent=2))
+    elif cmd == "integration":
+        print(json.dumps(integration_status(), indent=2))
+    elif cmd in {"dashboard", "overview"}:
+        print(json.dumps(dashboard_overview(), indent=2)[:8000])
     elif cmd == "simulate":
         print(json.dumps(simulate_failure(sys.argv[2] if len(sys.argv) > 2 else "cinema"), indent=2))
     elif cmd == "repair":
         fid = sys.argv[2] if len(sys.argv) > 2 else ""
         print(json.dumps(try_repair(fid), indent=2))
     else:
-        print("usage: living_home.py [snapshot|tick|health|phases|simulate|repair]")
+        print(
+            "usage: living_home.py [snapshot|tick|health|phases|integration|dashboard|simulate|repair]"
+        )
         sys.exit(2)

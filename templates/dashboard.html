@@ -25,6 +25,48 @@
       <div class="world-item"><strong>Weather</strong> <span id="weatherBadge">—</span></div>
       <div class="world-item"><strong>Apex forge</strong> <span id="forgeBadge">—</span></div>
       <div class="world-item"><strong>Connection</strong> <span id="connectionBadge">15D</span></div>
+      <div class="world-item"><strong>Integration</strong> <span id="integrationBadge">16A</span></div>
+      <div class="world-item"><strong>Daily life</strong> <span id="dailyLifeBadge">16B</span></div>
+      <div class="world-item"><strong>Day story</strong> <span id="dayStoryBadge">16C</span></div>
+      <div class="world-item"><strong>Living dash</strong> <span id="livingDashBadge">16D</span></div>
+      <div class="world-item"><strong>Gameplay</strong> <span id="gameplayBadge">18A</span></div>
+    </section>
+
+    <section class="panel living-overview" id="livingOverview" aria-label="Living overview 16D">
+      <div class="panel-head">
+        <h2>Living overview</h2>
+        <span class="badge" id="overviewLayer">16D</span>
+      </div>
+      <div class="overview-meta-row" id="overviewPulse">
+        <span>Tick <strong id="tickBadge">—</strong></span>
+        <span>Leader <strong id="leaderBadge">—</strong></span>
+        <span>Period <strong id="periodBadge">—</strong></span>
+      </div>
+      <div class="overview-grid">
+        <div class="overview-card">
+          <h3>Day story</h3>
+          <p id="dayStoryPlain" class="overview-body">Waiting for Hearth tick…</p>
+          <p id="dayStoryMotifs" class="muted overview-meta"></p>
+        </div>
+        <div class="overview-card">
+          <h3>Integration</h3>
+          <p id="integrationPlain" class="overview-body">—</p>
+        </div>
+        <div class="overview-card">
+          <h3>Daily life</h3>
+          <p id="dailyLifePlain" class="overview-body">—</p>
+        </div>
+        <div class="overview-card">
+          <h3>While you were away</h3>
+          <p id="awayPlain" class="overview-body">—</p>
+          <button type="button" id="btnAwayAck" class="btn ghost" hidden>Acknowledge</button>
+        </div>
+        <div class="overview-card">
+          <h3>Optional leads</h3>
+          <ul id="leadsList" class="overview-list"></ul>
+          <p class="hint">Not quests. Walk away anytime.</p>
+        </div>
+      </div>
     </section>
 
     <main class="grid">
@@ -45,7 +87,7 @@
 
       <section class="panel log-panel">
         <div class="panel-head">
-          <h2>Conversation log</h2>
+          <h2>Village feed</h2>
           <div class="filters">
             <button type="button" id="btnCopyConvo" class="btn ghost" title="Copy visible conversation text">Copy</button>
             <select id="filterPerson" aria-label="Filter by person">
