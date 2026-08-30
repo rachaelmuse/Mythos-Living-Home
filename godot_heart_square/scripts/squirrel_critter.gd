@@ -50,10 +50,9 @@ const TOWN_STOPS := [
 	Vector3(26.0, 0.2, 14.0),
 	Vector3(20.0, 0.2, 30.0),
 ]
-# Keep wildlife out of well / pool footprints (xz Rect2: x,z,w,d).
+# Keep wildlife out of well footprints (xz Rect2: x,z,w,d).
 const AVOID_RECTS := [
 	Rect2(-10.2, 5.8, 3.6, 3.6),  # village well
-	Rect2(1.0, -38.5, 6.0, 5.0),  # community pool (behind town)
 ]
 
 
@@ -92,7 +91,7 @@ func _in_avoid(p: Vector3) -> bool:
 
 
 func _push_out_of_avoid(p: Vector3) -> Vector3:
-	## Nudge goals/bodies out of well & pool so they don't path through water toys.
+	## Nudge goals/bodies out of the well so they don't path through it.
 	var xz := Vector2(p.x, p.z)
 	for r in AVOID_RECTS:
 		if not r.has_point(xz):
@@ -188,7 +187,7 @@ func _physics_process(delta: float) -> void:
 		to.y = 0
 	if to.length() > 0.2 and speed > 0.05:
 		var d := to.normalized()
-		# Soft steer around well / pool before physics hits the rim.
+		# Soft steer around well before physics hits the rim.
 		var look := here + d * 1.4
 		if _in_avoid(look) or _in_avoid(here):
 			var cleared := _push_out_of_avoid(look)
