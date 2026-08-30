@@ -23,6 +23,22 @@
     gardenBadge: document.getElementById("gardenBadge"),
     weatherBadge: document.getElementById("weatherBadge"),
     forgeBadge: document.getElementById("forgeBadge"),
+    integrationBadge: document.getElementById("integrationBadge"),
+    dailyLifeBadge: document.getElementById("dailyLifeBadge"),
+    dayStoryBadge: document.getElementById("dayStoryBadge"),
+    livingDashBadge: document.getElementById("livingDashBadge"),
+    gameplayBadge: document.getElementById("gameplayBadge"),
+    dayStoryPlain: document.getElementById("dayStoryPlain"),
+    dayStoryMotifs: document.getElementById("dayStoryMotifs"),
+    integrationPlain: document.getElementById("integrationPlain"),
+    dailyLifePlain: document.getElementById("dailyLifePlain"),
+    awayPlain: document.getElementById("awayPlain"),
+    btnAwayAck: document.getElementById("btnAwayAck"),
+    leadsList: document.getElementById("leadsList"),
+    overviewLayer: document.getElementById("overviewLayer"),
+    tickBadge: document.getElementById("tickBadge"),
+    leaderBadge: document.getElementById("leaderBadge"),
+    periodBadge: document.getElementById("periodBadge"),
     connStatus: document.getElementById("connStatus"),
     lastUpdate: document.getElementById("lastUpdate"),
     filterPerson: document.getElementById("filterPerson"),
@@ -83,6 +99,9 @@
       if (!person || person.ambient_only) continue;
       const id = person.id;
       const stance = stanceClass(person.stance);
+      const mood = moodLabel(person);
+      const place = placeLabel(person.place);
+      const purpose = person.purpose_plain || person.purpose || person.activity || stance;
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "family-card" + (state.selectedId === id ? " active" : "");
@@ -93,8 +112,11 @@
       btn.dataset.id = id;
       btn.innerHTML = `
         <span class="dot ${stance}" title="${escapeHtml(stance)}"></span>
-        <span class="name">${escapeHtml(person.name || id)}</span>
-        <span class="meta">${escapeHtml(stance)}</span>
+        <span class="card-body">
+          <span class="name">${escapeHtml(person.name || id)}</span>
+          <span class="meta">${escapeHtml(place)} · ${escapeHtml(mood.current)}</span>
+          <span class="purpose">${escapeHtml(String(purpose).slice(0, 72))}</span>
+        </span>
       `;
       btn.addEventListener("click", () => selectBeing(id));
       frag.appendChild(btn);
@@ -491,6 +513,111 @@
       : `<p class="muted">No capabilities in snapshot.</p>`;
   }
 
+  function renderLivingOverview(home) {
+    const story = home.day_story || {};
+    const integ = home.integration || {};
+    const daily = home.daily_life || {};
+    const away = home.away_summary || {};
+    const leads = Array.isArray(home.world_leads) ? home.world_leads : [];
+    const gp = home.gameplay || {};
+    const dash = home.living_dashboard || {};
+    const phases = home.phase_status || {};
+
+    if (el.tickBadge) el.tickBadge.textContent = home.tick != null ? String(home.tick) : "—";
+    if (el.leaderBadge) el.leaderBadge.textContent = home.town_leader || "gemini";
+    if (el.periodBadge) {
+      const period = (home.clock && home.clock.period) || integ.period || daily.period || "—";
+      el.periodBadge.textContent = String(period);
+    }
+
+    if (el.dayStoryBadge) {
+      el.dayStoryBadge.textContent = String(story.layer || phases["16_story"] || "16c").toUpperCase();
+    }
+    if (el.integrationBadge) {
+      el.integrationBadge.textContent = String(integ.layer || phases["16_integration"] || "16a").toUpperCase();
+    }
+    if (el.dailyLifeBadge) {
+      el.dailyLifeBadge.textContent = String(daily.layer || phases["16_daily_life"] || "16b").toUpperCase();
+    }
+    if (el.livingDashBadge) {
+      const st = dash.status || phases["16_dashboard"] || "16d";
+      el.livingDashBadge.textContent = String(st).toUpperCase().replace("16D_ACTIVE", "16D");
+    }
+    if (el.gameplayBadge) {
+      const n = leads.filter((l) => !["resolved", "disproven", "abandoned"].includes(String(l.status || ""))).length;
+      el.gameplayBadge.textContent = n
+        ? `${String(gp.layer || "18a").toUpperCase()} · ${n} leads`
+        : String(gp.layer || "18a").toUpperCase();
+    }
+    if (el.overviewLayer) el.overviewLayer.textContent = "16D";
+
+    if (el.dayStoryPlain) {
+      el.dayStoryPlain.textContent = story.plain || "No day story yet — wait for a Hearth tick.";
+    }
+    if (el.dayStoryMotifs) {
+      const motifs = story.motifs || [];
+      el.dayStoryMotifs.textContent = motifs.length ? `Threads: ${motifs.join(", ")}` : "";
+    }
+
+    if (el.integrationPlain) {
+      const mood = integ.mood_tally || {};
+      const moodBits = Object.entries(mood)
+        .slice(0, 4)
+        .map(([k, v]) => `${k}:${v}`)
+        .join(" · ");
+      const parts = [
+        integ.status ? `status ${integ.status}` : null,
+        integ.period ? `period ${integ.period}` : null,
+        integ.living != null ? `${integ.living} living` : null,
+        integ.co_located_pairs != null ? `${integ.co_located_pairs} co-located pairs` : null,
+        moodBits || null,
+      ].filter(Boolean);
+      el.integrationPlain.textContent = parts.length ? parts.join(" · ") : "Integration pending first tick.";
+    }
+
+    if (el.dailyLifePlain) {
+      const tally = daily.purpose_tally || {};
+      const tallyBits = Object.entries(tally)
+        .sort((a, b) => Number(b[1]) - Number(a[1]))
+        .slice(0, 6)
+        .map(([k, v]) => `${k}:${v}`)
+        .join(" · ");
+      const parts = [
+        daily.period ? `period ${daily.period}` : null,
+        daily.woken != null ? `woken ${daily.woken}` : null,
+        tallyBits || null,
+      ].filter(Boolean);
+      el.dailyLifePlain.textContent = parts.length ? parts.join(" · ") : "Daily life pending first tick.";
+    }
+
+    if (el.awayPlain) {
+      if (away.pending && away.plain) {
+        el.awayPlain.textContent = away.plain;
+        if (el.btnAwayAck) el.btnAwayAck.hidden = false;
+      } else {
+        el.awayPlain.textContent = away.plain || "No pending away summary.";
+        if (el.btnAwayAck) el.btnAwayAck.hidden = true;
+      }
+    }
+
+    if (el.leadsList) {
+      const open = leads.filter((l) => !["resolved", "disproven", "abandoned"].includes(String(l.status || "")));
+      if (!open.length) {
+        el.leadsList.innerHTML = `<li class="muted">No optional leads yet.</li>`;
+      } else {
+        el.leadsList.innerHTML = open
+          .slice(0, 6)
+          .map(
+            (l) =>
+              `<li><span class="lead-status">${escapeHtml(l.status || "rumor")}</span> · ${escapeHtml(
+                l.description || l.id || "lead"
+              )}</li>`
+          )
+          .join("");
+      }
+    }
+  }
+
   async function selectBeing(id) {
     state.selectedId = id;
     renderFamily(state.family);
@@ -616,12 +743,15 @@
       const layer = (home.connection || {}).layer || "15d";
       const connBadge = document.getElementById("connectionBadge");
       if (connBadge) connBadge.textContent = String(layer).toUpperCase();
+      renderLivingOverview(home);
       fillPlaceFilter();
       renderFamily(home.family || []);
       renderConversations();
       renderCapabilities(state.capabilities);
       if (el.connStatus) {
-        el.connStatus.textContent = `Connected to Hearth · Layer ${layer} · window only · identities unmerged`;
+        const storyLayer = (home.day_story || {}).layer || "16c";
+        const dashLayer = ((home.living_dashboard || {}).status || (home.phase_status || {})["16_dashboard"] || "16d");
+        el.connStatus.textContent = `Connected to Hearth · Connection ${layer} · Living ${storyLayer}/${dashLayer} · window only · identities unmerged`;
       }
       if (state.selectedId) {
         selectBeing(state.selectedId);
@@ -633,6 +763,14 @@
   }
 
   document.getElementById("btnRefresh")?.addEventListener("click", refreshAll);
+  el.btnAwayAck?.addEventListener("click", async () => {
+    try {
+      await postJson("/api/home/away", { action: "ack" });
+      await refreshAll();
+    } catch (err) {
+      alert(err.message || "Away ack failed");
+    }
+  });
   el.filterPerson.addEventListener("change", renderConversations);
   el.filterPlace.addEventListener("change", renderConversations);
   el.filterCapStatus.addEventListener("change", () => renderCapabilities(state.capabilities));

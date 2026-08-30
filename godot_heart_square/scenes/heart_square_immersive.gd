@@ -301,6 +301,9 @@ func _build_family_places() -> void:
 	# Telescope west of the door lane — must sit outside the 6.4×5.4 footprint (not under the house).
 	_add_aster_telescope(Vector3(18.6, 0.0, -9.0))
 	_add_box(Vector3(16, 0.025, -10.5), Vector3(10.0, 0.03, 1.6), Color(0.4, 0.34, 0.26), false, "PathAster")
+	# Village Windmill — east pasture, clear of Mom / Aster / Apex (matches Hearth PLACES.windmill).
+	_build_village_windmill(Vector3(36.0, 0.0, -18.0))
+	_add_box(Vector3(28, 0.025, -16), Vector3(14.0, 0.03, 1.8), Color(0.4, 0.34, 0.26), false, "PathWindmill")
 	# Inland pond removed — water belongs at the community edge (see _build_harbor_edge).
 	_tree_root = Node3D.new()
 	_tree_root.name = "SeasonTrees"
@@ -1466,6 +1469,26 @@ func _add_aster_telescope(at: Vector3) -> void:
 	_add_box(at + Vector3(0.12, 1.55, -0.72), Vector3(0.28, 0.28, 0.18), Color(0.22, 0.24, 0.28), true, "AsterScopeEyepiece")
 	_add_home_sign(at + Vector3(0.0, 2.35, 0.0), "Aster's telescope", Color(0.78, 0.92, 0.68))
 	_add_porch_light(at + Vector3(0.5, 1.8, 0.3), Color(0.85, 0.95, 0.7))
+
+
+func _build_village_windmill(at: Vector3) -> void:
+	## East pasture landmark — PLACEHOLDER greybox. Door faces west toward town.
+	_add_box(at + Vector3(0, 0.04, 0), Vector3(5.2, 0.08, 5.2), Color(0.36, 0.32, 0.26), false, "WindmillPad")
+	# Stone tower
+	_add_box(at + Vector3(0, 3.2, 0), Vector3(3.2, 6.4, 3.2), Color(0.55, 0.52, 0.46), true, "WindmillTower")
+	# Cap
+	_add_box(at + Vector3(0, 6.7, 0), Vector3(3.8, 1.2, 3.8), Color(0.42, 0.28, 0.2), true, "WindmillCap")
+	# Hub + four sails (static PLACEHOLDER — not animated)
+	_add_box(at + Vector3(-0.2, 5.6, 0), Vector3(0.55, 0.55, 0.55), Color(0.3, 0.28, 0.26), true, "WindmillHub")
+	var sail_color := Color(0.82, 0.78, 0.7)
+	_add_box(at + Vector3(-0.2, 8.1, 0), Vector3(0.35, 4.2, 1.1), sail_color, true, "WindmillSailN")
+	_add_box(at + Vector3(-0.2, 3.1, 0), Vector3(0.35, 4.2, 1.1), sail_color, true, "WindmillSailS")
+	_add_box(at + Vector3(-0.2, 5.6, 2.5), Vector3(0.35, 1.1, 4.2), sail_color, true, "WindmillSailE")
+	_add_box(at + Vector3(-0.2, 5.6, -2.5), Vector3(0.35, 1.1, 4.2), sail_color, true, "WindmillSailW")
+	# Door glow on the west face (toward village)
+	_add_box(at + Vector3(-1.75, 1.1, 0), Vector3(0.12, 2.0, 1.1), Color(0.95, 0.82, 0.4), false, "WindmillDoor")
+	_add_porch_light(at + Vector3(-2.2, 2.4, 0), Color(0.95, 0.85, 0.55))
+	_add_home_sign(at + Vector3(0, 8.6, 0), "Village Windmill (PLACEHOLDER)", Color(0.9, 0.85, 0.65))
 
 
 func _add_building(pos: Vector3, size: Vector3, color: Color, node_name: String) -> void:
