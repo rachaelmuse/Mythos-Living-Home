@@ -1,7 +1,0 @@
-Living Home Layer 9 — nature ambience credits
-
-forest.mp3 (also aliased as morning/day/afternoon/evening/night)
-  Source: OpenGameArt — "Forest Ambience"
-  URL: https://opengameart.org/content/forest-ambience
-  Notes: Seamless forest loop for Ludum Dare 29 The Woods.
-  Check OGA page for the author's listed license before redistributing outside this local Apex project.
