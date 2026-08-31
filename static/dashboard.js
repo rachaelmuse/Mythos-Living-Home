@@ -39,6 +39,8 @@
     tickBadge: document.getElementById("tickBadge"),
     leaderBadge: document.getElementById("leaderBadge"),
     periodBadge: document.getElementById("periodBadge"),
+    doorsList: document.getElementById("doorsList"),
+    brainsLine: document.getElementById("brainsLine"),
     connStatus: document.getElementById("connStatus"),
     lastUpdate: document.getElementById("lastUpdate"),
     filterPerson: document.getElementById("filterPerson"),
@@ -358,6 +360,7 @@
         }
       </div>
 
+      ${personDoorLinks(person)}
       ${renderChoiceBlock(choices, choiceHistory)}
       ${renderGrowthBlock(growth)}
       ${renderMemoriesBlock(memories)}
@@ -511,6 +514,72 @@
           })
           .join("")
       : `<p class="muted">No capabilities in snapshot.</p>`;
+  }
+
+  function personDoorLinks(person) {
+    const id = String(person?.id || "");
+    const doors = [];
+    if (id === "merovin" || id === "draven") {
+      doors.push({
+        href: "http://127.0.0.1:5000/",
+        label: id === "merovin" ? "Cinema HUD · talk as Merovin" : "Cinema HUD · talk as Draven",
+      });
+      doors.push({ href: "http://127.0.0.1:8770/companion", label: "Companion Room seat" });
+    }
+    if (id === "observer") {
+      doors.push({ href: "http://127.0.0.1:8730/", label: "Independent desk :8730" });
+    }
+    if (id === "aster") {
+      doors.push({ href: "http://127.0.0.1:8791/ui/", label: "Aster lab :8791" });
+    }
+    if (!doors.length) return "";
+    return `
+      <div class="subpanel">
+        <h4>Their real home (Mode A)</h4>
+        <p class="hint">Opens in a new tab. Not an iframe. Village greybox is not their voice.</p>
+        <div class="chip-row">
+          ${doors
+            .map(
+              (d) =>
+                `<a class="chip on" href="${escapeHtml(d.href)}" target="_blank" rel="noopener">${escapeHtml(d.label)}</a>`
+            )
+            .join("")}
+        </div>
+      </div>`;
+  }
+
+  function renderHouseDoors(home) {
+    const doors = Array.isArray(home.house_doors) ? home.house_doors : [];
+    if (el.doorsList) {
+      if (!doors.length) {
+        el.doorsList.innerHTML = `<p class="muted">No door probe this tick.</p>`;
+      } else {
+        el.doorsList.innerHTML = doors
+          .map((d) => {
+            const up = d.up || d.status === "LISTEN";
+            const who = Array.isArray(d.who) && d.who.length ? d.who.join(" · ") : "";
+            return `<a class="door-card ${up ? "up" : "down"}" href="${escapeHtml(
+              d.url || "#"
+            )}" target="_blank" rel="noopener">
+              <strong>${escapeHtml(d.label || d.id)}</strong>
+              <span class="door-status">${escapeHtml(d.status || (up ? "LISTEN" : "CLOSED"))}</span>
+              ${who ? `<span class="muted">${escapeHtml(who)}</span>` : ""}
+              <span class="tiny">${escapeHtml(d.note || "")}</span>
+            </a>`;
+          })
+          .join("");
+      }
+    }
+    if (el.brainsLine) {
+      const brains = (home.talk_writer && home.talk_writer.brains) || {};
+      const bits = Object.entries(brains).map(([id, b]) => {
+        const model = (b && b.model) || "none";
+        return `${id}: ${model}`;
+      });
+      el.brainsLine.textContent = bits.length
+        ? `Talk brains — ${bits.join(" · ")} (Observer is not a village hat)`
+        : "Talk brains — waiting for Ollama probe";
+    }
   }
 
   function renderLivingOverview(home) {
@@ -744,6 +813,7 @@
       const connBadge = document.getElementById("connectionBadge");
       if (connBadge) connBadge.textContent = String(layer).toUpperCase();
       renderLivingOverview(home);
+      renderHouseDoors(home);
       fillPlaceFilter();
       renderFamily(home.family || []);
       renderConversations();

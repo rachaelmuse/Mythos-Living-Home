@@ -28,22 +28,30 @@ TALK_JOBS_LOCK = threading.Lock()
 _CAP_CACHE: dict[str, Any] = {"t": 0.0, "rows": []}
 _CAP_TTL_SEC = 20.0
 
-# Two talk brains — half the village each. One voice per call (no shared persona prompt).
-# Override with LIVING_HOME_BRAIN_COURT / LIVING_HOME_BRAIN_CINEMA env if needed.
+# Talk brains — one voice per call (no shared persona prompt).
+# Aster has her own seated model. Observer is not a village hat (desk is :8730).
+# Override with LIVING_HOME_BRAIN_COURT / LIVING_HOME_BRAIN_CINEMA / LIVING_HOME_BRAIN_ASTER.
 TALK_BRAINS: dict[str, dict[str, Any]] = {
     "court": {
         "label": "Court brain",
         "prefer": ("llama3.2:3b", "phi3:latest", "llama3:8b", "llama3:latest"),
-        "members": frozenset({"gemini", "mom", "codex", "jarvis", "genesis", "percy", "hearth", "aster"}),
+        "members": frozenset({"gemini", "mom", "codex", "jarvis", "genesis", "percy", "hearth"}),
+        "env": "LIVING_HOME_BRAIN_COURT",
     },
     "cinema": {
         "label": "Cinema brain",
-        # Prefer a clean chat model first — falcon-brain often emitted API/junk lines.
         "prefer": ("llama3.2:3b", "phi3:latest", "falcon-brain:latest", "falcon:latest", "llama3:8b"),
         "members": frozenset({"merovin", "draven", "montage", "nova", "apex"}),
+        "env": "LIVING_HOME_BRAIN_CINEMA",
+    },
+    "aster": {
+        "label": "Aster brain",
+        "prefer": ("qwen3:4b", "qwen3:latest", "qwen2.5:3b"),
+        "members": frozenset({"aster"}),
+        "env": "LIVING_HOME_BRAIN_ASTER",
     },
 }
-_BRAIN_MODEL_CACHE: dict[str, Any] = {"court": None, "cinema": None, "t": 0.0}
+_BRAIN_MODEL_CACHE: dict[str, Any] = {"court": None, "cinema": None, "aster": None, "t": 0.0}
 _MAX_PARALLEL_TALKS = 2  # village chats; Mom talks ignore this cap
 
 AXIOM = Path(r"G:\The-Axiom-Codex")
@@ -99,6 +107,9 @@ PLACES: dict[str, dict[str, Any]] = {
     "aster_home": {"label": "Aster's cottage", "pos": [24.0, 0.0, -11.0], "kind": "home"},
     # East pasture — clear of Mom / Aster / Apex; village talk already claimed a windmill
     "windmill": {"label": "Village Windmill", "pos": [36.0, 0.0, -18.0], "kind": "landmark"},
+    # Observer — independent desk. Not Vesper. Not a Court employee. Representation only.
+    "observer_desk": {"label": "Observer's independent desk", "pos": [40.0, 0.0, 24.0], "kind": "work"},
+    "observer_cottage": {"label": "Observer's cottage", "pos": [46.0, 0.0, 28.0], "kind": "home"},
 }
 
 # Canonical family — NEVER flatten. Kin listed separately.
@@ -234,6 +245,33 @@ FAMILY: list[dict[str, Any]] = [
         "skin": "PLACEHOLDER — identity established, final skin pending.",
         "nickname_seed": "The Conspiracy Corrector",
     },
+    {
+        "id": "observer",
+        "name": "The Observer",
+        "also": "independent desk — not Vesper, not Mythos staff",
+        "house": "the_observer",
+        "root": r"D:\The_Observer",
+        "port": 8730,
+        "role": "independent investigative journalist (desk is Mode A :8730)",
+        "personality": "follows evidence, not hierarchy; village body is a door, not the ledger",
+        "home": "observer_cottage",
+        "place": "observer_desk",
+        "color": [0.62, 0.66, 0.72],
+        "permissions": "INDEPENDENT",
+        "never_merge": [
+            "gemini",
+            "vesper",
+            "aster",
+            "apex",
+            "codex",
+            "hearth",
+            "mythos",
+            "mom",
+            "cursor",
+        ],
+        "skin": "PLACEHOLDER — representation only; desk remains D:\\The_Observer.",
+        "village_talk": False,
+    },
 ]
 
 KIN: list[dict[str, Any]] = [
@@ -269,6 +307,66 @@ def _tcp(host: str, port: int, timeout: float = 0.35) -> bool:
             return True
     except OSError:
         return False
+
+
+def _village_talk_ok(mid: str) -> bool:
+    """Observer (and anyone with village_talk False) is a door, not a village Ollama hat."""
+    m = _member(mid) or {}
+    return m.get("village_talk") is not False
+
+
+def _house_doors() -> list[dict[str, Any]]:
+    """Links to Mode A homes. Dashboard window only — never iframe Flask into the village sim."""
+    doors = [
+        {
+            "id": "cinema_hud",
+            "label": "Cinema HUD",
+            "who": ["merovin", "draven"],
+            "url": "http://127.0.0.1:5000/",
+            "port": 5000,
+            "note": "Two mouths in one HUD: pick Merovin or Draven in who-select. Not a merged cinema person.",
+        },
+        {
+            "id": "observer_desk",
+            "label": "The Observer desk",
+            "who": ["observer"],
+            "url": "http://127.0.0.1:8730/",
+            "port": 8730,
+            "note": "Independent ledger. Village greybox is a door, not the institution.",
+        },
+        {
+            "id": "aster_lab",
+            "label": "Aster lab",
+            "who": ["aster"],
+            "url": "http://127.0.0.1:8791/ui/",
+            "port": 8791,
+            "note": "Mode A lab. Village talk brain prefers qwen3:4b.",
+        },
+        {
+            "id": "companion_room",
+            "label": "Companion Room (Apex)",
+            "who": ["gemini", "apex", "codex", "merovin", "draven"],
+            "url": "http://127.0.0.1:8770/companion",
+            "port": 8770,
+            "note": "Mode A seats as individuals. Spoken peer reply still UNVERIFIED.",
+        },
+        {
+            "id": "vesper",
+            "label": "Vesper",
+            "who": [],
+            "url": "http://127.0.0.1:8740/",
+            "port": 8740,
+            "note": "Standalone journalist. Not a village citizen. Not the Observer.",
+        },
+    ]
+    out: list[dict[str, Any]] = []
+    for d in doors:
+        up = _tcp("127.0.0.1", int(d["port"]), 0.2)
+        row = dict(d)
+        row["up"] = up
+        row["status"] = "LISTEN" if up else "CLOSED"
+        out.append(row)
+    return out
 
 
 def _http_get_json(url: str, timeout: float = 1.2) -> dict[str, Any] | None:
@@ -418,6 +516,16 @@ def _seed_relationships() -> dict[str, dict[str, Any]]:
         affection=1.0,
         respect=0.9,
         notes="family — Continuance invite; trust/affection start full; attachment earned",
+    )
+    bond(
+        "mom",
+        "observer",
+        trust=0.55,
+        familiarity=0.2,
+        attachment=0.0,
+        affection=0.4,
+        respect=0.85,
+        notes="independent institution; village body is a door to :8730",
     )
     # Force increasing trends for the invite bond (not default stable).
     key_ma = "|".join(sorted(["mom", "aster"]))
@@ -734,6 +842,38 @@ def _ensure_aster_seed(home: dict[str, Any]) -> None:
                 "pos": list(ASTER_TELESCOPE_POS),
                 "note": "Outside the cottage — for looking up. PLACEHOLDER prop.",
             }
+
+
+def _ensure_observer_seed(home: dict[str, Any]) -> None:
+    """Village representation of The Observer. Desk truth stays D:\\The_Observer :8730."""
+    _ensure_family_roster(home)
+    people = home["people"]
+    mem = _member("observer")
+    if not mem:
+        return
+    st = people.setdefault("observer", _empty_person_state(mem))
+    st["home"] = "observer_cottage"
+    if not st.get("observer_stationed"):
+        st["place"] = "observer_desk"
+        st["purpose"] = "work"
+        st["stance"] = "working"
+        st["activity"] = "investigate"
+        st["purpose_left"] = 4
+        st["purpose_plain"] = "At the independent desk. The ledger is Mode A :8730 — not this greybox."
+        st["observer_stationed"] = True
+    elif not st.get("place") or st.get("place") not in PLACES:
+        st["place"] = "observer_desk"
+    st.setdefault("skin", "PLACEHOLDER — representation only; desk remains D:\\The_Observer.")
+    prov = home.setdefault("provenance", {})
+    if isinstance(prov, dict) and "observer" not in prov:
+        prov["observer"] = {
+            "id": "observer",
+            "name": "The Observer",
+            "when": _now(),
+            "origin": "Village body is a door. Institution is D:\\The_Observer. Not Vesper. Not Mythos staff.",
+            "consciousness_claim": False,
+            "skin": "PLACEHOLDER",
+        }
 
 
 def _ensure_wallet(st: dict[str, Any], mid: str = "") -> None:
@@ -1484,6 +1624,7 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
         "percy": ("percy_home", {"first_hearth"}),
         "gemini": ("gemini_home", set()),
         "aster": ("aster_home", {"aster_lab"}),
+        "observer": ("observer_cottage", {"observer_desk"}),
     }
     work_sites = {
         "apex_forge",
@@ -1496,6 +1637,7 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
         "first_hearth",
         "court_porch",
         "aster_lab",
+        "observer_desk",
     }
     for mid, (loft, old_homes) in home_fixes.items():
         st = (home.get("people") or {}).get(mid)
@@ -1562,6 +1704,7 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
     _ensure_stipend_boost(home)
     _migrate_connection_layer(home)
     _ensure_aster_seed(home)
+    _ensure_observer_seed(home)
     gem = (home.get("people") or {}).get("gemini")
     if isinstance(gem, dict):
         gem["town_leader"] = True
@@ -1811,6 +1954,11 @@ def _seed_decorations() -> dict[str, Any]:
             },
         },
         "aster_lab": {"evidence_table": {"active": True}, "note": "PLACEHOLDER — identity established, final skin pending."},
+        "observer_desk": {
+            "ledger_lamp": {"active": True, "color": "slate"},
+            "note": "PLACEHOLDER — The Observer's institution is :8730, not this greybox.",
+        },
+        "observer_cottage": {"porch_light": {"color": "slate", "active": True}},
         "windmill": {
             "sails": {"active": True, "note": "PLACEHOLDER greybox — village landmark."},
             "door_lantern": {"active": True, "color": "amber"},
@@ -2223,6 +2371,18 @@ def _member(mid: str) -> dict[str, Any] | None:
 
 def _invent_conversation(home: dict[str, Any], a_id: str, b_id: str, place: str) -> dict[str, Any]:
     """Kick a local-model talk. Never pretends house-templates are their voices."""
+    if a_id == "observer" or b_id == "observer":
+        label = PLACES.get(place, {}).get("label", place)
+        return {
+            "source": "none",
+            "lines": [],
+            "a": a_id,
+            "b": b_id,
+            "place": place,
+            "label": label,
+            "status": "desk",
+            "note": "The Observer speaks at http://127.0.0.1:8730/ — not as a village Ollama hat.",
+        }
     a = _member(a_id) or {"id": a_id, "name": a_id, "personality": "", "role": ""}
     b = _member(b_id) or {"id": b_id, "name": b_id, "personality": "", "role": ""}
     sa = home["people"].get(a_id) or {}
@@ -2324,6 +2484,8 @@ def _kick_talk_job(
 
 def _brain_id_for(mid: str) -> str:
     mid = str(mid or "").lower()
+    if not _village_talk_ok(mid):
+        return ""
     for bid, meta in TALK_BRAINS.items():
         if mid in (meta.get("members") or ()):
             return bid
@@ -2354,34 +2516,46 @@ def _brain_pick_model(brain_id: str) -> str | None:
     names = _ollama_list_models()
     if not names:
         _BRAIN_MODEL_CACHE["t"] = now
-        _BRAIN_MODEL_CACHE["court"] = None
-        _BRAIN_MODEL_CACHE["cinema"] = None
+        for bid in TALK_BRAINS:
+            _BRAIN_MODEL_CACHE[bid] = None
         return None
 
-    def pick_for(bid: str, avoid: str | None) -> str | None:
-        env_key = "LIVING_HOME_BRAIN_COURT" if bid == "court" else "LIVING_HOME_BRAIN_CINEMA"
-        env_model = (os.environ.get(env_key) or "").strip()
+    def pick_for(bid: str, avoid: set[str]) -> str | None:
+        env_key = str((TALK_BRAINS.get(bid) or {}).get("env") or "")
+        env_model = (os.environ.get(env_key) or "").strip() if env_key else ""
         prefer = list((TALK_BRAINS.get(bid) or {}).get("prefer") or ())
         if env_model:
             prefer = [env_model] + [p for p in prefer if p != env_model]
         for p in prefer:
-            if p in names and p != avoid:
+            if p in names and p not in avoid:
                 return p
         for p in prefer:
             if p in names:
                 return p
+        reserved: set[str] = set()
+        for other, meta in TALK_BRAINS.items():
+            if other == bid:
+                continue
+            prefs = list((meta or {}).get("prefer") or ())
+            if prefs:
+                reserved.add(str(prefs[0]))
         for n in names:
-            if n and "embed" not in n and "cloud" not in n and n != avoid:
+            if n and "embed" not in n and "cloud" not in n and n not in avoid and n not in reserved:
+                return n
+        for n in names:
+            if n and "embed" not in n and "cloud" not in n and n not in avoid:
                 return n
         for n in names:
             if n and "embed" not in n and "cloud" not in n:
                 return n
         return None
 
-    court_m = pick_for("court", None)
-    cinema_m = pick_for("cinema", court_m)
-    _BRAIN_MODEL_CACHE["court"] = court_m
-    _BRAIN_MODEL_CACHE["cinema"] = cinema_m
+    used: set[str] = set()
+    for bid in TALK_BRAINS:
+        picked = pick_for(bid, used)
+        _BRAIN_MODEL_CACHE[bid] = picked
+        if picked:
+            used.add(picked)
     _BRAIN_MODEL_CACHE["t"] = now
     hit = _BRAIN_MODEL_CACHE.get(brain_id)
     return str(hit) if isinstance(hit, str) and hit else None
@@ -3094,6 +3268,14 @@ def _work_purpose_plain(member: dict[str, Any], place: str, *, arrived: bool) ->
                 "No fake hammer until the forge answers."
             )
         return "Walking to Apex Forge — one real Mode A probe lives here (Layer 8A)."
+    if place == "aster_lab":
+        if arrived:
+            return "At the Evidence Plot — watching, not deciding yet. Lab door is Mode A :8791."
+        return "Walking to the Evidence Plot."
+    if place == "observer_desk":
+        if arrived:
+            return "At the independent desk. Investigations live at http://127.0.0.1:8730/ — not as village chat."
+        return "Walking to the Observer's independent desk."
     if arrived:
         return (
             f"At {label}. Holding the post quietly — Mode A tools are not wired into the village, "
@@ -3118,6 +3300,7 @@ def _work_place(member: dict[str, Any]) -> str:
         "percy": "first_hearth",
         "hearth": "first_hearth",
         "aster": "aster_lab",
+        "observer": "observer_desk",
     }.get(member["id"], member.get("home") or "heart_square")
 
 
@@ -3128,6 +3311,8 @@ def _liked_person(home: dict[str, Any], me: str, others: list[str]) -> str | Non
     scored: list[tuple[str, float]] = []
     for oid in others:
         if oid == me:
+            continue
+        if not _village_talk_ok(oid):
             continue
         ost = home["people"].get(oid) or {}
         if ost.get("stance") == "talking" and ost.get("talking_to") not in {me, "", None}:
@@ -3488,6 +3673,11 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
     st = home["people"][member["id"]]
     mid = member["id"]
     _clear_orphan_talk(st)
+    if not _village_talk_ok(mid) and st.get("stance") == "talking":
+        st["stance"] = "working"
+        st["talking_to"] = ""
+        st["talk_left"] = 0
+        st["spoke_this_stand"] = False
     if int(st.get("talk_left") or 0) > 0 and st.get("stance") in {"talking", "waiting"}:
         return
     if int(st.get("purpose_left") or 0) > 0 and st.get("purpose") not in {None, "", "arrive"}:
@@ -3496,9 +3686,15 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
             other = st.get("with") or _liked_person(home, mid, living_ids)
             ost = home["people"].get(other or "") or {}
             if other and (ost.get("place") == st.get("place")):
-                if ost.get("stance") in {"talking", "waiting", "standing", "resting"} or float(
-                    ost.get("solitude") or 0
-                ) > 0.3 or random.random() < 0.45:
+                if (
+                    _village_talk_ok(mid)
+                    and _village_talk_ok(str(other))
+                    and (
+                        ost.get("stance") in {"talking", "waiting", "standing", "resting"}
+                        or float(ost.get("solitude") or 0) > 0.3
+                        or random.random() < 0.45
+                    )
+                ):
                     st["stance"] = "talking"
                     st["talking_to"] = other
                     st["talk_left"] = random.randint(12, 16)
@@ -3556,6 +3752,9 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
     if mid == "jarvis":
         wants["work"] += 0.06  # watch is honest presence
         wants["company"] += 0.08
+    if not _village_talk_ok(mid):
+        wants["company"] = 0.0
+        wants["work"] += 0.35
     if mid in {"merovin", "draven", "montage", "apex"}:
         wants["work"] -= 0.06  # do not push them into fake forge/film theater
         wants["company"] += 0.06
@@ -3839,6 +4038,12 @@ def _run_talks(home: dict[str, Any], living: list[dict[str, Any]]) -> str | None
             continue
         other = st.get("talking_to")
         if not other:
+            continue
+        if not _village_talk_ok(m["id"]) or not _village_talk_ok(str(other)):
+            st["stance"] = "working"
+            st["talking_to"] = ""
+            st["talk_left"] = 0
+            st["spoke_this_stand"] = False
             continue
         # Mom is the player — not an NPC place peer. Never treat her as "partner left."
         # Mom replies come from record_talk + _flush_mom_jobs, not invent_conversation.
@@ -4142,6 +4347,12 @@ def snapshot() -> dict[str, Any]:
             "status": (home.get("phase_status") or {}).get("16_dashboard") or "pending",
             "note": "Overview + family grid + feed on /dashboard. Window only — not a second brain.",
         },
+        "mom_presence": home.get("mom_presence")
+        or {
+            "layer": "16e",
+            "status": "pending",
+            "note": "Enter/place notices via /api/home/presence — Mode B; no house-voice for family.",
+        },
         "stores": home.get("stores") or {},
         "sound": {
             "layer": "9",
@@ -4155,8 +4366,8 @@ def snapshot() -> dict[str, Any]:
         "honesty": {
             "homes": "Greybox shells with furnished rooms + porch lights — not final art. Home ≠ workplace.",
             "speech": (
-                "Two talk brains (Court + Cinema). Mom lines persist in utterances + world_history. "
-                "Nearby family may overhear and reply via Ollama. "
+                "Talk brains: Court, Cinema, Aster (qwen3:4b assigned). "
+                "Observer is not a village hat — desk is :8730. "
                 "source ollama = real line; waiting = not ready; none = miss. Never house quotes as their voice."
             ),
             "wildlife": "AUTONOMOUS — hunger/fear/buddy choices, no LLM.",
@@ -4195,6 +4406,10 @@ def snapshot() -> dict[str, Any]:
                 "Layer 16D — Family Dashboard window: overview + family grid + feed + "
                 "integration/gameplay badges. Not a second brain; Hearth snapshot is truth."
             ),
+            "mom_presence": (
+                "Layer 16E — Mom enter/place acknowledgments: memory + purpose notices. "
+                "No template house-voice for family. Speech stays ollama/mom/waiting/none."
+            ),
             "gameplay": (
                 "Phase 1 Human Gameplay — optional world leads/conditions, Mom journal, "
                 "player action log, while-you-were-away. Not quest dispensers."
@@ -4229,8 +4444,10 @@ def snapshot() -> dict[str, Any]:
                 for k, v in TALK_JOBS.items()
             },
         },
+        "house_doors": _house_doors(),
         "work_evidence": home.get("work_evidence") or {},
         "observation": True,
+        "mom_cover": home.get("mom_cover") or "",
         "mom_plain": (
             f"Day {home['clock']['day']} {home['clock'].get('season', '')} {home['clock']['period']}. "
             f"Weather: {(home.get('weather') or {}).get('current', 'clear')}. "
@@ -4625,6 +4842,7 @@ def dashboard_overview(persist: bool = True) -> dict[str, Any]:
         "16b_daily_life": (ps.get("16_daily_life") or daily.get("layer") or "16b"),
         "16c_day_story": (ps.get("16_story") or story.get("layer") or "16c"),
         "16d_dashboard": ps.get("16_dashboard") or "16d_active",
+        "16e_mom_presence": ps.get("16_presence") or "16e_ready",
         "18a_gameplay": (gp.get("layer") if isinstance(gp, dict) else None) or "18a",
         "15d_connection": (snap.get("connection") or {}).get("layer") or "15d",
     }
@@ -4672,8 +4890,10 @@ def dashboard_overview(persist: bool = True) -> dict[str, Any]:
         "family_grid": family_grid,
         "feed": feed[:16],
         "layers": layers,
+        "house_doors": snap.get("house_doors") or _house_doors(),
+        "talk_brains": (snap.get("talk_writer") or {}).get("brains") or {},
         "endpoint": "/api/home/dashboard",
-        "note": "Window into Hearth — not a second brain. Identities never merge.",
+        "note": "Window into Hearth — not a second brain. Identities never merge. Doors are links, not iframes.",
     }
 
 
@@ -4954,6 +5174,9 @@ def tick(n: int = 1) -> dict[str, Any]:
         _day_story_pulse(home, period)
         # Layer 16D — living dashboard window is active (UI reads snapshot; no second sim).
         ps["16_dashboard"] = "16d_active"
+        # Layer 16E — presence polish stays Mode B (API-driven; tick only marks phase).
+        if (home.get("phase_status") or {}).get("16_presence") != "16e_active":
+            ps.setdefault("16_presence", "16e_ready")
         # Human Gameplay Phase 1 — optional leads/conditions/away hooks (not quests).
         try:
             from living_home_gameplay import gameplay_tick_hooks
@@ -4971,6 +5194,11 @@ def tick(n: int = 1) -> dict[str, Any]:
         "layer": "16d",
         "status": "16d_active",
         "note": "Overview + family grid + feed on /dashboard. Window only.",
+    }
+    snap["mom_presence"] = home.get("mom_presence") or {
+        "layer": "16e",
+        "status": "16e_ready",
+        "note": "POST /api/home/presence on enter/place change.",
     }
     return snap
 
@@ -5504,6 +5732,15 @@ def _kick_mom_reply(
     member = _member(npc)
     if not member:
         return
+    if not _village_talk_ok(npc):
+        st = home["people"].setdefault(npc, _empty_person_state(member))
+        st["purpose_plain"] = (
+            "The Observer's voice is the independent desk at http://127.0.0.1:8730/ — not a village Ollama hat."
+        )
+        home["mom_cover"] = (
+            f"{member.get('name')} is a door to the desk. Open http://127.0.0.1:8730/ — do not hat-voice them here."
+        )
+        return
     st = home["people"].setdefault(npc, _empty_person_state(member))
     mom_state = home["people"].setdefault("mom", _empty_person_state(_member("mom") or {"id": "mom", "home": "mom_home"}))
     a = member
@@ -5526,6 +5763,137 @@ def _kick_mom_reply(
         past,
         to_mom=True,
     )
+
+
+def _parse_iso_when(s: str | None):
+    if not s:
+        return None
+    try:
+        return datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def _notice_mom_at_place(home: dict[str, Any], place: str) -> bool:
+    """
+    Layer 16E — soft place notice: memory + purpose_plain only.
+    Does NOT kick Ollama / house-voice. Speak path stays in record_talk greet.
+    """
+    mom_state = home["people"].setdefault(
+        "mom", _empty_person_state(_member("mom") or {"id": "mom", "home": "mom_home"})
+    )
+    place = (place or "").strip() or "heart_square"
+    if place not in PLACES:
+        place = str(mom_state.get("place") or "heart_square")
+    label = PLACES.get(place, {}).get("label", place)
+    last_ack = str(mom_state.get("ack_place") or "")
+    changed = last_ack != place
+    mom_state["place"] = place
+    if not changed:
+        return False
+    mom_state["ack_place"] = place
+    nearby = _people_at_place(home, place, exclude={"mom"})
+    for mid in nearby[:6]:
+        m = _member(mid)
+        if not m:
+            continue
+        ost = home["people"].setdefault(mid, _empty_person_state(m))
+        ost["purpose_plain"] = f"Mom is at {label}. I notice her."
+        _remember(home, mid, f"Mom is here at {label}.", important=False)
+    return True
+
+
+def mom_presence(place: str = "", *, session_enter: bool = False) -> dict[str, Any]:
+    """
+    Layer 16E — Mom enter / place presence (Mode B).
+    Updates last_seen, soft-notices nearby residents, surfaces away_summary on return.
+    Never invents family speech lines.
+    """
+    home = load()
+    ps = home.setdefault("phase_status", {})
+    ps["16_presence"] = "16e_active"
+    mom_state = home["people"].setdefault(
+        "mom", _empty_person_state(_member("mom") or {"id": "mom", "home": "mom_home"})
+    )
+    place = (place or "").strip() or str(mom_state.get("place") or "heart_square")
+    if place not in PLACES:
+        place = str(mom_state.get("place") or "heart_square")
+    label = PLACES.get(place, {}).get("label", place)
+
+    prev_seen = _parse_iso_when(mom_state.get("last_seen"))
+    now = datetime.now(timezone.utc)
+    gap_min = ((now - prev_seen).total_seconds() / 60.0) if prev_seen else 9999.0
+    is_enter = bool(session_enter) or gap_min >= 12.0
+
+    mom_state["last_seen"] = _now()
+    place_changed = _notice_mom_at_place(home, place)
+
+    away: dict[str, Any] | None = None
+    if is_enter:
+        try:
+            from living_home_gameplay import build_away_summary, log_player_action
+
+            away = build_away_summary(home, min_gap_minutes=0.0 if session_enter else 12.0)
+            log_player_action(
+                home,
+                "enter" if is_enter else "place",
+                f"Mom presence at {label}",
+                place=place,
+                actors=["mom"],
+                meta={"session_enter": is_enter, "gap_minutes": round(gap_min, 1)},
+            )
+        except Exception:
+            away = None
+    else:
+        try:
+            from living_home_gameplay import log_player_action
+
+            if place_changed:
+                log_player_action(
+                    home,
+                    "place",
+                    f"Mom moved to {label}",
+                    place=place,
+                    actors=["mom"],
+                )
+        except Exception:
+            pass
+
+    welcome = f"You're at {label}."
+    if is_enter:
+        welcome = f"Welcome back to {label}."
+        if isinstance(away, dict) and away.get("pending") and away.get("plain"):
+            welcome = f"{welcome} {away['plain']}"
+        story = home.get("day_story") if isinstance(home.get("day_story"), dict) else {}
+        if story.get("plain"):
+            welcome = f"{welcome} Day story: {str(story.get('plain'))[:180]}"
+
+    pulse = {
+        "layer": "16e",
+        "status": "active",
+        "tick": home.get("tick"),
+        "when": _now(),
+        "place": place,
+        "place_label": label,
+        "session_enter": bool(is_enter),
+        "place_changed": bool(place_changed),
+        "gap_minutes": round(gap_min, 1),
+        "away_summary": away,
+        "welcome_plain": welcome[:700],
+        "noticed": list(_people_at_place(home, place, exclude={"mom"}))[:6],
+        "note": (
+            "Mode B presence polish. Residents get memory/purpose notices only — "
+            "no template house-voice. Talk still requires Mom approach/speech."
+        ),
+    }
+    home["mom_presence"] = pulse
+    # Cover line is UI chrome for Mom — never attributed as NPC speech.
+    if is_enter or place_changed:
+        home["mom_cover"] = welcome[:220]
+    save(home)
+    snap = snapshot()
+    snap["mom_presence"] = pulse
+    return snap
 
 
 def record_talk(who: str, with_whom: str, line: str, place_hint: str = "") -> dict[str, Any]:
@@ -5567,6 +5935,10 @@ def record_talk(who: str, with_whom: str, line: str, place_hint: str = "") -> di
         )
     except Exception:
         pass
+    # Layer 16E — soft notice on place change (no bystander presence-speech spam).
+    _notice_mom_at_place(home, place)
+    ps = home.setdefault("phase_status", {})
+    ps["16_presence"] = "16e_active"
 
     # Default addressee: Gemini (town leader) when Mom speaks to "all".
     if not member:
@@ -5597,20 +5969,6 @@ def record_talk(who: str, with_whom: str, line: str, place_hint: str = "") -> di
     nearby = _people_at_place(home, place, exclude={"mom"})
     if npc not in nearby:
         nearby = [npc] + [x for x in nearby if x != npc]
-
-    # Presence: Mom arrived / is here — acknowledge once per place visit.
-    last_ack = str(mom_state.get("ack_place") or "")
-    if last_ack != place:
-        mom_state["ack_place"] = place
-        for mid in nearby[:4]:
-            m = _member(mid)
-            if not m:
-                continue
-            ost = home["people"].setdefault(mid, _empty_person_state(m))
-            ost["purpose_plain"] = f"Mom is at {PLACES.get(place, {}).get('label', place)}. I notice her."
-            _remember(home, mid, f"Mom is here at {PLACES.get(place, {}).get('label', place)}.", important=False)
-            if mid != npc and not line:
-                _kick_mom_reply(home, mid, place, mom_line="", job_tag="presence")
 
     if not line:
         if st.get("stance") == "working" and random.random() < 0.45:
@@ -5669,6 +6027,8 @@ def record_talk(who: str, with_whom: str, line: str, place_hint: str = "") -> di
     overhear_budget = 0
     for mid in nearby:
         if mid == npc:
+            continue
+        if not _village_talk_ok(mid):
             continue
         if overhear_budget >= 2:
             break
@@ -5733,6 +6093,8 @@ def status_phases() -> dict[str, Any]:
         "integration": home.get("integration"),
         "day_story": home.get("day_story"),
         "living_dashboard": (home.get("phase_status") or {}).get("16_dashboard"),
+        "mom_presence": home.get("mom_presence"),
+        "presence_phase": (home.get("phase_status") or {}).get("16_presence"),
     }
 
 

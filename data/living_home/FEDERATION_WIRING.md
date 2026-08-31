@@ -1,6 +1,6 @@
 # Federation wiring map
 
-Living audit. Evidence wins. Last survey: **2026-08-30** (Mode A council: Gemini→Court→Apex packet **LIVE**; Gemini→Court→Codex packet **LIVE**; Gemini Companion Room seat **LIVE** as `from=gemini` (not Apex). Heartbeat Mom-stop still set. Observer `:8730` request-only **LIVE**. Aster lab `:8791` request **LIVE**. Cinema `:5000` **UNAVAILABLE**. Gameworld not claimed). No claim of end-to-end wiring unless marked LIVE with a test.
+Living audit. Evidence wins. Last survey: **2026-08-30** (Mode A council LIVE as below). **2026-08-31 seating (not a new e2e survey):** Hearth House doors (Cinema HUD / Observer desk / Aster lab / Companion Room) as **links**; Observer village greybox; Aster talk brain prefers `qwen3:4b`. Re-prove ports after Hearth restart. No claim of end-to-end wiring unless marked LIVE with a test.
 
 Read with `docs/DUAL_MODE.md`, `NEXT.md`, `STATUS.md`.
 
@@ -41,7 +41,7 @@ GitHub-seated libraries in `SUPERPOWER_VAULT/ACTIVE_SHARDS.json` (`seated` / `en
 | Court | `G:\The-Axiom-Codex\SUPERPOWER_VAULT\FAMILY_COURT` | Shared task bus (file packets) | Gemini→Apex and Gemini→Codex packet round-trips **LIVE** 2026-08-30 (`briefs/council/roundtrip_20260830.json`) | Gameworld does not consume Court packets yet | 2026-08-30 |
 | Spore | `D:\MythosSpore` | Traveling ember | Path OK | Avatar not core family table; tool probe only | ORIGINAL MODE — ACTIVE |
 | Aster | Continuance / Hearth kernel + House companions + lab `:8791` | Scientist seed (ChatGPT conversational provenance) | **ORIGINAL MODE — ACTIVE** request adapter `aster.request` → `GET :8791/api/status` **LIVE** 2026-08-30. Not a Court employee. | Avatar `aster`; Evidence Plot + cottage; skin PLACEHOLDER | Lab HTTP 200; village talk UNVERIFIED until playtest |
-| Observer | `D:\The_Observer` `:8730` | Independent investigative desk | **ORIGINAL MODE — ACTIVE** request-only `observer.request` → `GET :8730/health` **LIVE** 2026-08-30. **NOT** a Court employee. No Mythos supervisor. No auto-publish. | **NOT INTENDED** as village citizen / Gameworld MAS | 2026-08-30 health 200 |
+| Observer | `D:\The_Observer` `:8730` | Independent investigative desk | **ORIGINAL MODE — ACTIVE** request-only `observer.request` → `GET :8730/health` **LIVE** 2026-08-30. **NOT** a Court employee. No Mythos supervisor. No auto-publish. | Village **greybox + cottage** is a **door** (PLACEHOLDER skin). **NOT** the ledger. **NOT** a village Ollama hat. **NOT** Vesper. | Desk health 200 2026-08-30; village body seated 2026-08-31 |
 | Vesper | `D:\Mythos_Vesper` `:8740` | Standalone investigative journalist (Investigator/Examiner/vault). NCI methodology seated; scorer not wired. | **ORIGINAL MODE — ACTIVE** — does not need Gameworld, Aster, Apex, Codex, or Gemini to function | Adapter `adapters/living_gameworld/` **dormant / NOT INTENDED yet**. Not a village citizen. | Identity + kernel + vault + fetch unit-tested 2026-08-27. Live talk UNVERIFIED until Mom launches `LAUNCH_VESPER.bat` |
 
 Optional Court alias in code: `D:\Court\mailbox\family` (`limbs/family_court.py`). Not tested this session.

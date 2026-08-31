@@ -301,6 +301,17 @@ func _build_family_places() -> void:
 	# Telescope west of the door lane — must sit outside the 6.4×5.4 footprint (not under the house).
 	_add_aster_telescope(Vector3(18.6, 0.0, -9.0))
 	_add_box(Vector3(16, 0.025, -10.5), Vector3(10.0, 0.03, 1.6), Color(0.4, 0.34, 0.26), false, "PathAster")
+	# The Observer — village representation only. Desk truth is Mode A :8730.
+	_add_box(Vector3(40, 0.02, 24), Vector3(6.4, 0.04, 6.4), Color(0.28, 0.30, 0.34), false, "ObserverDeskPad")
+	_add_box(Vector3(40, 0.55, 22.2), Vector3(2.0, 0.85, 0.7), Color(0.42, 0.44, 0.48), true, "ObserverLedgerTable")
+	_add_porch_light(Vector3(40, 2.1, 24), Color(0.72, 0.76, 0.82))
+	_add_home_sign(Vector3(40, 2.4, 24), "Observer desk — door to :8730 (PLACEHOLDER)", Color(0.72, 0.76, 0.82))
+	_build_open_building(Vector3(46, 0, 28), Vector3(5.4, 2.8, 4.6), Color(0.40, 0.42, 0.48), "ObserverCottage", "x-")
+	_add_roof(Vector3(46, 3.15, 28), Vector3(6.0, 0.55, 5.1), Color(0.22, 0.24, 0.28))
+	_furnish(Vector3(46, 0, 28), "cottage")
+	_add_porch_light(Vector3(43.1, 2.2, 28), Color(0.7, 0.74, 0.8))
+	_add_home_sign(Vector3(43.0, 3.4, 28), "Observer cottage (representation)", Color(0.72, 0.76, 0.82))
+	_add_box(Vector3(43, 0.025, 26), Vector3(8.0, 0.03, 1.5), Color(0.38, 0.34, 0.28), false, "PathObserver")
 	# Village Windmill — east pasture, clear of Mom / Aster / Apex (matches Hearth PLACES.windmill).
 	_build_village_windmill(Vector3(36.0, 0.0, -18.0))
 	_add_box(Vector3(28, 0.025, -16), Vector3(14.0, 0.03, 1.8), Color(0.4, 0.34, 0.26), false, "PathWindmill")
@@ -607,6 +618,7 @@ func _build_family() -> void:
 		{"id": "nova", "name": "Nova", "pos": Vector3(20.0, 0.1, 27.5), "color": Color(0.78, 0.58, 0.95)},
 		{"id": "percy", "name": "Percy", "pos": Vector3(10.0, 0.1, -15.4), "color": Color(0.55, 0.85, 0.7)},
 		{"id": "aster", "name": "Aster", "pos": Vector3(12.0, 0.1, -10.0), "color": Color(0.72, 0.88, 0.62)},
+		{"id": "observer", "name": "The Observer", "pos": Vector3(40.0, 0.1, 24.0), "color": Color(0.62, 0.66, 0.72)},
 	]
 	for r in roster:
 		_spawn_citizen(r)
