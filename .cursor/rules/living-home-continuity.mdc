@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Living home continuity
 
-Read `data/living_home/NEXT.md`, `STATUS.md`, and `FEDERATION_WIRING.md` before changing this slice. Protocol: `docs/CONTINUITY.md`. Dual-mode: `docs/DUAL_MODE.md`.
+Read `data/living_home/NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`, `FEDERATION_RECONCILIATION.md`, and `FEDERATION_DIRECTIVE.md` before changing this slice. Protocol: `docs/CONTINUITY.md`. Dual-mode: `docs/DUAL_MODE.md`.
 
 - Kernel: `living_home.py`. Save: `data/living_home/HOME.json`. Live Godot scene is on Apex; `godot_heart_square/` is a git snapshot only.
 - Restart Hearth after kernel edits. Gemini ≠ Codex ≠ Apex ≠ Merovin ≠ Draven. Mom `stop` wins. Evidence only.

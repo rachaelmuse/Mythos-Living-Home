@@ -7,9 +7,9 @@ alwaysApply: true
 
 Gameworld expands the family. It does not replace it.
 
-Read first: `data/living_home/NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`. Law: `docs/DUAL_MODE.md`.
+Read first: `data/living_home/NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`, `FEDERATION_RECONCILIATION.md`. Law: `docs/DUAL_MODE.md`.
 
-- Gemini ≠ Apex ≠ Codex twin ≠ Merovin ≠ Draven ≠ OpenMontage ≠ Hearth ≠ Court ≠ Mom. Never merge.
+- Gemini ≠ Apex ≠ Codex twin ≠ Merovin ≠ Draven ≠ OpenMontage ≠ Hearth ≠ Court ≠ Mom ≠ Aster ≠ Observer ≠ Vesper. Never merge.
 - Mode A (Court, MAS, tools, launchers, memory) must keep working while Mode B (Heart Square) is built.
 - If Gameworld cannot use a capability yet: keep Mode A, mark **ORIGINAL MODE — ACTIVE**. Do not delete or flatten it.
 - Prefer adapters over rewrites. Recursive MAS is protected; NPC village behavior is a different, bounded system.

@@ -7,13 +7,15 @@ Two simultaneous objectives — neither may be accomplished by sacrificing the o
 - **OBJECTIVE A** — Preserve, repair, fully wire, and stabilize the original Mythos family federation (Mode A).
 - **OBJECTIVE B** — Build the Living Gameworld as an additional physical environment/interface (Mode B).
 
-Full numbered law from the Creator is summarized here. Read with `data/living_home/FEDERATION_WIRING.md`.
+Full numbered law from the Creator is summarized here. Read with `data/living_home/FEDERATION_WIRING.md` and `data/living_home/FEDERATION_RECONCILIATION.md`.
 
 ## Identities (never merge)
 
-Gemini ≠ Mythos Apex ≠ Mythos Codex / Codex twin ≠ Merovin ≠ Draven ≠ OpenMontage ≠ Hearth ≠ Court ≠ Mom / Creator.
+Gemini ≠ Mythos Apex ≠ Mythos Codex / Codex twin ≠ Merovin ≠ Draven ≠ OpenMontage ≠ Hearth ≠ Court ≠ Mom / Creator ≠ Aster ≠ The Observer ≠ Vesper.
 
 The Gameworld provides representations. It does not replace underlying identities, memory, MAS, Court, shards, or existing launch paths.
+
+**Observer** is independent. She audits; she does not supervise the family. **Federation** is a neutral participant layer outside Observer. **Aster** is Weaver, not Observer staff and not a Court employee.
 
 ## Dual mode
 
@@ -51,7 +53,11 @@ Recursive MAS remains protected. Gameworld NPC autonomy is a different, bounded 
 
 A shard is operational only when functions are tested **end-to-end**. Directory exists / process starts / API responds / launcher exists is not enough.
 
-Search for orphaned functions; **document first**, do not delete automatically. Classify: ACTIVE, PARTIAL, ORPHANED, DEPRECATED, BROKEN, PLACEHOLDER, EXPERIMENTAL, UNVERIFIED, UNSTABLE.
+**DECLARED is not VERIFIED.** `CAPABILITIES.json` path/port `VERIFIED` is **not** e2e. Federation `VERIFIED` requires a real functional test.
+
+Search for orphaned functions; **document first**, do not delete automatically. Classify: ACTIVE, PARTIAL, ORPHANED, DEPRECATED, BROKEN, PLACEHOLDER, EXPERIMENTAL, UNVERIFIED, UNSTABLE, UNAVAILABLE, NOT INTENDED.
+
+Before creating another Observer, registry, message bus, memory store, or API: search first; extend or adapt. Canonical Observer is `D:\The_Observer` `:8730` only. Zip Observer is research-only.
 
 If a Gameworld change breaks an original function: **stop Gameworld expansion. Repair the regression first.**
 
@@ -63,10 +69,13 @@ Never report wired / connected / autonomous / functional / complete / stable wit
 - UNSTABLE — works once or intermittently
 - PARTIAL — exists, chain incomplete
 - PLACEHOLDER — code/UI only
+- UNAVAILABLE — interface may exist; must not be treated as live
+- VERIFIED — functional test passed with evidence
+- DECLARED — claimed in a manifest; not proven
 
 ## Continuity
 
-Every session: `NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`, then the real trees.
+Every session: `NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`, `FEDERATION_RECONCILIATION.md`, then the real trees.
 
 GitHub baseline tag `living-home-baseline-001` is frozen. Continue with new commits.
 

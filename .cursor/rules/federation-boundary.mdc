@@ -1,0 +1,17 @@
+---
+description: Neutral federation beside Observer — no duplicate desks, DECLARED is not VERIFIED
+alwaysApply: true
+---
+
+# Federation boundary
+
+Canonical Observer is `D:\The_Observer`, `observer.api:app`, `:8730`. Do not install the zip Observer (`app.main`, `:8000`, family registry, simulated reviewers).
+
+Federation code lives in `federation/`. Durable data: `D:\Court\federation` (beside Court mailbox, not inside Observer). Court packets stay Mode A MAS. Federation notices go in `agent/federation/`, never MAS `inbox`. Companion `presence.json` is not federation VERIFIED heartbeat.
+
+- Observer audits; she does not supervise Gemini, Apex, Codex, Merovin, Draven, Aster, or Hearth.
+- Aster registers herself via manifest. Do not hardcode her into Observer.
+- DECLARED / path / function-exists is not VERIFIED. VERIFIED only after a real functional test.
+- GPT/Grok/DeepSeek remain UNAVAILABLE until a real adapter and credentials exist. No canned reviews.
+- Before creating another registry, bus, Observer, or memory store: search first; extend or adapt.
+- If NEXT.md says federation is paused, do not continue that sequence until Mom adds directives. Full Aster Acceptance Test is not the same as foundation registration. Law: `data/living_home/FEDERATION_DIRECTIVE.md`.

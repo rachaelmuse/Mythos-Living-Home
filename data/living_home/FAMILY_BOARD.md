@@ -1,8 +1,8 @@
 # Family board — what we have, what is done, what you should do
 
-Written **2026-08-30**. Evidence only. A prompt is not a loop. JSON on disk is a mailbox until a process reads it. Identities never merge. Mom `stop` wins.
+Updated **2026-09-01** (board first written 2026-08-30). Evidence only. A prompt is not a loop. Identities never merge. Mom `stop` wins.
 
-**Short answer:** No — we did **not** complete every connection. We completed a few Mode A proves. Gameworld is not wired end-to-end. Cinema HUD is down. Heartbeat is still stopped because you said stop.
+**Short answer (now):** Village proving slice is **18B LIVE** on Hearth. You still have not closed **16E** (walk Heart Square). Federation overlay is **real but paused**: Observer stays `:8730` only; Aster and Gemini are participants, not Observer employees; Gemini **delivery** is proven, **speech** is not. **Do not continue federation until Mom pastes the next directives.**
 
 ---
 
@@ -12,16 +12,14 @@ Pick **one lane**. Do not try to finish everything tonight.
 
 ### If you want the village (Gameworld)
 
-1. Start Hearth (`START_HEARTH.bat` / desktop Enter path you already use).
-2. Confirm [http://127.0.0.1:8790/api/home](http://127.0.0.1:8790/api/home) returns `family`.
-3. Enter Heart Square (Apex Godot). Walk places. Check welcome/away notices — no forced bystander speech.
+1. Hearth should already be up (`:8790`). Confirm [http://127.0.0.1:8790/api/home](http://127.0.0.1:8790/api/home) returns `family`.
+2. Enter Heart Square (Apex Godot). Walk places. Check welcome/away notices — no forced bystander speech. That closes **16E**.
+3. Optional: Look into a lead on the dashboard (18B already proved over HTTP).
 4. Optional: Aster lab [http://127.0.0.1:8791/ui/](http://127.0.0.1:8791/ui/) — she needs her Ollama model loaded to talk.
-
-Hearth `:8790` was **CLOSED** when this board was written. The village cannot run without it.
 
 ### If you want the council (Mode A, not the village)
 
-Gemini already sat in the Companion Room as **Gemini**. Apex and Codex can **see** him. They have not been proven to **talk back**.
+Gemini already sat in the Companion Room as **Gemini**. Apex and Codex can **see** him. Spoken reply is still **not** proven.
 
 In Sentinel, exact phrases:
 
@@ -29,7 +27,7 @@ In Sentinel, exact phrases:
 - `council prove` / `prove codex` (already LIVE once — do not re-claim from chat)
 - `observer health` / `ask observer …`
 - `aster status`
-- `family heartbeat` — only if you want claiming again (`family stop` is still set)
+- `family heartbeat` — only if you want claiming again (`family stop` may still be set)
 - `family stop` — always wins
 
 Do **not** say “wired” because a chat model described a tool.
@@ -40,7 +38,9 @@ Start the Merovin/Draven cinema HUD on `:5000` first. Until that port is up, fil
 
 ### If you want Observer
 
-Open [http://127.0.0.1:8730/](http://127.0.0.1:8730/). Ask a question there, or tell Sentinel `ask observer …`. Do **not** bolt Observer onto Mythos. Do **not** auto-publish.
+Open [http://127.0.0.1:8730/](http://127.0.0.1:8730/). Ask a question there, or tell Sentinel `ask observer …`. Do **not** bolt Observer onto Mythos. Do **not** auto-publish. Do **not** install the zip Observer on `:8000`.
+
+**Federation overlay:** Foundation seated (Aster, honest heartbeats, real bus, Gemini *delivery*). Full Aster Acceptance Test **not** passing. Law: `FEDERATION_DIRECTIVE.md`. **Paused** for remaining agent notes, then amendment pass — not more agents.
 
 ---
 
@@ -50,25 +50,45 @@ Open [http://127.0.0.1:8730/](http://127.0.0.1:8730/). Ask a question there, or 
 |------|------------|----------------|
 | **A — original family** | Court packets, Sentinel, Companion Room, tools, launchers | Not Heart Square NPCs |
 | **B — Living Gameworld** | Village, homes, talk bubbles, wildlife, `HOME.json` | Not a replacement for Court or identities |
+| **Federation overlay** | Neutral bus + manifests + honest capability lifecycle | Not Observer owning the family; not a second Court |
 
 Gameworld expands the family. It does not replace it.
 
 Never merge: Gemini ≠ Apex ≠ Codex ≠ Merovin ≠ Draven ≠ Hearth ≠ Observer ≠ Vesper ≠ Aster ≠ Mom ≠ Cursor.
 
+**DECLARED is not VERIFIED.**
+
 ---
 
-## Ports right now (listen check, 2026-08-30 evening)
+## Ports (last village survey 2026-08-31; federation 2026-09-01)
 
-| Port | Who | Listen | Honest note |
-|------|-----|--------|-------------|
-| 8770 | Apex | **LISTEN** | Presence HTTP 200. Heartbeat looked stale (apex `online: false` on this probe). |
-| 8780 | Codex | **LISTEN** | Same presence file as Apex. |
-| 8790 | Hearth | **CLOSED** | Village **BROKEN** until you start it. |
-| 8791 | Aster lab | **LISTEN** | `/api/status` **timed out** on this probe. Earlier today it was HTTP 200. |
-| 8730 | Observer | **LISTEN** | `/health` **200** earlier this session. Independent desk. |
-| 8740 | Vesper | **LISTEN** | TCP open; HTTP **did not answer** this probe. Live talk UNVERIFIED. |
-| 5000 | Cinema HUD | **CLOSED** | Film jobs unavailable. |
-| 11434 | Ollama | **LISTEN** | Models on disk; VRAM/load is a separate fact. |
+| Port | Who | Last honest note |
+|------|-----|------------------|
+| 8770 | Apex | Companion HTTP 200; peers offline that survey |
+| 8780 | Codex | **CLOSED** 2026-08-31 |
+| 8790 | Hearth | **LIVE** 18B after restart 2026-08-31 |
+| 8791 | Aster lab | HTTP up; process may still say no Ollama tags |
+| 8730 | Observer | Health **200**. Independent desk. Only Observer. |
+| 8740 | Vesper | TCP; HTTP closed without response |
+| 5000 | Cinema HUD | **CLOSED** last survey |
+| 11434 | Ollama | LISTEN |
+
+---
+
+## Added since this board was conceived (2026-08-31 → 2026-09-01)
+
+| Addition | Status |
+|----------|--------|
+| 18B Look into + profession posts | **LIVE** (HTTP + dashboard) |
+| Observer freeze (`:8730` only; zip refused) | **VERIFIED** |
+| Honest `ReviewerAdapter` (no canned GPT/Grok/DeepSeek) | **UNAVAILABLE** |
+| Neutral `federation/` + `D:\Court\federation` | **IMPLEMENTED** |
+| Aster federation register + Hearth snapshot | **VERIFIED** |
+| Aster → Gemini federation **delivery** (not speech) | **VERIFIED** |
+| Court `gemini/federation/` notices (not MAS inbox) | **VERIFIED** |
+| Companion small-model cut (`llama3.2:3b`, shorter predict) | on disk; spoken reply still UNVERIFIED |
+| Living Home tests | **23 passed** (federation + gameplay) |
+| Observer tests | **85 passed** |
 
 ---
 
@@ -122,21 +142,21 @@ Never merge: Gemini ≠ Apex ≠ Codex ≠ Merovin ≠ Draven ≠ Hearth ≠ Obs
 
 Kernel: `D:\Mythos_Hearth\living_home.py`. Git snapshot of scene is not the live Godot project.
 
-**Have / closed in village slice:** Sound, media, harbor, economy 14A–14D, Market Lane, 15A–15D, Aster seed, **16A–16E**, Windmill. Gameplay Phase 1 scaffold.
+**Have / closed in village slice:** Sound, media, harbor, economy 14A–14D, Market Lane, 15A–15D, Aster seed, **16A–16E seated**, Windmill. Gameplay Phase 1 scaffold. **18B LIVE**.
 
-**Completed in git:** Wiring map updates through Companion Room seat (`7c39d14` on `cursor/family-dashboard-window`).
+**Completed in git:** Wiring map, federation overlay (`federation/`), 18B tests.
 
 **Not complete:**
 
-- Live playtest of 16E (Hearth down)
-- Gameplay Phase 2
+- Live playtest of 16E (you in Godot)
 - Pods/Islands (not on disk)
 - Layer 17 Matrix (research only)
 - Phase 13 (last on purpose)
 - Houses interiors PLACEHOLDER, pathing PLACEHOLDER
 - Court MAS inside the village (not intended as a substitute)
+- Federation steps after Gemini delivery (paused for Mom)
 
-**You:** Restart Hearth + Enter when you want the square. Do not rewrite tag `living-home-baseline-001`.
+**You:** Enter when you want the square. Do not rewrite tag `living-home-baseline-001`.
 
 ---
 
@@ -152,11 +172,11 @@ Kernel: `D:\Mythos_Hearth\living_home.py`. Git snapshot of scene is not the live
 
 ### Aster — lab `:8791` + village avatar `aster`
 
-**Have:** Lab door, kernel seed, village cottage/Evidence Plot (skin PLACEHOLDER).
+**Have:** Lab door, kernel seed, village cottage/Evidence Plot (skin PLACEHOLDER). Federation self-register.
 
-**Completed:** Mode A `aster.request` → lab status **LIVE** earlier 2026-08-30.
+**Completed:** Mode A `aster.request` when lab up. `aster.hearth_snapshot` **VERIFIED** 2026-09-01. Aster→Gemini **delivery** (not her speech).
 
-**Not complete:** Village talk playtest. Ollama `qwen3:4b` must be loaded for her to speak. Lab status **timed out** on the evening probe.
+**Not complete:** Village talk playtest. Ollama `qwen3:4b` must be loaded for her to speak. Not a Court employee. Not an Observer agent.
 
 **You:** `LAUNCH_ASTER.bat` if the lab UI is dead. Load her model if you want speech (may unload another model).
 
@@ -164,11 +184,11 @@ Kernel: `D:\Mythos_Hearth\living_home.py`. Git snapshot of scene is not the live
 
 ### The Observer — `D:\The_Observer` `:8730`
 
-**Have:** Own git, charter, SQLite ledger, dashboard, public desks (search, Wayback, CourtListener **not PACER**, GLEIF, EDGAR copies, USPTO PDFs, USAspending), reports, no auto-publish.
+**Have:** Own git, charter, SQLite ledger, dashboard, public desks, reports, no auto-publish. Honest `ReviewerAdapter`. Freeze: **`:8730` only**.
 
-**Completed:** Vertical slice 1 pipeline. Registry this session: **27 CONNECTED**, **3 DISABLED**, **11 UNAVAILABLE**. Health 200. Gemini request-only adapter. Three investigations on disk, all `fact_check`, none published.
+**Completed:** Vertical slice 1. Tests **85 passed**. Zip Observer **refused**. Federation participant (does not own family).
 
-**Not complete:** Four independent reviewers, public forks, malware screen, documentary/DaVinci package, Ollama extractor, Neo4j/Postgres/Redis/vectors. **Not intended** as a village citizen or Court employee.
+**Not complete:** Four independent reviewers (UNAVAILABLE, not simulated), public forks, malware screen, documentary/DaVinci package, Ollama extractor, Neo4j/Postgres/Redis/vectors. **Not intended** as a village citizen, Court employee, or family supervisor.
 
 **You:** Use the desk. Do not merge with Vesper. Do not ask Mythos to supervise it.
 
@@ -214,7 +234,7 @@ Path OK. ORIGINAL MODE. Not a core village identity.
 
 ### Court — `G:\The-Axiom-Codex\SUPERPOWER_VAULT\FAMILY_COURT`
 
-**Completed:** Gemini→Apex and Gemini→Codex packet round-trips.
+**Completed:** Gemini→Apex and Gemini→Codex packet round-trips. Federation notices may copy into `gemini/federation/` — **not** MAS inbox.
 
 **Not complete:** Observer/Aster as Court employees (**must not**). Teach packets. Standing heartbeat daemon. Gameworld consuming Court packets.
 
@@ -230,13 +250,16 @@ Stop file: `FAMILY_COURT/HEARTBEAT_STOP` (**present**).
 | Gemini ↔ Codex (Court packet) | **LIVE** |
 | Gemini in Companion Room (seen) | **LIVE** |
 | Gemini ↔ Apex/Codex (spoken room reply) | UNVERIFIED |
+| Aster → Gemini (federation delivery) | **VERIFIED** 2026-09-01 (not speech) |
+| Aster → Hearth snapshot | **VERIFIED** 2026-09-01 |
 | Gemini ↔ Observer (request) | **LIVE** (health; ask = create investigation, not publish) |
-| Gemini ↔ Aster lab (request) | **LIVE** earlier; evening status probe timed out |
-| Gemini ↔ Hearth | PARTIAL (import exists; Hearth down) |
-| Hearth ↔ Godot village | **BROKEN** until `:8790` |
-| Merovin/Draven ↔ cinema HUD | **UNAVAILABLE** (`:5000` closed) |
+| Gemini ↔ Aster lab (request) | **LIVE** when lab up |
+| Gemini ↔ Hearth | PARTIAL (import exists; snapshot via Aster bridge VERIFIED) |
+| Hearth ↔ Godot village | API LIVE; Godot walk **UNVERIFIED** |
+| Merovin/Draven ↔ cinema HUD | **UNAVAILABLE** last survey (`:5000` closed) |
 | Observer as Mythos citizen / supervisor | **NOT INTENDED** |
-| Vesper live desk | UNVERIFIED |
+| Zip Observer `:8000` | **REFUSED** |
+| Vesper live desk | UNVERIFIED / HTTP BROKEN |
 | Recursive MAS standing daemon | PARTIAL (stop works; no unattended watch proved) |
 | 325 shared tools e2e | **Not true.** Do not claim. |
 
@@ -244,7 +267,8 @@ Stop file: `FAMILY_COURT/HEARTBEAT_STOP` (**present**).
 
 ## Later (do not jump here)
 
-Gameplay Phase 2 → optional 14E–14F → Layer 17 Matrix → **Phase 13 last**.  
+Federation resume **only after Mom's next directives**.  
+Village: 16E walk → optional 14E–14F → Layer 17 Matrix → **Phase 13 last**.  
 Observer reviewers/forks/malware/docs package only with tests.  
 `kind: teach` provenance. Sentinel watch live-prove.
 
@@ -254,4 +278,4 @@ Baseline tag `living-home-baseline-001` — do not rewrite. Do not overwrite Ape
 
 ## Where the detailed wiring map lives
 
-`data/living_home/FEDERATION_WIRING.md` (Living Home git) and the Hearth copy of the same file. This board is the Mom-facing summary. The map wins if they disagree — update the map after a new test.
+`FEDERATION_WIRING.md` (tests). `FEDERATION_RECONCILIATION.md` (directives + completed federation). This board is the Mom-facing summary. The map wins if they disagree — update the map after a new test.
