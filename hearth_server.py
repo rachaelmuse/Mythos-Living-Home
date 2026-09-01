@@ -2602,6 +2602,24 @@ class HearthHandler(SimpleHTTPRequestHandler):
             snap = snapshot()
             snap["lead"] = lead
             return self._json(200, snap)
+        if path == "/api/home/investigate":
+            from living_home import load, save, snapshot
+            from living_home_gameplay import look_into
+
+            home = load()
+            lead = look_into(
+                home,
+                str(body.get("id") or body.get("lead_id") or ""),
+                place=str(body.get("place") or ""),
+                who=str(body.get("who") or "mom"),
+            )
+            if not lead:
+                return self._json(404, {"ok": False, "error": "lead not found"})
+            save(home)
+            snap = snapshot()
+            snap["lead"] = lead
+            snap["investigate"] = {"ok": True, "quest": False, "layer": "18b"}
+            return self._json(200, snap)
         if path == "/api/home/away":
             from living_home import load, save, snapshot
             from living_home_gameplay import acknowledge_away, build_away_summary

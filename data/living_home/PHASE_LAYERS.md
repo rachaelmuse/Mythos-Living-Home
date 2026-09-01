@@ -19,6 +19,8 @@
 | 14 | Living Economy & Self-Expression | DONE (14A–14D) | Wallets, shops, stipend, thin avatar colors. Shops on Market Lane. **14E–14F deferred**. |
 | 15 | Connection, Choice & Consequence | **DONE** | 15A–15D seated (bonds, choice, growth, dashboard). |
 | 16 | Integration & Autonomous Life | **16E ACTIVE** · Layer 16 closed · Gameplay P1 scaffold | Phase 6 complete (16A–16E) |
+| 18B | Human Gameplay Phase 2 thin | **LIVE** | Look into + profession posts. Observer stays a door. Not Pods. |
+| F | Federation overlay (parallel) | **PAUSED** after Gemini delivery | Outside Observer. Law: `FEDERATION_RECONCILIATION.md`. |
 | 17 | Matrix Dream View | **LATER** | SkyworkAI Matrix-Game — optional neural cinema/view. Not village truth. |
 | 13 | Final polish (Phase 13) | LAST | Do not jump here. |
 
@@ -34,9 +36,10 @@
 3. Richer harbor (12) — DONE  
 4. Living Economy (14A–14D) — DONE · 14E–14F deferred  
 5. **Phase 5 / Layer 15 Connection** — **DONE** (15A–15D)  
-6. **Phase 6 / Layer 16 Integration & Autonomous Life** — **16E ACTIVE** (16A–16E closed) · Human Gameplay Phase 1 scaffold beside 16 · optional 14E–14F · then Gameplay Phase 2 / Layer 17 / Phase 13  
-7. **Layer 17 Matrix Dream View** — **LATER** (after 16; before Phase 13)  
-8. Final Phase 13 — last  
+6. **Phase 6 / Layer 16 Integration & Autonomous Life** — **16E ACTIVE** (16A–16E closed) · Human Gameplay Phase 1 scaffold beside 16 · **18B LIVE** · optional 14E–14F · then Layer 17 / Phase 13  
+7. **Federation overlay** — **PAUSED** (Mom adding directives). Aster + Gemini delivery seated. Not village truth.  
+8. **Layer 17 Matrix Dream View** — **LATER** (after 16; before Phase 13)  
+9. Final Phase 13 — last  
 
 ## Layer 15 — Connection, Choice & Consequence
 
@@ -67,6 +70,7 @@
 | **16D** | Living dashboard thin — overview + family grid + feed + integration status on House UI | **ACTIVE** — `/dashboard` + `/api/home/dashboard`; `phase_status.16_dashboard=16d_active` |
 | **16E** | Mom presence polish — enter/place acknowledgments stay Mode B; no template house-voice for family | **ACTIVE** — `mom_presence()` + `POST /api/home/presence`; Godot enter/place posts; soft memory/purpose only |
 | **18A** | Human Gameplay Phase 1 — world leads, conditions, journal, player actions, away-summary (not quests) | **ACTIVE** scaffold — `living_home_gameplay.py` + `/api/home/gameplay` |
+| **18B** | Human Gameplay Phase 2 thin — look-into + profession posts (not Pods) | **LIVE** 2026-08-31 — `POST /api/home/investigate` + dashboard; Observer stays a door |
 
 ### Layer 16D verify
 

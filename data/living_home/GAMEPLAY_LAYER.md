@@ -2,6 +2,17 @@
 
 Law: AI creates possibilities; Mom chooses; world remembers. **Not quest dispensers.**
 
+## Phase 2 — Investigation & profession posts (**LIVE** thin 2026-08-31)
+
+| Piece | Status | Evidence |
+|-------|--------|----------|
+| Look into a lead | **LIVE** | `look_into()` · `POST /api/home/investigate` **200** · dashboard Look into |
+| Profession posts | **LIVE** | `profession_roster()` — honest roles, **not Pods** |
+| Aster board notice | CODE ACTIVE | purpose_plain only if Aster is at Evidence Plot — no house-voice |
+| Observer | NOT INTENDED as village investigator | Desk remains `:8730` |
+
+Mom may ignore every lead. Mysteries may stay mysteries.
+
 ## Phase 1 — Foundation (ACTIVE)
 
 | Piece | Status | Evidence |
@@ -14,13 +25,13 @@ Law: AI creates possibilities; Mom chooses; world remembers. **Not quest dispens
 | While-you-were-away | CODE ACTIVE | `away_summary` + `POST /api/home/away` |
 | Module | `living_home_gameplay.py` | Adapters; not a second Hearth |
 
-Endpoints: `GET /api/home/gameplay`, `POST /api/home/journal|lead|away`.
+Endpoints: `GET /api/home/gameplay`, `POST /api/home/journal|lead|away|investigate`.
 
-Complete for play = seen after **Hearth restart** + Enter. Do not claim Godot UI for leads until Mom sees snapshot fields.
+Complete for play = seen after **Hearth restart** + Enter. Do not claim Godot UI for leads until Mom sees snapshot fields. Observer freeze: desk is `:8730`, not a village investigator.
 
 ## Not in Phase 1
 
-Pods / Islands / vendors / professions / boats — deferred (no Pod architecture on disk yet).
+Pods / Islands / vendors / boats — still deferred (no Pod architecture on disk yet). Phase 2 professions are **posts they already hold**, not Pod vendors.
 
 ## Layer 16C
 

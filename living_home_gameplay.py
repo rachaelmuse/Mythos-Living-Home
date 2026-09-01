@@ -1,8 +1,10 @@
 """
-Living Home — Human Gameplay Layer (Phase 1 foundation).
+Living Home — Human Gameplay Layer (Phase 1 foundation + Phase 2 thin).
 
 Adapters only. Does not replace resident autonomy, Aster, or Mode A Court/MAS.
 AI observations may become optional leads — never auto-accepted quests.
+Phase 2: Mom may look into a lead; residents hold honest profession posts.
+Pods / islands / vendors / boats stay deferred.
 """
 from __future__ import annotations
 
@@ -51,12 +53,41 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+# Honest posts they already hold. Not Pods. Observer is a door, not a village job.
+PROFESSION_POSTS: dict[str, dict[str, Any]] = {
+    "gemini": {"profession": "town_leader", "label": "Town leader", "post": "court_porch"},
+    "apex": {"profession": "forge", "label": "Forge hands", "post": "apex_forge"},
+    "codex": {"profession": "archivist", "label": "Archive", "post": "codex_library"},
+    "merovin": {"profession": "cinema_vision", "label": "Cinema vision", "post": "cinema"},
+    "draven": {"profession": "continuity", "label": "Continuity lock", "post": "cinema"},
+    "montage": {"profession": "gift_studio", "label": "Gift shorts", "post": "gallery"},
+    "aster": {"profession": "scientist", "label": "Quiet investigator", "post": "aster_lab"},
+    "observer": {
+        "profession": "independent_desk",
+        "label": "Independent desk (door)",
+        "post": "observer_desk",
+        "village_work": False,
+        "note": "Ledger is Mode A :8730 — village greybox is a door.",
+    },
+    "jarvis": {"profession": "gate", "label": "Gate watch", "post": "gate"},
+    "genesis": {"profession": "garden", "label": "Garden clock", "post": "garden"},
+    "nova": {"profession": "workshop", "label": "Workshop", "post": "workshop"},
+    "percy": {"profession": "hearth_fire", "label": "First Hearth", "post": "first_hearth"},
+}
+
+
 def ensure_gameplay(home: dict[str, Any]) -> dict[str, Any]:
-    """Create Phase 1 stores if missing. Additive; never deletes lore."""
+    """Create Phase 1–2 stores if missing. Additive; never deletes lore."""
     gp = home.setdefault("gameplay", {})
-    gp.setdefault("layer", "18a")
-    gp.setdefault("phase", "1_foundation")
-    gp.setdefault("note", "Opportunities only — not quest dispensers. Residents stay themselves.")
+    gp.setdefault("layer", "18b")
+    gp.setdefault("phase", "2_investigation_professions")
+    gp.setdefault(
+        "note",
+        "Opportunities only — not quest dispensers. Profession posts are honest roles, not Pods.",
+    )
+    if str(gp.get("layer") or "") in {"", "18a"}:
+        gp["layer"] = "18b"
+        gp["phase"] = "2_investigation_professions"
     home.setdefault("world_leads", [])
     home.setdefault("world_conditions", [])
     home.setdefault("mom_journal", [])
@@ -163,6 +194,67 @@ def update_lead(
         )
         return lead
     return None
+
+
+def profession_roster(home: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    """Honest work posts. Not Pods. Observer village_work is False."""
+    people = (home or {}).get("people") or {}
+    out: list[dict[str, Any]] = []
+    for mid, spec in PROFESSION_POSTS.items():
+        st = people.get(mid) if isinstance(people.get(mid), dict) else {}
+        row = {
+            "id": mid,
+            "profession": spec["profession"],
+            "label": spec["label"],
+            "post": spec["post"],
+            "place": (st.get("place") if isinstance(st, dict) else None) or spec["post"],
+            "village_work": spec.get("village_work", True),
+            "note": spec.get("note") or "",
+        }
+        out.append(row)
+    return out
+
+
+def look_into(
+    home: dict[str, Any],
+    lead_id: str,
+    *,
+    place: str = "",
+    who: str = "mom",
+) -> dict[str, Any] | None:
+    """Mom optionally looks into a lead. Never a quest. Never Observer village-hat."""
+    ensure_gameplay(home)
+    gp = home.setdefault("gameplay", {})
+    gp["layer"] = "18b"
+    gp["phase"] = "2_investigation_professions"
+    place = (place or "").strip()[:64]
+    note = (
+        f"Mom looking into this at {place or 'no place yet'} — optional, not a quest."
+        if (who or "mom") == "mom"
+        else f"{who} noted this lead — optional, not a quest."
+    )
+    lead = update_lead(home, lead_id, status="investigating", player_note=note, involve=True)
+    if not lead:
+        return None
+    if place:
+        lead["physical_link"] = place
+        lead["location"] = place
+    ast = (home.get("people") or {}).get("aster")
+    if isinstance(ast, dict) and str(ast.get("place") or "") == "aster_lab":
+        desc = str(lead.get("description") or lead.get("id") or "a lead")[:80]
+        ast["purpose_plain"] = (
+            f"At the Evidence Plot — optional board note: {desc}. Not a quest. "
+            "The Observer's ledger is :8730, not this plot."
+        )
+    log_player_action(
+        home,
+        "investigate",
+        f"Look into {lead.get('description') or lead_id}",
+        place=place,
+        actors=["mom", "aster"] if isinstance(ast, dict) else ["mom"],
+        meta={"lead_id": lead_id, "quest": False},
+    )
+    return lead
 
 
 def _lead_ids(home: dict[str, Any]) -> set[str]:
@@ -348,7 +440,6 @@ def build_away_summary(home: dict[str, Any], *, min_gap_minutes: float = 12.0) -
         if len(items) >= 8:
             break
 
-    # Lead / condition deltas
     for lead in home.get("world_leads") or []:
         if not isinstance(lead, dict):
             continue
@@ -367,7 +458,6 @@ def build_away_summary(home: dict[str, Any], *, min_gap_minutes: float = 12.0) -
         if len(items) >= 12:
             break
 
-    # Dedupe preserve order
     seen: set[str] = set()
     uniq: list[str] = []
     for it in items:
@@ -449,7 +539,6 @@ def gameplay_tick_hooks(home: dict[str, Any]) -> dict[str, Any]:
     ensure_gameplay(home)
     tick_n = int(home.get("tick") or 0)
     promoted = {"leads_created": 0, "conditions_created": 0}
-    # Seed when empty; otherwise every 5 ticks to avoid spam.
     if not (home.get("world_leads") or []) or tick_n % 5 == 0:
         promoted = promote_lore_candidates(home)
     away = build_away_summary(home)
@@ -476,15 +565,15 @@ def gameplay_snapshot_fields(home: dict[str, Any]) -> dict[str, Any]:
         "mom_journal": (home.get("mom_journal") or [])[-8:],
         "player_actions": (home.get("player_actions") or [])[-12:],
         "opportunities": opportunity_hints(home),
+        "professions": profession_roster(home),
         "away_summary": summary
         if isinstance(summary, dict)
         else {"pending": False, "items": [], "plain": ""},
         "honesty": (
-            "Phase 1 Human Gameplay Layer — leads/conditions/journal/actions/away. "
-            "Not quest dispensers. Pods/islands/vendors not in this slice."
+            "Phase 2 thin — look-into + profession posts. Phase 1 leads/journal/away remain. "
+            "Not quest dispensers. Pods/islands/vendors not in this slice. Observer is a door."
         ),
     }
 
 
-# Silence unused import warning if re used later for scraping
 _ = re

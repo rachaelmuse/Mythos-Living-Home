@@ -475,6 +475,12 @@ a.chip {
   color: var(--amber);
 }
 
+.btn.tiny {
+  padding: 0.15rem 0.45rem;
+  font-size: 0.72rem;
+  margin-left: 0.35rem;
+}
+
 .btn:hover { filter: brightness(1.06); }
 
 .filters {

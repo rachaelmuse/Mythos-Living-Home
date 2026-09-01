@@ -4411,8 +4411,9 @@ def snapshot() -> dict[str, Any]:
                 "No template house-voice for family. Speech stays ollama/mom/waiting/none."
             ),
             "gameplay": (
-                "Phase 1 Human Gameplay — optional world leads/conditions, Mom journal, "
-                "player action log, while-you-were-away. Not quest dispensers."
+                "Phase 2 thin — optional look-into + honest profession posts. "
+                "Phase 1 journal/away remain. Not quest dispensers. Pods not in this slice. "
+                "Observer village body is a door to :8730."
             ),
             "work": (
                 "AUTONOMOUS post choice. Garden tend is real kernel growth. "
@@ -4744,7 +4745,7 @@ def day_story_status() -> dict[str, Any]:
 
 
 def gameplay_status() -> dict[str, Any]:
-    """Phase 1 Human Gameplay Layer — status window only."""
+    """Human Gameplay Layer — status window only."""
     home = load()
     try:
         from living_home_gameplay import gameplay_snapshot_fields, ensure_gameplay
@@ -4752,20 +4753,22 @@ def gameplay_status() -> dict[str, Any]:
         ensure_gameplay(home)
         fields = gameplay_snapshot_fields(home)
     except Exception as e:
-        return {"ok": False, "error": str(e), "layer": "18a"}
+        return {"ok": False, "error": str(e), "layer": "18b"}
+    gp = fields.get("gameplay") if isinstance(fields.get("gameplay"), dict) else {}
     return {
         "ok": True,
-        "layer": "18a",
-        "phase": "1_foundation",
+        "layer": gp.get("layer") or "18b",
+        "phase": gp.get("phase") or "2_investigation_professions",
         "tick": home.get("tick"),
         "gameplay": fields.get("gameplay"),
         "world_leads": fields.get("world_leads"),
         "world_conditions": fields.get("world_conditions"),
         "mom_journal": fields.get("mom_journal"),
         "opportunities": fields.get("opportunities"),
+        "professions": fields.get("professions"),
         "away_summary": fields.get("away_summary"),
         "endpoint": "/api/home/gameplay",
-        "note": "Optional leads — not quest dispensers. Pods/vendors not in Phase 1.",
+        "note": "Optional look-into — not quest dispensers. Profession posts, not Pods. Observer is a door.",
     }
 
 
@@ -4886,7 +4889,22 @@ def dashboard_overview(persist: bool = True) -> dict[str, Any]:
         },
         "away_summary": away if isinstance(away, dict) else {"pending": False, "plain": ""},
         "world_leads_open": len(open_leads),
-        "gameplay": {"layer": layers["18a_gameplay"], "open_leads": len(open_leads)},
+        "world_leads": [
+            {
+                "id": l.get("id"),
+                "status": l.get("status"),
+                "description": l.get("description"),
+                "physical_link": l.get("physical_link") or l.get("location"),
+            }
+            for l in (snap.get("world_leads") or [])
+            if isinstance(l, dict)
+        ][:8],
+        "professions": snap.get("professions") or [],
+        "gameplay": {
+            "layer": layers["18a_gameplay"],
+            "open_leads": len(open_leads),
+            "phase": (gp.get("phase") if isinstance(gp, dict) else None) or "2_investigation_professions",
+        },
         "family_grid": family_grid,
         "feed": feed[:16],
         "layers": layers,

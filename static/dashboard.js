@@ -35,6 +35,7 @@
     awayPlain: document.getElementById("awayPlain"),
     btnAwayAck: document.getElementById("btnAwayAck"),
     leadsList: document.getElementById("leadsList"),
+    professionsList: document.getElementById("professionsList"),
     overviewLayer: document.getElementById("overviewLayer"),
     tickBadge: document.getElementById("tickBadge"),
     leaderBadge: document.getElementById("leaderBadge"),
@@ -676,12 +677,42 @@
       } else {
         el.leadsList.innerHTML = open
           .slice(0, 6)
-          .map(
-            (l) =>
-              `<li><span class="lead-status">${escapeHtml(l.status || "rumor")}</span> · ${escapeHtml(
+          .map((l) => {
+            const id = escapeHtml(l.id || "");
+            return `<li>
+              <span class="lead-status">${escapeHtml(l.status || "rumor")}</span> · ${escapeHtml(
                 l.description || l.id || "lead"
-              )}</li>`
-          )
+              )}
+              <button type="button" class="btn tiny ghost btn-look-into" data-lead="${id}">Look into</button>
+            </li>`;
+          })
+          .join("");
+        el.leadsList.querySelectorAll(".btn-look-into").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const leadId = btn.getAttribute("data-lead");
+            try {
+              await postJson("/api/home/investigate", { id: leadId, place: "", who: "mom" });
+              await refreshAll();
+            } catch (err) {
+              alert(err.message || "Look into failed");
+            }
+          });
+        });
+      }
+    }
+    if (el.professionsList) {
+      const posts = Array.isArray(home.professions) ? home.professions : [];
+      if (!posts.length) {
+        el.professionsList.innerHTML = `<li class="muted">Profession posts pending snapshot.</li>`;
+      } else {
+        el.professionsList.innerHTML = posts
+          .slice(0, 12)
+          .map((p) => {
+            const door = p.village_work === false ? " · door" : "";
+            return `<li><strong>${escapeHtml(p.id)}</strong> — ${escapeHtml(p.label || p.profession || "")}${escapeHtml(
+              door
+            )}</li>`;
+          })
           .join("");
       }
     }
