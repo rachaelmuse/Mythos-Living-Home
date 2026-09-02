@@ -1,11 +1,11 @@
-# Mythos family + Living Gameworld — dual-mode law
+# Mythos family + The Axiom Codex — dual-mode law
 
-Standing architectural directive. The Gameworld is an **expansion** of the existing Mythos family. It is **not** a replacement.
+Standing architectural directive. The Living Gameworld’s name is **The Axiom Codex**. It is an **expansion** of the existing Mythos family. It is **not** a replacement. Federation `consume` is an **action** (authorized VERIFIED notice into `HOME.json`), not the world’s name.
 
 Two simultaneous objectives — neither may be accomplished by sacrificing the other:
 
 - **OBJECTIVE A** — Preserve, repair, fully wire, and stabilize the original Mythos family federation (Mode A).
-- **OBJECTIVE B** — Build the Living Gameworld as an additional physical environment/interface (Mode B).
+- **OBJECTIVE B** — Build The Axiom Codex (Living Gameworld) as an additional physical environment/interface (Mode B).
 
 Full numbered law from the Creator is summarized here. Read with `data/living_home/FEDERATION_WIRING.md` and `data/living_home/FEDERATION_RECONCILIATION.md`.
 
@@ -21,7 +21,7 @@ The Gameworld provides representations. It does not replace underlying identitie
 
 **Mode A — original family / recursive MAS.** Agent interaction, recursive MAS, communication, memory, identity, tools, Court, shard functions, orchestration, existing workflows and launchers.
 
-**Mode B — Living Gameworld.** Avatars, homes, village, movement, perception, speech bubbles, wildlife, persistence, Gameworld-compatible capabilities via adapters.
+**Mode B — The Axiom Codex (Living Gameworld).** Avatars, homes, village, movement, perception, speech bubbles, wildlife, persistence, Gameworld-compatible capabilities via adapters. Gemini’s house root `G:\The-Axiom-Codex` is **Gemini**, not the world. Never merge.
 
 The Creator must be able to use either mode.
 

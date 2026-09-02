@@ -262,8 +262,8 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 
 | House | Complete | Need more |
 |-------|----------|-----------|
-| **Court** file bus | Gemini↔Apex, Gemini↔Codex LIVE | teach packets; Gameworld consumer; Observer/Aster **not** employees |
-| **Federation overlay** | Aster + Gemini delivery VERIFIED; notices in `federation/` not inbox | Paused — Mom adding directives; Apex/Codex on bus; Gameworld consume |
+| **Court** file bus | Gemini↔Apex, Gemini↔Codex LIVE | teach packets; The Axiom Codex as consumer of VERIFIED caps; Observer/Aster **not** employees |
+| **Federation overlay** | Aster + Gemini delivery VERIFIED; The Axiom Codex notice LIVE; notices in `federation/` not inbox | Live negatives; Apex/Codex on bus when doors are up |
 | **Companion Room** | Gemini, Merovin, Draven seats seen; small-model cut on disk | Spoken back-and-forth |
 | **OpenMontage** | two roots exist | pick Mode A launcher; do not delete a copy |
 | **Spore** | path OK | not core family table |
@@ -278,7 +278,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 2. Talk to Aster once (`qwen3:4b`).  
 3. HUD: one conversation as **Merovin**, one as **Draven**.  
 4. Observer desk: one real investigation (slice 1 is enough).  
-5. Federation: **wait** — remaining agent notes, then amendment pass (`FEDERATION_DIRECTIVE.md`). Full Aster test is not yet passing. Do not add Apex/Codex/Gameworld consume.  
+5. Federation: live negatives, then Apex/Codex **only when doors are up**. Full Aster test is not yet passing. The Axiom Codex is the Gameworld’s name; `consume` is the action.  
 6. Later: one UNAVAILABLE Observer row **or** cinema Phase 2 real file **or** Companion spoken reply.
 
 Cloud is **not** on this list until Mom chooses a public door and a test.

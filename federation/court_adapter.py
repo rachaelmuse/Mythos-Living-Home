@@ -57,3 +57,34 @@ class CourtFederationAdapter:
             atomic_write_json(dest, body)
             written.append(str(dest))
         return written
+
+    def drop_spoken_reply(
+        self,
+        *,
+        message_id: str,
+        sender: str,
+        recipient: str,
+        payload: dict[str, Any],
+    ) -> list[str]:
+        stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%S")
+        fname = f"{stamp}_{message_id[:8]}_reply.json"
+        body = {
+            "id": message_id,
+            "from": sender,
+            "to": recipient,
+            "kind": "federation_reply",
+            "goal": "Gemini spoken reply on federation bus — not MAS, not village hat",
+            "status": "delivered",
+            "simulated": False,
+            "gemini_spoke": True,
+            "payload": payload,
+            "bus": "local_federation",
+            "created": datetime.now(timezone.utc).isoformat(),
+        }
+        written: list[str] = []
+        for root in self.roots:
+            dest = root / recipient / FEDERATION_BOX / fname
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            atomic_write_json(dest, body)
+            written.append(str(dest))
+        return written

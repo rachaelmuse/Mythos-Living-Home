@@ -20,7 +20,7 @@ def write_amendment_evidence(root: Path, registry: FederationRegistry) -> Path:
         "participants": participants,
         "aster_registered": "aster" in participants,
         "full_aster_acceptance": False,
-        "note": "Foundation amendments 1-5 and refusal-to-lie negatives. Not Gemini speech, not Gameworld consume, not Observer HTTP audit.",
+        "note": "Foundation amendments 1-5 and refusal-to-lie negatives. Not Gemini speech, not The Axiom Codex notice, not Observer HTTP audit.",
     }
     path = root / "AMENDMENT_PASS.json"
     atomic_write_json(path, payload)

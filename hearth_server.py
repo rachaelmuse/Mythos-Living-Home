@@ -2556,6 +2556,18 @@ class HearthHandler(SimpleHTTPRequestHandler):
                     place_hint=str(body.get("place") or ""),
                 ),
             )
+        if path == "/api/home/federation_consume":
+            from living_home import record_federation_consume
+
+            return self._json(
+                200,
+                record_federation_consume(
+                    capability_id=str(body.get("capability_id") or ""),
+                    requester=str(body.get("requester") or "hearth"),
+                    performer=str(body.get("performer") or "aster"),
+                    result=body.get("result") if isinstance(body.get("result"), dict) else {},
+                ),
+            )
         if path == "/api/home/journal":
             from living_home import load, save, snapshot
             from living_home_gameplay import journal_add

@@ -33,11 +33,11 @@ class HeartbeatLog:
     def _path(self, agent_id: str) -> Path:
         return self.dir / f"{agent_id}.json"
 
-    def pulse(self, agent_id: str) -> dict:
+    def pulse(self, agent_id: str, *, source: str = "self_pulse") -> dict:
         payload = {
             "agent_id": agent_id,
             "ts": time.time(),
-            "source": "self_pulse",
+            "source": source,
         }
         atomic_write_json(self._path(agent_id), payload)
         return payload

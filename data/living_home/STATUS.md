@@ -5,7 +5,7 @@ Updated **2026-09-01**. Evidence only.
 ## CURRENT PHASE
 
 **16E ACTIVE** (walk UNVERIFIED) · **18B LIVE** (Hearth restarted 2026-08-31) · 16A–16D ACTIVE · Human Gameplay Phase 1 remains.  
-**Federation overlay PAUSED after Phase B foundation.** Live store reconciled (hashes, downgrade, health, communication stamps). Full Aster test **FAIL** / not passing. Do not add Apex/Codex/Gameworld consume. Report: `FEDERATION_AMENDMENT_REPORT.md`.
+**Federation overlay:** Gemini speech **LIVE**. **The Axiom Codex** notice **LIVE** (`aster.gameworld_notice`; CLI `prove consume` is the action). Observer audit **PASS**. Full Aster test **FAIL** (live negatives). Do not add Apex/Codex on the bus.
 
 ## Closed (village)
 
@@ -18,16 +18,16 @@ Federation: freeze Observer · DECLARED ≠ VERIFIED · delivery ≠ collaborati
 
 ## Family note
 
-- **Aster** — lab `:8791` **HTTP 200** this check (`id=aster`, model **UNAVAILABLE**, Ollama tags empty). Identity file present. Federation participant hashed v1. Heartbeat age **~21960s** → OFFLINE. Live cap **QUARANTINED / UNAVAILABLE**. Historical Hearth reach in `PROVE.json` only. Not Observer-owned.
-- **Vesper** — `:8740` **TCP LISTEN** (PID 22584). **HTTP BROKEN** this check (`GET /health` connected, **0 bytes**). Not a federation participant. Not Observer. ORIGINAL MODE — ACTIVE on disk; live HTTP not proven.
-- **Observer** — `:8730` health **200**. Code `never_merge` includes `aster`. **Running** `/health` list **omitted aster** — process likely stale vs `observer/__init__.py`. Did not restart her this pass.
-- **Gemini** — Federation **delivery** only (`47b6171f…`). Live inbox **PARTIAL / TESTED**. Did **not** speak.
-- **Federation** — Phase B steps 1–7 **already on disk** (not re-run). Tests **38 passed**. Log: `PYTEST_FOUNDATION_RECONCILE.log`. Acceptance: `ASTER_ACCEPTANCE.json` overall **FAIL**.
-- **House doors** — Cinema HUD `:5000` **LISTEN** this survey (HTTP not probed). Apex `:8770` LISTEN. Codex `:8780` LISTEN (was CLOSED last written survey).
-- **Presence / Godot** — `POST /api/home/presence` **200**. Enter UNVERIFIED.
+- **Aster** — Lab `:8791` **200** `id=aster` after hang fix (Hearth was down). Observer does **not** own her. The Axiom Codex notice **PASS**. Full Aster test still **FAIL** (live negatives).
+- **Vesper** — `:8740` TCP LISTEN. **HTTP BROKEN**. Not a federation participant. Not Observer. ORIGINAL MODE — ACTIVE.
+- **Observer** — `:8730` health **200**, `/federation/audit` **200**. Epistemic law seated. Does not own Aster.
+- **Gemini** — Speech **LIVE**. Not an HTTP house door.
+- **Federation** — `aster.gameworld_notice` **VERIFIED**. `stages.gameworld_invocation` / `gameworld_state_change` **PASS**. Overall **FAIL**. Apex/Codex **not** on bus.
+- **House doors** — Apex `:8770` **REFUSED** this audit. Codex `:8780` HTML **200**, `/health` **404**. Hearth `:8790` **restarted** this pass **200**.
+- **Presence / Godot** — Godot process **not running**. 16E UNVERIFIED.
 - **Gameplay** — **18B LIVE**. Not quests. Not Pods.
 - **Pods/Islands** — not on disk.
 
 ## Next
 
-Federation: STOP. Report in `FEDERATION_RECONCILIATION.md`. Village: 16E + Observer greybox. Tracker: `FAMILY_PHASES.md`. Map: `FEDERATION_WIRING.md`.
+Federation: The Axiom Codex notice seated (`prove consume` is the action). Next is **live negatives** (failed capability / unauthorized invoke / identity merge), then Apex/Codex **only when their doors are up**. Village: 16E. Map: `FEDERATION_WIRING.md`. Readiness: `D:\Court\federation\AGENT_READINESS.json`.

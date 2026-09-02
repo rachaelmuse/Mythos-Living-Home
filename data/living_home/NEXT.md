@@ -1,6 +1,8 @@
 # Living Home — where we are
 
-Updated **2026-09-01**. Evidence only. **Phase B foundation seated** (live store reconciled). Full Aster Acceptance Test is **not** passing. Do not add Apex/Codex/Gameworld consume yet.
+Updated **2026-09-01**. Evidence only. **Phase B includes Aster.** Live lab refresh seated. Full Aster Acceptance Test is **not** passing. Apex/Codex are **not** on the federation bus.
+
+Kernel: `D:\Mythos_Hearth\living_home.py`
 
 Kernel: `D:\Mythos_Hearth\living_home.py`  
 House UI: **http://127.0.0.1:8790/house.html**  
@@ -15,11 +17,12 @@ Law: `FEDERATION_DIRECTIVE.md` · Map: `FEDERATION_RECONCILIATION.md` · Wiring:
 ## CURRENT PHASE
 
 **Village:** **18B LIVE**. **16E** still needs you in Heart Square.  
-**Federation:** Phase B foundation **done**. Live manifests hashed; missing provenance **downgraded**; Aster OFFLINE cap **quarantined**; bus stamped COMMUNICATION. Full **Aster Acceptance Test FAIL** (`ASTER_ACCEPTANCE.json`). Gemini **delivery** only (not speech).
+**Federation:** Gemini speech **LIVE**. **The Axiom Codex** accepted a federation notice **LIVE** (`aster.gameworld_notice` VERIFIED, HOME.json updated; CLI `prove consume` is the action, not the world’s name). Full Aster test **FAIL** (live negatives still open). Apex/Codex **not** on the bus.
 
 ## Next task
 
-1. **STOP.** Phase B foundation is on disk. Do not start Gemini speech, Gameworld consume, Observer HTTP audit, or Apex/Codex on the bus. Report: `FEDERATION_AMENDMENT_REPORT.md`. Evidence: `D:\Court\federation\ASTER_ACCEPTANCE.json` (`overall: FAIL`).  
-2. Village when you want it: walk Heart Square (16E + Observer greybox).
+1. **The Axiom Codex notice LIVE.** World name is The Axiom Codex, not “consume.” Evidence: `D:\Court\federation\PROVE_GAMEWORLD_CONSUME.json`. Hearth authorized; Aster performed; `HOME.json` `federation.last_consumed` written. Full Aster test still **FAIL** (live negatives). Do not add Apex/Codex on the bus until their doors are up (Apex `:8770` down this audit).  
+2. **Aster lab** was hanging, not dead: Hearth `:8790` was down and `/api/status` blocked on Ollama tags + Hearth. Door hardened; Hearth restarted; lab `:8791` **200** `id=aster` ~0.7s.  
+3. **Agent readiness:** `D:\Court\federation\AGENT_READINESS.json`. Mom check: `python -m federation.prove status`. Village: Heart Square 16E when you want it.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.

@@ -6,7 +6,9 @@ This is the document to hand a builder. **Do not give them the zip Observer.**
 
 Read with `FEDERATION_RECONCILIATION.md` (what exists on disk), `FEDERATION_WIRING.md` (tests), `docs/DUAL_MODE.md`.
 
-**STOP:** Do not add Apex, Codex, Gameworld consumption, or Observer HTTP audit until Mom pastes the remaining agent notes **and** the amendment pass (below) is done. Gemini **delivery** already landed before these amendments were locked — do not treat that as the full Aster Acceptance Test, and do not expand further yet.
+**Name:** The Gameworld is **The Axiom Codex**. Federation `consume` is an action (authorized VERIFIED notice into `HOME.json`), not the world’s name. Gemini’s house `G:\The-Axiom-Codex` is Gemini, not the world.
+
+**STOP:** Do not add Apex or Codex on the bus until Mom says go. The Axiom Codex notice-into-HOME, Gemini speech, and Observer HTTP audit already landed after this freeze. Full Aster Acceptance Test is still **not** passing.
 
 ---
 
@@ -46,7 +48,8 @@ Observer is **beside** the family, not above it.
                        │
                      HEARTH
                        │
-                   GAMEWORLD
+              THE AXIOM CODEX
+                 (Gameworld)
 ```
 
 Observer audits. She does not supervise, own, or merge identities.
@@ -74,7 +77,7 @@ Any future agent (Aster today, Nova tomorrow, unknown next month) uses the **sam
 | Declared capabilities | **Declaring agent** (subject to federation verification) |
 | Capability verification state | **Federation verification layer** (records; does **not** own the capability) |
 | Tool ownership | **Owning agent / house** |
-| Gameworld / world state, citizens, locations, simulation, presentation | **Hearth / Gameworld** |
+| The Axiom Codex / world state, citizens, locations, simulation, presentation | **Hearth / The Axiom Codex** |
 | External reviewer identity | **External adapter** |
 | Permissions to invoke | **Federation security layer** |
 
@@ -155,7 +158,7 @@ Separate layers. Test them separately.
 | 4. COLLABORATION | Can we execute this task together? |
 | 5. VERIFICATION | Did it actually happen and return the expected result? |
 
-**Successful message delivery must not be reported as successful collaboration.** Aster→Gemini ack is COMMUNICATION, not Gemini speech, not collaboration, not Gameworld consumption.
+**Successful message delivery must not be reported as successful collaboration.** Aster→Gemini ack is COMMUNICATION, not Gemini speech, not collaboration, not The Axiom Codex taking a notice.
 
 ---
 
@@ -258,7 +261,7 @@ Every PASS/FAIL has: test ID, timestamp, agent IDs, message IDs, hashes where ap
 5. Connect Aster — **foundation done**; full acceptance **not**  
 6. Connect Gemini — **delivery done**; speech / collaboration **not**; amendment pass **done** — still do not expand  
 7. Hearth coordination beyond snapshot — later  
-8. Gameworld consumes VERIFIED capabilities — later (Aster test step 5)  
+8. The Axiom Codex accepts VERIFIED capabilities — later (Aster test step 5; CLI `consume` is the action)  
 9. Observer as audit participant (HTTP) — later (Aster test step 6)  
 10. One real external reviewer — later (UNAVAILABLE until adapter + credentials)
 
@@ -268,6 +271,6 @@ Every PASS/FAIL has: test ID, timestamp, agent IDs, message IDs, hashes where ap
 
 Amendment pass **code** 2026-09-01. Phase A report then Phase B **foundation** (live store) 2026-09-01. Evidence: `D:\Court\federation\ASTER_ACCEPTANCE.json` (`overall: FAIL`). Tests **38 passed**.
 
-**Do not** add Apex/Codex, Gemini speech, Gameworld consume, or Observer HTTP audit until Mom says go. Full Aster Acceptance Test is still **not** passing.
+**Do not** add Apex/Codex on the bus until Mom says go. Gemini speech, Observer HTTP audit, and The Axiom Codex notice (CLI `consume`) already landed. Full Aster Acceptance Test is still **not** passing.
 
 Do not rewrite working components for style. Do not install the zip.

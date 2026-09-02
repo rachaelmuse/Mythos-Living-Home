@@ -1,6 +1,6 @@
 # Federation wiring map
 
-Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-01**. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. **Federation sequence paused after amendment pass** — foundation + Amendments 1–5 / refusal-to-lie unit-tested; full Aster test **not** passing. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`.
+Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-01**. Observer HTTP audit **LIVE**. Gemini speech **LIVE**. **The Axiom Codex** notice **LIVE** (CLI `prove consume` = action, not the world’s name). Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Full Aster test **not** passing (live negatives). Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`.
 
 **Registry lie to refuse still stands** below. TCP LISTEN is not HTTP. Disk code is not the running process.
 
@@ -48,6 +48,26 @@ DECLARED ≠ VERIFIED still stands for `CAPABILITIES.json`.
 | Court adapter | Notice in `FAMILY_COURT/gemini/federation/` and `D:\Court\mailbox\family\gemini/federation/`. **Not** MAS `inbox`. |
 | Living Home tests | **32 passed** (federation + gameplay + amendments, 2026-09-01 later pass). |
 | Apex / Codex on bus | **NOT THIS SLICE** — paused for Mom |
+
+### 2026-09-01 Gemini speech (live Ollama)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove speak` | **VERIFIED**. `gemini_spoke: true`. Model `llama3.2:3b`. Reply `3f1fd8eb…` in Aster inbox. No canned line. |
+| Earlier 503 | Ollama queue busy + model swap (`llama3:latest` / 8b) on an 8 GB 4060 already holding village 3b + phi3. Not “Ollama down.” |
+| Adapter | Reuses `/api/ps` loaded `context_length` (village 1536) so speech does not reload KV. |
+| `full_aster_acceptance` | Still **false**. Live negatives not started. |
+
+### 2026-09-01 The Axiom Codex (federation notice)
+
+World name: **The Axiom Codex**. `consume` is the prove action (authorized notice → Aster performs → HOME.json), not the world’s name.
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove consume` | **VERIFIED**. `aster.gameworld_notice`. Hearth authorized; Aster performed; HOME.json `federation.last_consumed`. |
+| Aster hang | Hearth `:8790` was down; lab `/api/status` blocked on tags+Hearth. Hardened. Lab **200** ~0.7s. |
+| Apex / Codex on bus | **NOT THIS SLICE** — Apex `:8770` refused this audit. |
+| Agent doors | `D:\Court\federation\AGENT_READINESS.json` |
 
 **Registry lie to refuse:** `CAPABILITIES.json` status `VERIFIED` means **path exists** (and the port was up *if* the tool has a port). It does **not** mean a function ran, returned, updated memory, and the caller received the result. `gameworld_available: true` means the same probe was not UNAVAILABLE — **not** that Gameworld can invoke the limb.
 

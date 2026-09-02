@@ -2901,6 +2901,47 @@ def save(home: dict[str, Any]) -> None:
         tmp.replace(HOME_JSON)
 
 
+def record_federation_consume(
+    *,
+    capability_id: str,
+    requester: str,
+    performer: str,
+    result: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """The Axiom Codex (Hearth) records that a VERIFIED federation capability was consumed.
+
+    Federation does not write HOME.json itself. This is the kernel door.
+    The world is The Axiom Codex. consume is the action, not the world's name.
+    """
+    home = load()
+    fed = home.get("federation")
+    if not isinstance(fed, dict):
+        fed = {}
+        home["federation"] = fed
+    notice = {
+        "capability_id": str(capability_id or ""),
+        "requester": str(requester or ""),
+        "performer": str(performer or ""),
+        "at": _now(),
+        "result": result if isinstance(result, dict) else {},
+        "layer": "COLLABORATION",
+    }
+    consumed = fed.get("consumed")
+    if not isinstance(consumed, list):
+        consumed = []
+    consumed.append(notice)
+    fed["consumed"] = consumed[-24:]
+    fed["last_consumed"] = notice
+    save(home)
+    return {
+        "ok": True,
+        "home": True,
+        "updated": home.get("updated"),
+        "federation_notice": notice,
+        "federation": home.get("federation"),
+    }
+
+
 def _event(kind: str, text: str, actors: list[str], extra: dict[str, Any] | None = None) -> dict[str, Any]:
     ev = {
         "id": f"ev_{datetime.now().strftime('%H%M%S%f')}",
@@ -4303,6 +4344,7 @@ def snapshot() -> dict[str, Any]:
         "book_path": str(BOOK),
         "save_path": str(HOME_JSON),
         "ritual": home.get("ritual") or {},
+        "federation": home.get("federation") or {},
         "evening_gather": home.get("evening_gather") or {"active": False, "layer": "8c"},
         "music_preferences": home.get("music_preferences") or {},
         "media": home.get("media") or {"watching": False, "place": "", "title": "", "source": "none"},

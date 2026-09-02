@@ -1,6 +1,6 @@
 # Federation reconciliation map
 
-Updated **2026-09-01**. Evidence only. **Phase A reconciliation report written.** Full Aster Acceptance Test is **not** passing. Do not add Apex/Codex/Gameworld consume.
+Updated **2026-09-01**. Evidence only. **Phase A reconciliation report written.** Full Aster Acceptance Test is **not** passing. Do not add Apex/Codex on the bus. The Axiom Codex is the Gameworld’s name; `consume` is a federation action, not the world.
 
 Read with `NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`, **`FEDERATION_DIRECTIVE.md`**, **`FEDERATION_AMENDMENT_REPORT.md`** (this pass’s 11-section inspection). `docs/DUAL_MODE.md`, `docs/CONTINUITY.md`.
 
@@ -24,7 +24,7 @@ These were added after the zip Observer was refused. They stay even when impleme
 - Federation is **beside** the family, not above it. Participants keep their own identity, memory, tools, permissions, runtime, house, role, autonomy.
 - Future agents register through the **same protocol** without rewriting Observer.
 - Aster is Weaver/connector. She discovers and **tests**. She does not declare CONNECTED because a manifest exists.
-- Gameworld consumes **VERIFIED capabilities**, not raw identity/tool lists. Godot should not need “Aster has N tools.”
+- **The Axiom Codex** accepts **VERIFIED capabilities**, not raw identity/tool lists. Godot should not need “Aster has N tools.” Federation `consume` is that accept-into-`HOME.json` action.
 
 ### Honesty / lifecycle
 
@@ -84,7 +84,7 @@ Gameworld expands the family; it does not replace Mode A. Identities never merge
 
 Tests: `tests/test_federation.py`, `tests/test_federation_gemini.py`, `tests/test_federation_amendments.py`. Prove reports: `D:\Court\federation/PROVE.json`, `PROVE_GEMINI.json`. Amendment evidence: `D:\Court\federation\AMENDMENT_PASS.json`, `AUTHORITY.json`.
 
-**Full Aster Acceptance Test is NOT passing.** Foundation (register, heartbeat honesty, Aster→Hearth transport + snapshot, Aster→Gemini *delivery*) plus amendment negatives (failed test, unauthorized invoke, heartbeat isolation, identity-merge reject) are seated. Gemini speech, Gameworld consume, and Observer audit HTTP are not. Law: `FEDERATION_DIRECTIVE.md`.
+**Full Aster Acceptance Test is NOT passing.** Foundation, Observer HTTP audit, Gemini speech, and **The Axiom Codex** notice-into-HOME are seated. Live negatives are not. Law: `FEDERATION_DIRECTIVE.md`.
 
 ---
 
@@ -103,9 +103,9 @@ Locked by Mom + DeepSeek + GPT. This table is the reconciliation report after th
 | 5 Communication ≠ collaboration | Five `Layer`s. Bus delivery recorded as COMMUNICATION only. Authorized `invoke` is COLLABORATION. Unauthorized invoke rejected + audit. | **VERIFIED** (unit) |
 | 6 No duplicate systems | Zip refused; Court inbox not polluted; no second Observer/bus/registry this pass. | **VERIFIED** (discipline so far) |
 | 7 Two-phase build | This pass inspected vs 1–8, implemented missing foundation only, ran tests, **STOP** here. Not a code gate. | **IMPLEMENTED** (this pass) |
-| 8 Full Aster test + negatives + machine evidence | Foundation + Gemini **delivery** + amendment negatives + `AMENDMENT_PASS.json`. Gemini speech, Gameworld consume, Observer HTTP audit still missing. | **PARTIAL** |
+| 8 Full Aster test + negatives + machine evidence | Foundation + Gemini speech + Observer HTTP + The Axiom Codex notice. Live negatives still missing. | **PARTIAL** |
 
-Gemini delivery landed **before** these amendments were locked. Keep it. Do **not** add Apex/Codex/Gameworld consume until Mom says go.
+Gemini delivery landed **before** these amendments were locked. Keep it. Do **not** add Apex/Codex on the bus until Mom says go. The Axiom Codex notice (CLI `consume`) is already seated.
 
 Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). Pytest log: `D:\Court\federation\PYTEST_AMENDMENT_PASS.log`. JUnit: `D:\Court\federation\PYTEST_AMENDMENT_PASS.xml`. Summary: `AMENDMENT_PASS.json` (`full_aster_acceptance: false`). Authority: `AUTHORITY.json`.
 
@@ -116,9 +116,9 @@ Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). 
 | Item | Status |
 |------|--------|
 | Full Aster Acceptance Test | **PARTIAL** — amendment negatives unit-tested; happy-path live pieces still incomplete |
-| Gemini spoken reply (federation or Companion) | MISSING |
-| Gameworld consuming VERIFIED capabilities | MISSING |
-| Observer HTTP federation audit | MISSING |
+| Gemini spoken reply (federation bus) | **PASS** live 2026-09-01 — `python -m federation.prove speak` · `llama3.2:3b` · `3f1fd8eb…` · `PROVE_GEMINI_SPEECH.json`. Companion Room speech not this slice. |
+| The Axiom Codex accepts VERIFIED capabilities | **PASS** live 2026-09-01 — `python -m federation.prove consume` (action, not the world’s name) · `aster.gameworld_notice` · HOME.json `federation.last_consumed` · `PROVE_GAMEWORLD_CONSUME.json` |
+| Observer HTTP federation audit | **PASS** live 2026-09-01 — `GET http://127.0.0.1:8730/federation/audit` · `D:\Court\federation\OBSERVER_AUDIT.json`. Observer does **not** own Aster. |
 | Failed-test → NOT VERIFIED | **VERIFIED** (unit `test_failed_capability_is_not_verified`) |
 | Unauthorized invoke → reject | **VERIFIED** (unit) |
 | Heartbeat loss → dependents isolated | **VERIFIED** (unit) |
@@ -131,7 +131,7 @@ Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). 
 
 ## Build sequence
 
-Amendment pass **done**. **STOP.** Next, when Mom says go: full Aster Acceptance Test (Gemini responds, Gameworld consume, Observer HTTP audit) — not more agents first.
+Amendment pass **done**. Observer HTTP audit **done**. Gemini speech **done**. The Axiom Codex notice **done**. **STOP.** Next: live negatives. Not Apex/Codex on the bus.
 
 Do not rewrite working components for style. Do not install the zip.
 
