@@ -1,6 +1,6 @@
 # Federation reconciliation map
 
-Updated **2026-09-03**. Evidence only. **Phase A reconciliation report written.** Full Aster Acceptance Test is **PASS**. Speech **VERIFIED**. Hearth **coordinate VERIFIED**. Presence event fabric **VERIFIED**. Spontaneous A2A **VERIFIED**. The Axiom Codex is the Gameworld’s name; `consume` is a federation action, not the world.
+Updated **2026-09-03**. Evidence only. **Phase A reconciliation report written.** Full Aster Acceptance Test is **PASS**. Speech **VERIFIED**. Hearth **coordinate VERIFIED**. Presence event fabric **VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return house memory **VERIFIED**. The Axiom Codex is the Gameworld’s name; `consume` is a federation action, not the world.
 
 Read with `NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`, **`FEDERATION_DIRECTIVE.md`**, **`FEDERATION_AMENDMENT_REPORT.md`** (this pass’s 11-section inspection). `docs/DUAL_MODE.md`, `docs/CONTINUITY.md`.
 
@@ -127,8 +127,8 @@ Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). 
 | Hearth coordination beyond snapshot | **PASS** live 2026-09-03 — `python -m federation.prove hearth` · `e5600c6d…` · `hearth.federation_coordinate` · sender Hearth, not Aster snapshot · `PROVE_HEARTH_COORDINATE.json` |
 | Presence / event fabric | **PASS** live 2026-09-03 — `python -m federation.prove events` · `949cdc08…` · `rachael.presence.entered` · no forced hello · Gemini ignored · `PROVE_PRESENCE_EVENT.json` |
 | Choose-to-speak (bounded A2A) | **PASS** live 2026-09-03 — `python -m federation.prove a2a` · Aster→Codex `1491f7d3…` · Gemini ignored · one speaker · `PROVE_SPONTANEOUS_A2A.json` |
-| Agent-local memory + leave/return continuity | later — speak is not house memory |
-| New character + house UI | not yet — see NEXT.md |
+| Agent-local memory + leave/return continuity | **PASS** live 2026-09-03 — `python -m federation.prove continuity` · left `7adfb8c4…` · return `a43090d9…` · Aster + Apex + Codex notebooks · Gemini/Echo/Solace isolated · `PROVE_LEAVE_RETURN.json` |
+| New character + house UI | not yet — Echo/Solace are village kin, not Mode A houses |
 | One real external reviewer | UNAVAILABLE |
 | 16E Godot walk | UNVERIFIED (village) |
 
@@ -136,7 +136,7 @@ Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). 
 
 ## Build sequence
 
-Amendment pass **done**. Observer HTTP audit **done**. Gemini speech **done**. The Axiom Codex notice **done**. Live fail/unauth/merge **done**. Heartbeat-loss isolation **done** on throwaway probe. Full Aster Acceptance **PASS**. Codex/Apex speech **done**. Hearth coordination **done**. Presence event fabric **done**. Choose-to-speak **done**. Next: house-local memory and leave/return continuity; no new character until that seats. External reviewer **UNAVAILABLE**. `heartbeat_probe` is not a character.
+Amendment pass **done**. Observer HTTP audit **done**. Gemini speech **done**. The Axiom Codex notice **done**. Live fail/unauth/merge **done**. Heartbeat-loss isolation **done** on throwaway probe. Full Aster Acceptance **PASS**. Codex/Apex speech **done**. Hearth coordination **done**. Presence event fabric **done**. Choose-to-speak **done**. Leave/return house memory **done** (Aster + Apex + Codex). Village leave POST **implemented**; Godot quit **UNVERIFIED**. Next: new character only after Mom says go (same manifest protocol, own house/door, not a village hat). Echo/Solace UIs wait. External reviewer **UNAVAILABLE**. `heartbeat_probe` is not a character.
 
 Do not rewrite working components for style. Do not install the zip.
 

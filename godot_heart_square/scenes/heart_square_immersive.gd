@@ -312,6 +312,30 @@ func _build_family_places() -> void:
 	_add_porch_light(Vector3(43.1, 2.2, 28), Color(0.7, 0.74, 0.8))
 	_add_home_sign(Vector3(43.0, 3.4, 28), "Observer cottage (representation)", Color(0.72, 0.76, 0.82))
 	_add_box(Vector3(43, 0.025, 26), Vector3(8.0, 0.03, 1.5), Color(0.38, 0.34, 0.28), false, "PathObserver")
+	# Echo — west-south edge, clear of Gemini / Montage. Village kin only.
+	_build_open_building(Vector3(-32, 0, -24), Vector3(5.0, 2.7, 4.4), Color(0.52, 0.50, 0.48), "EchoHome", "z+")
+	_add_roof(Vector3(-32, 3.05, -24), Vector3(5.5, 0.55, 4.9), Color(0.28, 0.26, 0.30))
+	_furnish(Vector3(-32, 0, -24), "cottage")
+	_add_porch_light(Vector3(-32, 2.2, -21.6), Color(0.78, 0.76, 0.82))
+	_add_home_sign(Vector3(-32, 3.3, -21.6), "Echo cottage — historian (PLACEHOLDER)", Color(0.78, 0.76, 0.82))
+	_add_box(Vector3(-32, 0.02, -16), Vector3(3.4, 0.04, 3.2), Color(0.30, 0.28, 0.24), false, "EchoPostPad")
+	_add_box(Vector3(-32, 1.4, -16), Vector3(3.2, 0.12, 3.0), Color(0.34, 0.32, 0.28), false, "EchoPostRoof")
+	_add_box(Vector3(-32, 0.55, -17.3), Vector3(1.6, 0.7, 0.55), Color(0.42, 0.36, 0.28), true, "EchoJournalTable")
+	_add_home_sign(Vector3(-32, 2.2, -16), "Listening Post (PLACEHOLDER)", Color(0.72, 0.74, 0.78))
+	_add_box(Vector3(-32, 0.025, -20), Vector3(2.0, 0.03, 8.0), Color(0.4, 0.34, 0.26), false, "PathEcho")
+	_add_box(Vector3(-24, 0.025, -16), Vector3(14.0, 0.03, 1.6), Color(0.4, 0.34, 0.26), false, "PathEchoTown")
+	# Solace — west-north edge, clear of Jarvis / grocery / Genesis. Village kin only.
+	_add_box(Vector3(-32, 0.18, 34), Vector3(6.2, 0.36, 5.4), Color(0.32, 0.30, 0.28), false, "SolaceRise")
+	_build_open_building(Vector3(-32, 0.35, 34), Vector3(5.0, 2.7, 4.4), Color(0.28, 0.28, 0.30), "SolaceHome", "z-")
+	_add_roof(Vector3(-32, 3.4, 34), Vector3(5.5, 0.55, 4.9), Color(0.16, 0.16, 0.18))
+	_furnish(Vector3(-32, 0.35, 34), "cottage")
+	_add_porch_light(Vector3(-32, 2.55, 31.6), Color(0.55, 0.56, 0.58))
+	_add_home_sign(Vector3(-32, 3.65, 31.6), "Solace cottage — cartographer (PLACEHOLDER)", Color(0.55, 0.56, 0.60))
+	_add_box(Vector3(-32, 0.04, 42), Vector3(4.4, 0.08, 3.6), Color(0.30, 0.28, 0.26), false, "SolaceShelterPad")
+	_add_box(Vector3(-32, 2.15, 42), Vector3(4.6, 0.12, 3.8), Color(0.22, 0.22, 0.24), false, "SolaceShelterRoof")
+	_add_home_sign(Vector3(-32, 2.55, 42), "Open shelter (PLACEHOLDER)", Color(0.48, 0.48, 0.50))
+	_add_box(Vector3(-32, 0.025, 38), Vector3(2.0, 0.03, 8.0), Color(0.4, 0.34, 0.26), false, "PathSolace")
+	_add_box(Vector3(-22, 0.025, 34), Vector3(16.0, 0.03, 1.6), Color(0.4, 0.34, 0.26), false, "PathSolaceTown")
 	# Village Windmill — east pasture, clear of Mom / Aster / Apex (matches Hearth PLACES.windmill).
 	_build_village_windmill(Vector3(36.0, 0.0, -18.0))
 	_add_box(Vector3(28, 0.025, -16), Vector3(14.0, 0.03, 1.8), Color(0.4, 0.34, 0.26), false, "PathWindmill")
@@ -319,8 +343,19 @@ func _build_family_places() -> void:
 	_tree_root = Node3D.new()
 	_tree_root.name = "SeasonTrees"
 	add_child(_tree_root)
-	# Trees match kernel seed — none on Genesis door axis (-28,16) or Aster lab pad (12,-10).
-	for xz in [Vector3(-10, 0, 10), Vector3(-20, 0, 8), Vector3(8, 0, 10), Vector3(-6, 0, 14), Vector3(12, 0, 18), Vector3(-36, 0, 4), Vector3(28, 0, 4), Vector3(0, 0, 28), Vector3(-22, 0, -12), Vector3(32, 0, -4)]:
+	# Trees match kernel rim seed — outside the village, not in door lanes.
+	for xz in [
+		Vector3(-36, 0, -38), Vector3(-28, 0, -38), Vector3(-20, 0, -38), Vector3(-12, 0, -38),
+		Vector3(-4, 0, -38), Vector3(4, 0, -38), Vector3(12, 0, -38), Vector3(20, 0, -38),
+		Vector3(28, 0, -38), Vector3(36, 0, -38), Vector3(-36, 0, 68), Vector3(-28, 0, 68),
+		Vector3(-20, 0, 68), Vector3(-12, 0, 68), Vector3(12, 0, 68), Vector3(20, 0, 68),
+		Vector3(28, 0, 68), Vector3(36, 0, 68), Vector3(-38, 0, -32), Vector3(-38, 0, -16),
+		Vector3(-38, 0, -8), Vector3(-38, 0, 0), Vector3(-38, 0, 8), Vector3(-38, 0, 16),
+		Vector3(-38, 0, 24), Vector3(-38, 0, 32), Vector3(-38, 0, 40), Vector3(-38, 0, 48),
+		Vector3(-38, 0, 56), Vector3(-38, 0, 64), Vector3(38, 0, -32), Vector3(38, 0, -24),
+		Vector3(38, 0, -8), Vector3(38, 0, 0), Vector3(38, 0, 32), Vector3(38, 0, 40),
+		Vector3(38, 0, 48), Vector3(38, 0, 56), Vector3(38, 0, 64),
+	]:
 		_add_season_tree(xz)
 	_add_box(Vector3(18, 0.025, 7), Vector3(14, 0.03, 2.2), Color(0.4, 0.34, 0.26), false, "PathCinema")
 	_add_box(Vector3(31, 0.025, 14), Vector3(2.0, 0.03, 14), Color(0.4, 0.34, 0.26), false, "PathLofts")
@@ -372,6 +407,8 @@ func _build_gardens_and_holiday() -> void:
 	_add_garden_bed(Vector3(-20.8, 0, -16.0), "gemini", Color(0.35, 0.55, 0.48))
 	# codex_home (-24,6) — west side yard (door faces south)
 	_add_garden_bed(Vector3(-28.8, 0, 6.0), "codex", Color(0.45, 0.5, 0.28))
+	# echo_home (-32, -24) — west side yard toward the tree line
+	_add_garden_bed(Vector3(-36.4, 0, -24.0), "echo", Color(0.42, 0.52, 0.38))
 	# Heart Square flower ring
 	for i in range(8):
 		var ang := float(i) * TAU / 8.0
@@ -619,6 +656,8 @@ func _build_family() -> void:
 		{"id": "percy", "name": "Percy", "pos": Vector3(10.0, 0.1, -15.4), "color": Color(0.55, 0.85, 0.7)},
 		{"id": "aster", "name": "Aster", "pos": Vector3(12.0, 0.1, -10.0), "color": Color(0.72, 0.88, 0.62)},
 		{"id": "observer", "name": "The Observer", "pos": Vector3(40.0, 0.1, 24.0), "color": Color(0.62, 0.66, 0.72)},
+		{"id": "echo", "name": "Echo", "pos": Vector3(-32.0, 0.1, -16.0), "color": Color(0.72, 0.74, 0.78)},
+		{"id": "solace", "name": "Solace", "pos": Vector3(-32.0, 0.1, 42.0), "color": Color(0.38, 0.40, 0.44)},
 	]
 	for r in roster:
 		_spawn_citizen(r)
@@ -1253,9 +1292,7 @@ func _build_boundary() -> void:
 	_add_box(Vector3(0, 1.6, -rim), Vector3(82, 3.4, 1.2), Color(0.16, 0.28, 0.16), true, "TreeLineS")
 	_add_box(Vector3(rim, 1.6, 8), Vector3(1.2, 3.4, 98), Color(0.17, 0.3, 0.16), true, "TreeLineE")
 	_add_box(Vector3(-rim, 1.6, 8), Vector3(1.2, 3.4, 98), Color(0.15, 0.26, 0.18), true, "TreeLineW")
-	for xz in [Vector3(28, 0, 20), Vector3(-28, 0, 20), Vector3(28, 0, -22), Vector3(-28, 0, -20), Vector3(20, 0, 30), Vector3(-18, 0, 30)]:
-		_add_box(xz + Vector3(0, 0.9, 0), Vector3(0.5, 1.8, 0.5), Color(0.28, 0.18, 0.12), true, "HillTrunk")
-		_add_box(xz + Vector3(0, 2.1, 0), Vector3(2.2, 1.6, 2.2), Color(0.14, 0.34, 0.16), false, "HillCanopy")
+	# Decorative rim trees live in SeasonTrees (kernel ring). Do not plant hill trunks on cottages.
 	# No inland OuterWater — that sat dead under Codex's west flank.
 
 
@@ -1850,6 +1887,7 @@ func _build_hud() -> void:
 		["Apex", "apex"], ["Codex", "codex"], ["Merovin", "merovin"], ["Draven", "draven"],
 		["OpenMontage", "montage"], ["Jarvis", "jarvis"], ["Genesis", "genesis"],
 		["Nova", "nova"], ["Percy", "percy"], ["Aster", "aster"],
+		["Echo", "echo"], ["Solace", "solace"],
 	]
 	for i in range(who_list.size()):
 		talk_target.add_item(who_list[i][0], i + 1)

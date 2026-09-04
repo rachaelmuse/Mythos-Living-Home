@@ -1,6 +1,6 @@
 # Federation wiring map
 
-Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-03**. Observer HTTP audit **LIVE**. Gemini speech **LIVE**. Codex **speech LIVE**. Apex **speech LIVE**. Hearth **coordinate LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE**. **The Axiom Codex** notice **LIVE**. Heartbeat-loss isolation **LIVE** on throwaway `heartbeat_probe`. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Full Aster test **PASS**. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`.
+Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-03**. Observer HTTP audit **LIVE**. Gemini speech **LIVE**. Codex **speech LIVE**. Apex **speech LIVE**. Hearth **coordinate LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE**. Leave/return house memory **LIVE** (Aster + Apex + Codex). **The Axiom Codex** notice **LIVE**. Heartbeat-loss isolation **LIVE** on throwaway `heartbeat_probe`. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Godot leave **UNVERIFIED**. Full Aster test **PASS**. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`.
 
 **Registry lie to refuse still stands** below. TCP LISTEN is not HTTP. Disk code is not the running process.
 
@@ -140,6 +140,33 @@ World name: **The Axiom Codex**. `consume` is the prove action (authorized notic
 |-------|--------|
 | `python -m federation.prove a2a` | **VERIFIED**. Kind `hearth.world.continues`. Event `4e2c9e29…`. Aster **speak** → Codex spoken_reply `1491f7d3…` adapter `aster_ollama` `llama3.2:3b`. Gemini **ignored**. Apex/Codex/Hearth **noticed**. `spoken_replies: 1`. `forced_hello: false`. Actor **hearth**, not Mom. Not collaboration. Not a greeting chorus. |
 | Evidence | `D:\Court\federation\PROVE_SPONTANEOUS_A2A.json` |
+
+### 2026-09-03 leave/return house memory
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove continuity` | **VERIFIED**. Left `7adfb8c4…` · returned `a43090d9…`. Aster, Apex, and Codex recalled their own work notes. Gemini / Echo / Solace notebooks empty. `spoken_replies: 0`. `forced_hello: false`. Authority **owning_agent**. Observer does not own Aster. Adapter `aster_house_notebook`. Not Observer ledger. Not `HOME.json`. Not family_memory merge. |
+| Evidence | `D:\Court\federation\PROVE_LEAVE_RETURN.json` |
+
+### 2026-09-03 village leave signal (kernel + Godot)
+
+| Check | Result |
+|-------|--------|
+| Kernel | `mom_presence(..., leaving=True)` publishes `rachael.presence.left`, not entered. Leave wins over session_enter. A 12-minute gap is not a leave. `test_federation_house_memory.py` + `test_mom_presence_leave.py` **8 passed**. |
+| Hearth | `POST /api/home/presence` accepts `session_leave`. Live process still needs **restart** to load the kernel. |
+| Godot | Apex `family_home_client.gd` posts leave on window close / exit tree. Git snapshot copied from Apex. Quit walk **UNVERIFIED**. |
+| Echo / Solace | Still **not** federation houses. Notebooks forbidden. |
+
+### 2026-09-03 village kin Echo + Solace (not federation)
+
+| Check | Result |
+|-------|--------|
+| Kernel roster | Echo + Solace in **KIN**, not FAMILY houses. `federation: false`. No port, no lab, no quest_giver. Court talk brain (same llama as Jarvis/Percy). |
+| Places | Echo cottage `[-32, -24]` + Listening Post `[-32, -16]` (west-south edge). Solace cottage `[-32, 34]` + open shelter `[-32, 42]` (west-north edge). Skins PLACEHOLDER. |
+| Trees | Rim ring only (south z=-38, west x=-38, east x=38, north z=68 with harbor gap). Interior door trees cleared on load. `tests/test_village_layout.py` **4 passed**. |
+| Named talk | `hello echo` → Echo; `hi sol` / `solace` → Solace (unit tests). Live Godot walk **UNVERIFIED** until Hearth restart + Heart Square reload. |
+| Federation | **Not registered.** `AUDIENCE` unchanged. Heartbeat prove forbids adding them as houses. |
+| Evidence | `tests/test_village_echo_solace.py` |
 
 **Registry lie to refuse:** `CAPABILITIES.json` status `VERIFIED` means **path exists** (and the port was up *if* the tool has a port). It does **not** mean a function ran, returned, updated memory, and the caller received the result. `gameworld_available: true` means the same probe was not UNAVAILABLE — **not** that Gameworld can invoke the limb.
 

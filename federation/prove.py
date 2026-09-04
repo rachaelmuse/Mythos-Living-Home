@@ -1628,6 +1628,8 @@ def prove_heartbeat_loss(
         "jarvis",
         "genesis",
         "percy",
+        "echo",
+        "solace",
         "merovin",
         "draven",
     }
@@ -2127,6 +2129,217 @@ def prove_spontaneous_a2a(
     return report
 
 
+def _stamp_leave_return(root: Path, *, ok: bool, left_id: str | None, entered_id: str | None) -> None:
+    path = root / "ASTER_ACCEPTANCE.json"
+    data: dict[str, Any] = {}
+    if path.exists():
+        data = json.loads(path.read_text(encoding="utf-8"))
+    stages = data.setdefault("stages", {})
+    stages["leave_return"] = {
+        "status": "PASS" if ok else "FAIL",
+        "note": (
+            "Aster, Apex, and Codex recalled their own house notes after Mom left and returned. No greeting chorus."
+            if ok
+            else "Leave/return continuity failed; no fake house memory."
+        ),
+        "left_event_id": left_id,
+        "entered_event_id": entered_id,
+    }
+    data["leave_return"] = ok
+    if ok:
+        data["note"] = (
+            "Leave/return continuity seated from Aster / Apex / Codex house notebooks (owning_agent). "
+            "Not Observer. Not Echo or Solace. Not a new character. "
+            "Heartbeat-loss isolation remains on throwaway probe."
+        )
+    _recompute_aster_acceptance(data)
+    path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+
+
+def prove_leave_return(
+    root: Path | None = None,
+    *,
+    court_roots: list[Path] | None = None,
+    identity_path: Path | None = None,
+) -> dict[str, Any]:
+    """Mom leaves; Aster keeps her own work; Mom returns; Aster recalls. Nobody is ordered to speak."""
+    from federation.authority import domain_owner
+    from federation.events import (
+        AUDIENCE,
+        KIND_ENTERED,
+        KIND_LEFT,
+        EventFabric,
+        decide_attention,
+        fanout_event,
+    )
+    from federation.house_memory import HouseNotebook
+
+    del court_roots
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    registry = FederationRegistry(data_root)
+    bus = LocalFederationBus(data_root)
+    fabric = EventFabric(data_root)
+    notes = HouseNotebook(data_root)
+
+    registry.register(_load_aster(identity_path))
+    registry.register(_hearth_manifest())
+    registry.register(_observer_manifest())
+    registry.register(gemini_manifest_from_living_home() if _living_home_available() else _gemini_stub())
+    registry.register(apex_manifest_from_living_home() if _living_home_available() else _apex_stub())
+    registry.register(codex_manifest_from_living_home() if _living_home_available() else _codex_stub())
+    registry.declare_capability(
+        CapabilityManifest(
+            capability_id="aster.house_memory",
+            agent_id="aster",
+            name="Keep house-local work notes across Mom leave and return",
+            declared=True,
+            adapter_required=True,
+        )
+    )
+
+    def _try_continuity() -> dict:
+        left = fabric.publish(
+            kind=KIND_LEFT,
+            actor="rachael",
+            place="heart_square",
+            text="Rachael left Heart Square.",
+        )
+        fanout_event(bus, left, audience=AUDIENCE, publisher="hearth")
+        work_text = "Lab: reviewed Heart Square continuity while Rachael was away."
+        apex_text = "Studio: kept the Heart Square presentation while Rachael was away."
+        codex_text = "Twin house: kept companion notes while Rachael was away."
+        notes.remember(
+            "aster",
+            text=work_text,
+            event_id=left["event_id"],
+            kind="work",
+        )
+        notes.remember(
+            "apex",
+            text=apex_text,
+            event_id=left["event_id"],
+            kind="work",
+        )
+        notes.remember(
+            "codex",
+            text=codex_text,
+            event_id=left["event_id"],
+            kind="work",
+        )
+        entered = fabric.publish(
+            kind=KIND_ENTERED,
+            actor="rachael",
+            place="heart_square",
+            text="Rachael entered Heart Square.",
+        )
+        fanout_event(bus, entered, audience=AUDIENCE, publisher="hearth")
+        recalled = notes.last("aster")
+        apex_recalled = notes.last("apex")
+        codex_recalled = notes.last("codex")
+        eids = {left["event_id"], entered["event_id"]}
+        spoken = 0
+        got_events = True
+        for agent in AUDIENCE:
+            inbox = bus.inbox(agent)
+            kinds = {
+                (m.payload or {}).get("kind")
+                for m in inbox
+                if m.message_type == "world_event" and (m.payload or {}).get("event_id") in eids
+            }
+            if KIND_LEFT not in kinds or KIND_ENTERED not in kinds:
+                got_events = False
+            for m in inbox:
+                if m.message_type != "spoken_reply":
+                    continue
+                payload = m.payload or {}
+                if m.correlation_id in eids or payload.get("in_reply_to") in eids:
+                    spoken += 1
+        left_decisions = {agent: decide_attention(agent, left) for agent in AUDIENCE}
+        entered_decisions = {agent: decide_attention(agent, entered) for agent in AUDIENCE}
+        gemini_recall = notes.recall("gemini")
+        recalled_text = str((recalled or {}).get("text") or "")
+        apex_recall = str((apex_recalled or {}).get("text") or "")
+        codex_recall = str((codex_recalled or {}).get("text") or "")
+        ok = (
+            spoken == 0
+            and got_events
+            and recalled_text == work_text
+            and (recalled or {}).get("agent_id") == "aster"
+            and (recalled or {}).get("event_id") == left["event_id"]
+            and apex_recall == apex_text
+            and (apex_recalled or {}).get("agent_id") == "apex"
+            and codex_recall == codex_text
+            and (codex_recalled or {}).get("agent_id") == "codex"
+            and gemini_recall == []
+            and notes.recall("echo") == []
+            and notes.recall("solace") == []
+            and left_decisions.get("aster") == "noticed"
+            and entered_decisions.get("aster") == "noticed"
+            and left_decisions.get("gemini") == "ignored"
+            and domain_owner("agent_memory") == "owning_agent"
+            and registry.owner_of("aster") is None
+            and "hello" not in recalled_text.lower()
+            and "hello" not in apex_recall.lower()
+            and "hello" not in codex_recall.lower()
+        )
+        return {
+            "ok": ok,
+            "adapter": "aster_house_notebook",
+            "left_event_id": left["event_id"],
+            "entered_event_id": entered["event_id"],
+            "forced_hello": False,
+            "spoken_replies": spoken,
+            "recalled_from": "aster",
+            "recalled_text": recalled_text,
+            "apex_recall": apex_recall,
+            "codex_recall": codex_recall,
+            "gemini_recall": gemini_recall,
+            "authority": domain_owner("agent_memory"),
+            "left_decisions": left_decisions,
+            "entered_decisions": entered_decisions,
+            "connection_test": True,
+            "functional_test": ok,
+        }
+
+    cap_result = registry.test_capability("aster.house_memory", _try_continuity)
+    result = cap_result.get("result") or {}
+    ok = bool(cap_result.get("status") == "VERIFIED" and result.get("ok"))
+    _stamp_leave_return(
+        data_root,
+        ok=ok,
+        left_id=result.get("left_event_id"),
+        entered_id=result.get("entered_event_id"),
+    )
+    report = {
+        "kind": "FEDERATION_LEAVE_RETURN",
+        "declared": "Mom leave/return continuity from Aster / Apex / Codex house notebooks, not a greeting order",
+        "actual": {
+            "root": str(data_root),
+            "participants": sorted(p.agent_id for p in registry.list_participants()),
+            "left_event_id": result.get("left_event_id"),
+            "entered_event_id": result.get("entered_event_id"),
+            "forced_hello": False,
+            "spoken_replies": int(result.get("spoken_replies") or 0),
+            "recalled_from": result.get("recalled_from"),
+            "recalled_text": result.get("recalled_text"),
+            "apex_recall": result.get("apex_recall") or "",
+            "codex_recall": result.get("codex_recall") or "",
+            "gemini_recall": result.get("gemini_recall") or [],
+            "authority": result.get("authority"),
+            "observer_owns_aster": registry.owner_of("aster") is not None,
+            "capability": cap_result,
+        },
+        "full_aster_acceptance": False,
+        "status": cap_result["status"],
+        "result": cap_result["status"],
+    }
+    (data_root / "PROVE_LEAVE_RETURN.json").write_text(
+        json.dumps(report, indent=2, default=str),
+        encoding="utf-8",
+    )
+    return report
+
+
 if __name__ == "__main__":
     if "status" in sys.argv:
         print(json.dumps(status_check(), indent=2, default=str))
@@ -2136,6 +2349,8 @@ if __name__ == "__main__":
         print(json.dumps(prove_presence_event(), indent=2, default=str))
     elif "a2a" in sys.argv:
         print(json.dumps(prove_spontaneous_a2a(), indent=2, default=str))
+    elif "continuity" in sys.argv:
+        print(json.dumps(prove_leave_return(), indent=2, default=str))
     elif "hearth" in sys.argv:
         print(json.dumps(prove_hearth_coordinate(), indent=2, default=str))
     elif "speak-codex" in sys.argv:

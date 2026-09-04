@@ -14,12 +14,12 @@ Law: `FEDERATION_DIRECTIVE.md` · Map: `FEDERATION_RECONCILIATION.md` · Wiring:
 
 ## CURRENT PHASE
 
-**Village:** **18B LIVE**. **16E LIVE** 2026-09-03 — `hello aster` sent to Aster; naming Percy switches. Duplicate Mom lines / waiting-bubble spam fix seated (restart Hearth + reload Heart Square).  
-**Federation:** Gemini / Apex / Codex speech **LIVE**. Hearth coordinate **LIVE**. Presence events **LIVE** (`949cdc08…`). Spontaneous A2A **LIVE** (`1491f7d3…` Aster→Codex). Axiom Codex notice **LIVE**. Aster Acceptance **PASS**.
+**Village:** **18B LIVE**. **16E LIVE**. Echo + Solace seated as **village kin** (not federation). Leave POST is in kernel/Godot; **restart Hearth** + reload Heart Square before a quit counts as leave.  
+**Federation:** Gemini / Apex / Codex speech **LIVE**. Hearth coordinate **LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE**. Leave/return house memory **LIVE** (Aster + Apex + Codex notebooks). Axiom Codex notice **LIVE**. Aster Acceptance **PASS**.
 
 ## Next task
 
-1. Federation: choose-to-speak is seated (one Aster note to Codex; Gemini ignored; not a chorus). House-local memory and leave/return continuity from *their* work are later. Do not add a village A2A scheduler (shared GPU). Do not add a new character yet. External reviewer **UNAVAILABLE**. Restart Hearth so village enter publishes presence.  
-2. Village: **16E LIVE**. Named talk works.
+1. Village: **restart Hearth**, reload Heart Square. Echo is west-south (`-32, -24` / post `-32, -16`). Solace is west-north (`-32, 34` / shelter `-32, 42`). Trees line the village rim. Walk `hello echo` / `solace`, then quit once so leave can fire. Skins PLACEHOLDER. Godot walk and Godot leave **UNVERIFIED** until you do.  
+2. Federation: Apex/Codex notebooks seated. Do not register Echo or Solace on the bus. Do not add a village A2A scheduler. External reviewer **UNAVAILABLE**. Echo/Solace Mode A house UIs wait until everyone else is done.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.

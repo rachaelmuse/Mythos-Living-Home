@@ -18,6 +18,9 @@ var _busy_talk := false
 var _talk_queue: Array = []
 var hearth_url := "http://127.0.0.1:8790"
 var mom_place := "heart_square"
+var _session_enter_sent := false
+var _session_left := false
+var _presence_place_sent := ""
 
 
 func _ready() -> void:
@@ -34,8 +37,16 @@ func _ready() -> void:
 	_talk.timeout = 60.0
 	add_child(_talk)
 	_talk.request_completed.connect(_on_talk)
+	var win := get_window()
+	if win:
+		win.close_requested.connect(_post_mom_leave)
 	refresh()
 	set_process(true)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_EXIT_TREE:
+		_post_mom_leave()
 
 
 func refresh() -> void:
@@ -65,8 +76,56 @@ func say_as_mom(with_id: String, line: String) -> void:
 
 
 func set_mom_place(place_id: String) -> void:
-	if place_id != "":
-		mom_place = place_id
+	## Layer 16E — post place/presence to Hearth (soft notice; no forced NPC speech).
+	if place_id == "":
+		return
+	var changed := place_id != mom_place
+	mom_place = place_id
+	if not last_ok:
+		return
+	if not _session_enter_sent:
+		_post_mom_presence(place_id, true)
+		_session_enter_sent = true
+		_presence_place_sent = place_id
+		return
+	if changed and place_id != _presence_place_sent:
+		_post_mom_presence(place_id, false)
+		_presence_place_sent = place_id
+
+
+func _post_mom_leave() -> void:
+	## Best-effort leave. A 12-minute gap is not a leave. Echo/Solace stay village kin.
+	if _session_left or not _session_enter_sent:
+		return
+	_session_left = true
+	_post_mom_presence(mom_place, false, true)
+
+
+func _post_mom_presence(place_id: String, session_enter: bool, session_leave: bool = false) -> void:
+	if _busy_talk:
+		_talk_queue.append(
+			{
+				"_presence": true,
+				"place": place_id,
+				"session_enter": session_enter,
+				"session_leave": session_leave,
+			}
+		)
+		return
+	_busy_talk = true
+	var body := JSON.stringify(
+		{
+			"place": place_id,
+			"session_enter": session_enter,
+			"session_leave": session_leave,
+			"who": "mom",
+		}
+	)
+	var headers := PackedStringArray(["Content-Type: application/json"])
+	var err := _talk.request(hearth_url + "/api/home/presence", headers, HTTPClient.METHOD_POST, body)
+	if err != OK:
+		_busy_talk = false
+		print("[Hearth] presence request failed err=", err)
 
 
 func set_media_watch(watching: bool, place: String = "cinema", title: String = "", source: String = "none") -> void:
@@ -214,6 +273,21 @@ func _drain_talk_queue() -> void:
 			_busy_talk = false
 			_talk_queue.push_front(item)
 		return
+	if bool(item.get("_presence", false)):
+		var body_p := JSON.stringify(
+			{
+				"place": str(item.get("place", mom_place)),
+				"session_enter": bool(item.get("session_enter", false)),
+				"session_leave": bool(item.get("session_leave", false)),
+				"who": "mom",
+			}
+		)
+		var headers_p := PackedStringArray(["Content-Type: application/json"])
+		var err_p := _talk.request(hearth_url + "/api/home/presence", headers_p, HTTPClient.METHOD_POST, body_p)
+		if err_p != OK:
+			_busy_talk = false
+			_talk_queue.push_front(item)
+		return
 	var body := JSON.stringify(
 		{
 			"who": "mom",
@@ -273,6 +347,11 @@ func _ingest(code: int, body: PackedByteArray) -> void:
 		return
 	data = parsed
 	last_ok = true
+	# Layer 16E — first successful link counts as session enter if place known.
+	if not _session_enter_sent and mom_place != "":
+		_post_mom_presence(mom_place, true)
+		_session_enter_sent = true
+		_presence_place_sent = mom_place
 	var fam_v: Variant = data.get("family", [])
 	var fam_n := (fam_v as Array).size() if fam_v is Array else 0
 	print("[Hearth] data received. family_count=", fam_n, " last_ok=", last_ok, " utterances=", (data.get("utterances") as Array).size() if data.get("utterances") is Array else 0)

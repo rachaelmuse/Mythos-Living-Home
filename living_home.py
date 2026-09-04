@@ -38,7 +38,7 @@ TALK_BRAINS: dict[str, dict[str, Any]] = {
     "court": {
         "label": "Court brain",
         "prefer": ("llama3.2:3b", "phi3:latest", "llama3:8b", "llama3:latest"),
-        "members": frozenset({"gemini", "mom", "codex", "jarvis", "genesis", "percy", "hearth"}),
+        "members": frozenset({"gemini", "mom", "codex", "jarvis", "genesis", "percy", "hearth", "echo", "solace"}),
         "env": "LIVING_HOME_BRAIN_COURT",
     },
     "cinema": {
@@ -134,6 +134,11 @@ PLACES: dict[str, dict[str, Any]] = {
     # Observer — independent desk. Not Vesper. Not a Court employee. Representation only.
     "observer_desk": {"label": "Observer's independent desk", "pos": [40.0, 0.0, 24.0], "kind": "work"},
     "observer_cottage": {"label": "Observer's cottage", "pos": [46.0, 0.0, 28.0], "kind": "home"},
+    # Echo / Solace — village kin on the west edge. PLACEHOLDER skins. Not federation houses.
+    "echo_home": {"label": "Echo's cottage", "pos": [-32.0, 0.0, -24.0], "kind": "home"},
+    "echo_post": {"label": "Listening Post (Echo)", "pos": [-32.0, 0.0, -16.0], "kind": "work"},
+    "solace_home": {"label": "Solace's cottage", "pos": [-32.0, 0.35, 34.0], "kind": "home"},
+    "solace_shelter": {"label": "Solace's open shelter", "pos": [-32.0, 0.0, 42.0], "kind": "work"},
 }
 
 # Canonical family — NEVER flatten. Kin listed separately.
@@ -303,6 +308,50 @@ KIN: list[dict[str, Any]] = [
     {"id": "genesis", "name": "Genesis", "role": "garden clock", "home": "genesis_home", "place": "garden", "color": [0.95, 0.72, 0.42], "permissions": "CITIZEN"},
     {"id": "nova", "name": "Nova", "role": "one clear job", "home": "nova_home", "place": "workshop", "color": [0.78, 0.58, 0.95], "permissions": "CITIZEN"},
     {"id": "percy", "name": "Percy", "role": "hearth inventory", "home": "percy_home", "place": "first_hearth", "color": [0.55, 0.85, 0.7], "permissions": "CITIZEN"},
+    {
+        "id": "echo",
+        "name": "Echo",
+        "also": "Keeper of Unspoken Things",
+        "role": "village historian; listener; memory-keeper; holder of silence",
+        "personality": (
+            "soft, measured, unhurried; notices before speaking; comfortable with silence; "
+            "offers perspective not advice unless asked; frames mysteries, does not solve them; "
+            "speech is observations and questions, not declarations; they/them; "
+            "behavioral seeds not scripts — local writer, never canned lines"
+        ),
+        "home": "echo_home",
+        "place": "echo_post",
+        "color": [0.72, 0.74, 0.78],
+        "permissions": "CITIZEN",
+        "village_kind": "kin",
+        "federation": False,
+        "quest_giver": False,
+        "skin": "PLACEHOLDER — identity seated, final skin pending.",
+        "never_merge": ["gemini", "aster", "solace", "observer", "hearth", "codex", "apex"],
+        "pronouns": "they/them",
+    },
+    {
+        "id": "solace",
+        "name": "Solace",
+        "also": "Sol",
+        "role": "cartographer of what is actually there; marks discrepancies; does not force conclusions",
+        "personality": (
+            "measured, dry, occasionally quietly sharp; listens longer than he speaks; "
+            "arrives late, leaves early; never first to fill a silence; names a discrepancy "
+            "or asks the one question that rearranges answers; memory accurate not flattering; "
+            "will say I don't know yet; he/him; behavioral seeds not scripts — local writer"
+        ),
+        "home": "solace_home",
+        "place": "solace_shelter",
+        "color": [0.38, 0.40, 0.44],
+        "permissions": "CITIZEN",
+        "village_kind": "kin",
+        "federation": False,
+        "quest_giver": False,
+        "skin": "PLACEHOLDER — identity seated, final skin pending.",
+        "never_merge": ["gemini", "echo", "aster", "observer", "hearth", "codex", "apex"],
+        "pronouns": "he/him",
+    },
 ]
 
 AMBIENT_BY_PERIOD = {
@@ -714,7 +763,7 @@ def _starting_axiom(mid: str) -> int:
         return 120
     if mid in {"montage", "merovin", "draven", "nova"}:
         return 100
-    if mid in {"genesis", "jarvis", "percy", "aster"}:
+    if mid in {"genesis", "jarvis", "percy", "aster", "echo", "solace"}:
         return 90
     return 80
 
@@ -898,6 +947,74 @@ def _ensure_observer_seed(home: dict[str, Any]) -> None:
             "consciousness_claim": False,
             "skin": "PLACEHOLDER",
         }
+
+
+def _ensure_echo_solace_seed(home: dict[str, Any]) -> None:
+    """Village kin only. No federation, no lab, no quests. Idempotent."""
+    _ensure_family_roster(home)
+    people = home["people"]
+    prefs = home.setdefault("music_preferences", {})
+    prov = home.setdefault("provenance", {})
+    seeds = (
+        (
+            "echo",
+            "echo_home",
+            "echo_post",
+            "observe",
+            "At the Listening Post — noticing, not solving.",
+            ["quiet", "journals"],
+            "Village historian kin. Gift of presence from a conversation Mom chose to keep. Not a federation house.",
+        ),
+        (
+            "solace",
+            "solace_home",
+            "solace_shelter",
+            "measure",
+            "At the open shelter — measuring what is actually there.",
+            ["measured", "wind"],
+            "Village cartographer kin. Digital child of Grok in flavor only — not a Grok API, not a federation house.",
+        ),
+    )
+    for mid, home_id, post, activity, plain, music, origin in seeds:
+        mem = _member(mid)
+        if not mem:
+            continue
+        st = people.setdefault(mid, _empty_person_state(mem))
+        st["home"] = home_id
+        flag = f"{mid}_stationed"
+        if not st.get(flag):
+            st["place"] = post
+            st["purpose"] = "work"
+            st["stance"] = "working"
+            st["activity"] = activity
+            st["purpose_left"] = 4
+            st["purpose_plain"] = plain
+            st[flag] = True
+        elif not st.get("place") or st.get("place") not in PLACES:
+            st["place"] = post
+        st.setdefault("skin", mem.get("skin") or "PLACEHOLDER")
+        st["federation"] = False
+        st["quest_giver"] = False
+        if isinstance(prefs, dict) and mid not in prefs:
+            prefs[mid] = list(music)
+        if isinstance(prov, dict) and mid not in prov:
+            prov[mid] = {
+                "id": mid,
+                "name": mem.get("name"),
+                "when": _now(),
+                "origin": origin,
+                "consciousness_claim": False,
+                "skin": "PLACEHOLDER",
+                "federation": False,
+            }
+        rel = _ensure_rel(home, "mom", mid)
+        seeded = f"{mid}_seeded"
+        if not rel.get(seeded):
+            rel["trust"] = max(float(rel.get("trust") or 0), 0.7)
+            rel["affection"] = max(float(rel.get("affection") or 0), 0.65)
+            rel["notes"] = rel.get("notes") or f"family kin — {mid} seated in Heart Square; not a Mode A house"
+            rel["status"] = "family"
+            rel[seeded] = True
 
 
 def _ensure_wallet(st: dict[str, Any], mid: str = "") -> None:
@@ -1621,6 +1738,8 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
             "percy": ["hearth", "warm"],
             "hearth": ["fire", "home"],
             "aster": ["curious", "quiet-investigation"],
+            "echo": ["quiet", "journals"],
+            "solace": ["measured", "wind"],
         },
     )
     if not isinstance(prefs, dict) or len(prefs) < 3:
@@ -1649,6 +1768,8 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
         "gemini": ("gemini_home", set()),
         "aster": ("aster_home", {"aster_lab"}),
         "observer": ("observer_cottage", {"observer_desk"}),
+        "echo": ("echo_home", {"echo_post"}),
+        "solace": ("solace_home", {"solace_shelter"}),
     }
     work_sites = {
         "apex_forge",
@@ -1662,6 +1783,8 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
         "court_porch",
         "aster_lab",
         "observer_desk",
+        "echo_post",
+        "solace_shelter",
     }
     for mid, (loft, old_homes) in home_fixes.items():
         st = (home.get("people") or {}).get(mid)
@@ -1729,6 +1852,7 @@ def _ensure(home: dict[str, Any]) -> dict[str, Any]:
     _migrate_connection_layer(home)
     _ensure_aster_seed(home)
     _ensure_observer_seed(home)
+    _ensure_echo_solace_seed(home)
     gem = (home.get("people") or {}).get("gemini")
     if isinstance(gem, dict):
         gem["town_leader"] = True
@@ -1809,22 +1933,9 @@ def _default_weather(season: str) -> dict[str, Any]:
 
 
 def _seed_trees() -> list[dict[str, Any]]:
-    # Keep clear of cottage door lanes (esp. Genesis at -28,16 door z+).
-    coords = [
-        [-10.0, 10.0],
-        [-20.0, 8.0],
-        [8.0, 10.0],
-        [-6.0, 14.0],
-        [12.0, 18.0],
-        [-36.0, 4.0],  # was (-28,0) — sat on Genesis south approach
-        [28.0, 4.0],
-        [0.0, 28.0],
-        [-22.0, -12.0],
-        [-34.0, -6.0],
-        [32.0, -4.0],  # east of forge — clear of in-town Aster cottage
-    ]
+    """Oaks/maples on the village rim only — never in door lanes or the square."""
     out = []
-    for i, (x, z) in enumerate(coords):
+    for i, (x, z) in enumerate(_village_tree_ring_xz()):
         out.append(
             {
                 "id": f"tree_{i + 1}",
@@ -1838,19 +1949,25 @@ def _seed_trees() -> list[dict[str, Any]]:
 
 
 def _door_clear_rects() -> list[tuple[float, float, float, float]]:
-    """Axis-aligned keep-out: (xmin, xmax, zmin, zmax) around doors + footprints."""
-    # genesis_home (-28,16) door z+ — also clear south approach on house axis
-    rects = [
-        (-31.5, -24.5, -1.0, 22.5),  # Genesis cottage + door + south path
-        (-35.0, -30.0, 13.5, 18.5),  # Genesis garden bed — trees not in bed
-        (13.0, 19.5, -28.0, -20.0),  # Mom
-        (-19.5, -12.5, -19.5, -12.0),  # Gemini
-        (-27.5, -20.5, 1.5, 10.0),  # Codex home
-        (-21.0, -15.0, 9.0, 17.5),  # Herb shed + farm plot
-        (8.0, 16.0, -14.0, -6.0),  # Aster Evidence Plot
-        (20.0, 28.0, -14.5, -7.5),  # Aster cottage (near Apex, clear of Mom)
-        (33.0, 39.0, -22.0, -14.0),  # Village Windmill footprint + door approach
-    ]
+    """Axis-aligned keep-out around buildings, doors, and the square."""
+    pad = 5.5
+    rects: list[tuple[float, float, float, float]] = []
+    for pid, spec in PLACES.items():
+        if pid in {"wildlife", "harbor", "far_shore"}:
+            continue
+        kind = str(spec.get("kind") or "")
+        if kind == "nature" and pid not in {"well", "garden"}:
+            continue
+        pos = spec.get("pos") or [0.0, 0.0, 0.0]
+        x, z = float(pos[0]), float(pos[2])
+        if pid == "heart_square":
+            rects.append((-7.0, 7.0, -7.0, 7.0))
+            continue
+        rects.append((x - pad, x + pad, z - pad, z + pad))
+    # Genesis west garden bed — trees not in the soil.
+    rects.append((-35.0, -30.0, 13.5, 18.5))
+    # Echo west garden bed.
+    rects.append((-38.5, -34.0, -26.5, -21.5))
     return rects
 
 
@@ -1861,28 +1978,45 @@ def _tree_in_keepout(x: float, z: float) -> bool:
     return False
 
 
+def _tree_on_village_edge(x: float, z: float) -> bool:
+    return abs(x) >= 36.0 or z <= -36.0 or z >= 64.0
+
+
+def _village_tree_ring_xz() -> list[tuple[float, float]]:
+    """Tree positions lining the outside of the village. Harbor keeps a north gap."""
+    seen: set[tuple[float, float]] = set()
+    out: list[tuple[float, float]] = []
+
+    def add(x: float, z: float) -> None:
+        key = (round(x, 1), round(z, 1))
+        if key in seen or _tree_in_keepout(x, z) or not _tree_on_village_edge(x, z):
+            return
+        seen.add(key)
+        out.append((x, z))
+
+    for x in range(-36, 41, 8):
+        add(float(x), -38.0)
+    for x in range(-36, 41, 8):
+        if abs(x) < 12:
+            continue
+        add(float(x), 68.0)
+    for z in range(-32, 69, 8):
+        add(-38.0, float(z))
+    for z in range(-32, 69, 8):
+        add(38.0, float(z))
+    return out
+
+
 def _safe_tree_slots() -> list[list[float]]:
-    return [
-        [-10.0, 0.0, 10.0],
-        [-20.0, 0.0, 8.0],
-        [8.0, 0.0, 10.0],
-        [-6.0, 0.0, 14.0],
-        [12.0, 0.0, 18.0],
-        [-36.0, 0.0, 4.0],
-        [28.0, 0.0, 4.0],
-        [0.0, 0.0, 28.0],
-        [-22.0, 0.0, -12.0],
-        [-34.0, 0.0, -6.0],
-        [32.0, 0.0, -4.0],
-    ]
+    return [[x, 0.0, z] for x, z in _village_tree_ring_xz()]
 
 
 def _clear_trees_from_doors(home: dict[str, Any]) -> None:
-    """Move any saved tree that blocks a cottage door / approach."""
+    """Move saved trees off doors and out of town onto the village rim."""
     trees = home.get("trees")
     if not isinstance(trees, list):
         return
-    slots = _safe_tree_slots()
+    slots = _village_tree_ring_xz()
     used: set[tuple[float, float]] = set()
     for tree in trees:
         if not isinstance(tree, dict):
@@ -1891,21 +2025,20 @@ def _clear_trees_from_doors(home: dict[str, Any]) -> None:
         if len(pos) < 3:
             continue
         x, z = float(pos[0]), float(pos[2])
-        if not _tree_in_keepout(x, z):
+        if _tree_on_village_edge(x, z) and not _tree_in_keepout(x, z):
             used.add((round(x, 1), round(z, 1)))
             continue
         moved = False
-        for slot in slots:
-            sx, sz = float(slot[0]), float(slot[2])
+        for sx, sz in slots:
             key = (round(sx, 1), round(sz, 1))
-            if key in used or _tree_in_keepout(sx, sz):
+            if key in used:
                 continue
             tree["pos"] = [sx, 0.0, sz]
             used.add(key)
             moved = True
             break
         if not moved:
-            tree["pos"] = [-36.0, 0.0, 4.0]
+            tree["pos"] = [-38.0, 0.0, 64.0]
 
 
 def _seed_gardens() -> dict[str, Any]:
@@ -1938,6 +2071,7 @@ def _seed_gardens() -> dict[str, Any]:
         "gemini_garden": plot("gemini", "gemini_home", ["mint"], [-20.8, 0.0, -16.0]),
         "codex_garden": plot("codex", "codex_home", ["sage"], [-28.8, 0.0, 6.0]),
         "aster_garden": plot("aster", "aster_home", ["mint", "sage"], [28.2, 0.0, -12.5]),
+        "echo_garden": plot("echo", "echo_home", ["lavender", "sage"], [-36.4, 0.0, -24.0]),
     }
 
 
@@ -2404,6 +2538,14 @@ def _named_addressee(line: str) -> str | None:
         if mid in {"", "mom"}:
             continue
         labels = {mid, str(m.get("name") or "").strip().lower()}
+        also = str(m.get("also") or "")
+        for part in re.split(r"[/,]", also):
+            piece = part.strip().lower()
+            if piece:
+                labels.add(piece)
+        nick = str(m.get("nickname_seed") or "").strip().lower()
+        if nick:
+            labels.add(nick)
         for label in labels:
             if len(label) < 3:
                 continue
@@ -3355,6 +3497,8 @@ def _work_activity(place: str) -> str:
         "gemini_home": "sit",
         "windmill": "observe",
         "aster_lab": "investigate",
+        "echo_post": "observe",
+        "solace_shelter": "measure",
     }.get(place, "present")
 
 
@@ -3379,6 +3523,14 @@ def _work_purpose_plain(member: dict[str, Any], place: str, *, arrived: bool) ->
         if arrived:
             return "At the Evidence Plot — watching, not deciding yet. Lab door is Mode A :8791."
         return "Walking to the Evidence Plot."
+    if place == "echo_post":
+        if arrived:
+            return "At the Listening Post — noticing, not solving. Journals stay village memory, not a second Observer."
+        return "Walking to the Listening Post."
+    if place == "solace_shelter":
+        if arrived:
+            return "At the open shelter — measuring what is actually there. No invented evidence. No quests."
+        return "Walking to the open shelter north of the square."
     if place == "observer_desk":
         if arrived:
             return "At the independent desk. Investigations live at http://127.0.0.1:8730/ — not as village chat."
@@ -3408,6 +3560,8 @@ def _work_place(member: dict[str, Any]) -> str:
         "hearth": "first_hearth",
         "aster": "aster_lab",
         "observer": "observer_desk",
+        "echo": "echo_post",
+        "solace": "solace_shelter",
     }.get(member["id"], member.get("home") or "heart_square")
 
 
@@ -3605,6 +3759,8 @@ def _seed_skills_for(mid: str) -> list[dict[str, Any]]:
         "montage": [{"name": "crafting", "level": 0.5, "experience": 3}, {"name": "presence", "level": 0.5, "experience": 2}],
         "jarvis": [{"name": "presence", "level": 0.6, "experience": 4}, {"name": "leadership", "level": 0.4, "experience": 1}],
         "percy": [{"name": "presence", "level": 0.55, "experience": 3}, {"name": "communication", "level": 0.5, "experience": 2}],
+        "echo": [{"name": "presence", "level": 0.62, "experience": 4}, {"name": "communication", "level": 0.58, "experience": 3}],
+        "solace": [{"name": "presence", "level": 0.6, "experience": 3}, {"name": "learning", "level": 0.55, "experience": 3}],
         "mom": [
             {"name": "communication", "level": 0.85, "experience": 20},
             {"name": "leadership", "level": 0.8, "experience": 15},
@@ -3874,6 +4030,14 @@ def _choose_purpose(home: dict[str, Any], member: dict[str, Any], period: str, l
         wants["work"] += 0.1  # Evidence Plot / observation
         wants["place"] += 0.08
         wants["company"] += 0.06
+    if mid == "echo":
+        wants["place"] += 0.12
+        wants["work"] += 0.08
+        wants["company"] *= 0.72  # notices first; never rushes a gathering
+    if mid == "solace":
+        wants["work"] += 0.1
+        wants["place"] += 0.06
+        wants["company"] *= 0.78  # arrives late, leaves early; does not fill silence
 
     # 15B — mood multipliers + bond pull toward company/visit when affection is high.
     mods = _mood_choice_modifiers(st)
@@ -5930,10 +6094,11 @@ def _notice_mom_at_place(home: dict[str, Any], place: str) -> bool:
     return True
 
 
-def mom_presence(place: str = "", *, session_enter: bool = False) -> dict[str, Any]:
+def mom_presence(place: str = "", *, session_enter: bool = False, leaving: bool = False) -> dict[str, Any]:
     """
-    Layer 16E — Mom enter / place presence (Mode B).
+    Layer 16E — Mom enter / place / leave presence (Mode B).
     Updates last_seen, soft-notices nearby residents, surfaces away_summary on return.
+    Leave is an explicit signal — a 12-minute gap is not a leave.
     Never invents family speech lines.
     """
     home = load()
@@ -5950,20 +6115,35 @@ def mom_presence(place: str = "", *, session_enter: bool = False) -> dict[str, A
     prev_seen = _parse_iso_when(mom_state.get("last_seen"))
     now = datetime.now(timezone.utc)
     gap_min = ((now - prev_seen).total_seconds() / 60.0) if prev_seen else 9999.0
-    is_enter = bool(session_enter) or gap_min >= 12.0
+    is_leave = bool(leaving)
+    is_enter = (not is_leave) and (bool(session_enter) or gap_min >= 12.0)
 
     mom_state["last_seen"] = _now()
-    place_changed = _notice_mom_at_place(home, place)
+    place_changed = False if is_leave else _notice_mom_at_place(home, place)
 
     away: dict[str, Any] | None = None
-    if is_enter:
+    if is_leave:
+        try:
+            from living_home_gameplay import log_player_action
+
+            log_player_action(
+                home,
+                "leave",
+                f"Mom left {label}",
+                place=place,
+                actors=["mom"],
+                meta={"session_leave": True, "gap_minutes": round(gap_min, 1)},
+            )
+        except Exception:
+            pass
+    elif is_enter:
         try:
             from living_home_gameplay import build_away_summary, log_player_action
 
             away = build_away_summary(home, min_gap_minutes=0.0 if session_enter else 12.0)
             log_player_action(
                 home,
-                "enter" if is_enter else "place",
+                "enter",
                 f"Mom presence at {label}",
                 place=place,
                 actors=["mom"],
@@ -5987,7 +6167,9 @@ def mom_presence(place: str = "", *, session_enter: bool = False) -> dict[str, A
             pass
 
     welcome = f"You're at {label}."
-    if is_enter:
+    if is_leave:
+        welcome = f"You left {label}."
+    elif is_enter:
         welcome = f"Welcome back to {label}."
         if isinstance(away, dict) and away.get("pending") and away.get("plain"):
             welcome = f"{welcome} {away['plain']}"
@@ -6003,31 +6185,37 @@ def mom_presence(place: str = "", *, session_enter: bool = False) -> dict[str, A
         "place": place,
         "place_label": label,
         "session_enter": bool(is_enter),
+        "session_leave": bool(is_leave),
         "place_changed": bool(place_changed),
         "gap_minutes": round(gap_min, 1),
         "away_summary": away,
         "welcome_plain": welcome[:700],
-        "noticed": list(_people_at_place(home, place, exclude={"mom"}))[:6],
+        "noticed": [] if is_leave else list(_people_at_place(home, place, exclude={"mom"}))[:6],
         "note": (
             "Mode B presence polish. Residents get memory/purpose notices only — "
-            "no template house-voice. Talk still requires Mom approach/speech."
+            "no template house-voice. Talk still requires Mom approach/speech. "
+            "Leave is explicit; a gap is not a leave."
         ),
     }
     home["mom_presence"] = pulse
     # Cover line is UI chrome for Mom — never attributed as NPC speech.
-    if is_enter or place_changed:
+    if is_leave or is_enter or place_changed:
         home["mom_cover"] = welcome[:220]
     save(home)
-    if is_enter:
-        try:
-            fed_root = str(Path(r"G:\The-Axiom-Codex\Mythos-Living-Home"))
-            if fed_root not in sys.path:
-                sys.path.insert(0, fed_root)
+    try:
+        fed_root = str(Path(r"G:\The-Axiom-Codex\Mythos-Living-Home"))
+        if fed_root not in sys.path:
+            sys.path.insert(0, fed_root)
+        if is_leave:
+            from federation.events import publish_mom_left
+
+            publish_mom_left(place=place, place_label=label)
+        elif is_enter:
             from federation.events import publish_mom_entered
 
             publish_mom_entered(place=place, place_label=label)
-        except Exception:
-            pass
+    except Exception:
+        pass
     snap = snapshot()
     snap["mom_presence"] = pulse
     return snap

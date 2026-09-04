@@ -6,7 +6,7 @@ Written **2026-09-01**. Phase A was inspection. **Phase B foundation** (live-sto
 
 **Phase A finding (still true as history):** live JSON had been written before hashes/provenance. Aster OFFLINE while snapshot still said VERIFIED.
 
-**Phase B live now:** four participants re-saved with hashes; incomplete envelopes downgraded; Aster cap quarantined; bus COMMUNICATION only; `ASTER_ACCEPTANCE.json` overall **FAIL**.
+**Phase B live now:** four participants hashed; Gemini inbox still **PARTIAL**; Aster lab refresh **READY** + snapshot **VERIFIED** with provenance (`PROVE_ASTER_REFRESH.json`). `ASTER_ACCEPTANCE.json` overall **FAIL** (Gemini reply / Gameworld / Observer HTTP **NOT STARTED**).
 
 Governing law: `FEDERATION_DIRECTIVE.md`. Pytest: `D:\Court\federation\PYTEST_FOUNDATION_RECONCILE.log` (**38 passed**). Acceptance: `D:\Court\federation\ASTER_ACCEPTANCE.json`.
 
@@ -173,10 +173,10 @@ Do not call partial work PASS.
 |-------|--------|
 | Aster → manifest → registry, identity isolated | **PASS** (live prove + unit). Observer does not own her. |
 | Aster → Hearth real message, ack, persist | **PASS** (`fb33fd44…` acknowledged, archive kept). |
-| Aster → Gemini real message, Gemini **responds** | **PARTIAL** — delivery **PASS**; response **NOT STARTED**. |
+| Aster → Gemini real message, Gemini **responds** | **FAIL** live — adapter seated; Ollama inference **503**; no canned line (`PROVE_GEMINI_SPEECH.json`). |
 | Aster capability → functional test → VERIFIED **with provenance** | **PARTIAL** — live snapshot function **PASS**; 9-field envelope **FAIL** on live file. |
 | Authorized Gameworld request → result → **world state updates** | **NOT STARTED**. |
-| Observer independent HTTP audit, no ownership | **NOT STARTED** (in-process `FederationAuditView` only; Observer API does not read `D:\Court\federation`). |
+| Observer independent HTTP audit, no ownership | **PASS** (live `GET :8730/federation/audit` · `OBSERVER_AUDIT.json`). She does not own Aster. |
 
 ### Refusal-to-lie
 

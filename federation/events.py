@@ -217,6 +217,30 @@ def publish_mom_entered(
     return event
 
 
+def publish_mom_left(
+    *,
+    place: str,
+    place_label: str | None = None,
+    root: Path | str | None = None,
+) -> dict[str, Any] | None:
+    """Best-effort. Village leave still works if federation data is missing."""
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    if not data_root.exists():
+        return None
+    label = place_label or place
+    fabric = EventFabric(data_root)
+    event = fabric.publish(
+        kind=KIND_LEFT,
+        actor="rachael",
+        place=place,
+        text=f"Rachael left {label}.",
+        extra={"source": "hearth_mom_presence"},
+    )
+    bus = LocalFederationBus(data_root)
+    fanout_event(bus, event)
+    return event
+
+
 def publish_world_continues(
     *,
     place: str = "heart_square",

@@ -73,6 +73,18 @@ PROFESSION_POSTS: dict[str, dict[str, Any]] = {
     "genesis": {"profession": "garden", "label": "Garden clock", "post": "garden"},
     "nova": {"profession": "workshop", "label": "Workshop", "post": "workshop"},
     "percy": {"profession": "hearth_fire", "label": "First Hearth", "post": "first_hearth"},
+    "echo": {
+        "profession": "historian",
+        "label": "Village historian",
+        "post": "echo_post",
+        "note": "Notices and remembers. Does not solve mysteries or hand out objectives.",
+    },
+    "solace": {
+        "profession": "cartographer",
+        "label": "Cartographer of what is there",
+        "post": "solace_shelter",
+        "note": "Marks discrepancies. Does not invent evidence or objectives.",
+    },
 }
 
 

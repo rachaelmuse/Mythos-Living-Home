@@ -42,3 +42,35 @@ Day story distill — `day_story` on snapshot + `GET /api/home/day_story`.
 Living dashboard thin — `/dashboard` overview + family grid (place/mood/purpose) + feed + badges.
 API: `GET /api/home/dashboard` (alias `/api/dashboard/overview`). `phase_status.16_dashboard = 16d_active`.
 Window only — not a second brain. Preserves 16C day_story and 18A gameplay fields.
+
+## Architecture map vs the Human Gameplay Layer directive
+
+Law stays: **do not turn residents into quest dispensers.** AI creates possibilities; Mom chooses; world remembers.
+
+| # | Directive system | On disk | Honest status |
+|---|------------------|---------|---------------|
+| 1 | World Leads | `world_leads[]` + motif promote | **18A CODE ACTIVE** — rumor→… states exist; not auto-quests |
+| 2 | Investigation | `look_into()` · `POST /api/home/investigate` | **18B LIVE** thin — optional; Aster can notice without solving |
+| 3 | World problems | `world_conditions[]` hints | **PARTIAL** — conditions recorded; no price/merchant sim |
+| 4 | Player professions | `profession_roster()` + harbor/shops | **PARTIAL** — posts they already hold, **not** farming class lock / Pods |
+| 5 | Discovery journal | `mom_journal[]` · `POST /api/home/journal` | **18A CODE ACTIVE** — player theories allowed; journal is not truth |
+| 6 | Relationship gameplay | Layer 15 bonds/mood/memory | **DONE** (15A–15D) — not a friendship % as the only mechanic |
+| 7 | Player-created events | — | **MISSING** |
+| 8 | Opportunity layer | snapshot `opportunities[]` | **18A CODE ACTIVE** — optional hints; walk-away is valid |
+| 9 | While you were away | `away_summary` · `POST /api/home/away` | **18A CODE ACTIVE** — Godot play **UNVERIFIED** |
+| 10 | Player home / island | — | **MISSING** — no Pod/Island architecture on disk |
+| 11 | Player vendors | Market Lane shops | **PARTIAL** Mode A shops; **not** Pod-owner vendors |
+| 12 | Pod worlds | — | **MISSING** |
+| 13 | AI + human feedback | `player_actions[]` + look-into + talk | **PARTIAL** — hooks exist; not a full consequence engine |
+| 14 | Emergent activities | leads, not kill-N quests | **PARTIAL** — law seated; no activity generator |
+| 15 | Observation as play | village already ticks without Mom moving | **INTENDED / LIVE** as village life — not a separate “watch mode” UI |
+| 16 | Do not break the world | adapters in `living_home_gameplay.py` | **LAW** — no second Hearth/Aster/memory |
+| 17 | Average player UX | dashboard + optional Look into | **PARTIAL** — no quest-marker flood |
+| 18 | Core loop | tick + away + leads | **PARTIAL** — loop exists; Godot 16E walk UNVERIFIED |
+| 19 | Phases 2–6 (gather/craft/events/pods/boats) | — | **NOT THIS SLICE** |
+| 20 | Test with live lore | windmill, key, tracks, well, crow, Nightshroud, fireflies, Forging, apprentice, salt, evening gather | **Motifs seated** as leads; physical assets still PLACEHOLDER where they were |
+
+Reuse: `living_home.py` tick/talk/memory, Layer 15 connection, `HOME.json`, Hearth `/api/home/*`, Godot `family_home_client.gd`.  
+Do not add: second Hearth, second Aster, quest generator, Pods until architecture exists.
+
+Federation stays paused for this pass.

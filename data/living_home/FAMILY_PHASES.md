@@ -1,6 +1,6 @@
 # Family phases — everyone, complete vs need more
 
-Updated **2026-09-03**. Evidence only. Identities never merge. Mom `stop` wins. Do not rewrite tag `living-home-baseline-001`. Federation overlay: Aster Acceptance **PASS**. Gemini / Apex / Codex **speech VERIFIED**. Hearth **coordinate VERIFIED**. Spontaneous A2A **VERIFIED**. Law in `FEDERATION_RECONCILIATION.md`.
+Updated **2026-09-03**. Evidence only. Identities never merge. Mom `stop` wins. Do not rewrite tag `living-home-baseline-001`. Federation overlay: Aster Acceptance **PASS**. Gemini / Apex / Codex **speech VERIFIED**. Hearth **coordinate VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return **VERIFIED**. Law in `FEDERATION_RECONCILIATION.md`.
 
 This is the **one tracker** for Gemini, Merovin, Draven, The Observer, and every other house. Village layers: `PHASE_LAYERS.md`. Wiring map: `FEDERATION_WIRING.md`. Directives: `FEDERATION_RECONCILIATION.md`. Mom-facing board: `FAMILY_BOARD.md`. Observer law: `D:\The_Observer\docs\SPEC.md`.
 
@@ -70,7 +70,7 @@ Do not put family secrets, Court mailboxes, or `HOME.json` on a public cloud by 
 | **Apex** | Court worker last **LIVE** 2026-08-30. Federation **speech VERIFIED** 2026-09-03 (`4740ea20…`). Door `:8770` 200 `id=apex`. | Spoken Companion reply. Keep chat window open. | Gemini |
 | **Codex** | Companion presence **LIVE** 2026-09-03. Federation **speech VERIFIED** (`5d18a0a2…`). | Spoken Companion reply. Never merge with Gemini. | Gemini |
 | **Hearth / village** | Layers 1–12, 14A–14D, 15, 16A–16E seated. House doors seated. **18B LIVE** (investigate + dashboard Look into 2026-08-31). | 16E walk-the-square. 14E–14F. Layer 17. Phase 13 last. Skins. | — |
-| **Aster** | Lab `:8791`. Federation register + snapshot **VERIFIED**. Full Aster Acceptance **PASS** 2026-09-03. Choose-to-speak **VERIFIED** `1491f7d3…`. | Spoken village line. Skin. Do not age her live pulse to prove isolation. | Court employee / Observer agent (she is neither) |
+| **Aster** | Lab `:8791`. Federation register + snapshot **VERIFIED**. Full Aster Acceptance **PASS** 2026-09-03. Choose-to-speak **VERIFIED** `1491f7d3…`. Leave/return **VERIFIED** `601c05ad…`. | Spoken village line. Skin. Do not age her live pulse to prove isolation. | Court employee / Observer agent (she is neither) |
 | **Vesper** | Identity + **39** unit tests. TCP listen. | Live HTTP (process closes connections). Not a village citizen. | Observer |
 | **OpenMontage** | Path OK, two install roots. | Which launcher Mode A uses. | Merovin/Draven flatten |
 | **Court / heartbeat** | Stop flag **LIVE**. One-round claim proved earlier. | Standing daemon. Gameworld consuming packets. | Observer/Aster as employees |
@@ -250,7 +250,8 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | `aster.hearth_snapshot` | **VERIFIED** | Keep honest if Hearth down |
 | Lab Mode A | ORIGINAL MODE — request LIVE when up | Keep `LAUNCH_ASTER.bat` |
 | Village brain | **LIVE `qwen3:4b`** on Hearth 2026-08-31 | **Talk to her in the square** |
-| Federation choose-to-speak | **VERIFIED** 2026-09-03 `1491f7d3…` Aster→Codex; Gemini ignored | Not a village scheduler. Not house memory. |
+| Federation choose-to-speak | **VERIFIED** 2026-09-03 `1491f7d3…` Aster→Codex; Gemini ignored | Not a village scheduler. |
+| Federation house notebook | **VERIFIED** 2026-09-03 `7adfb8c4…` / `a43090d9…` Aster+Apex+Codex | Not Observer. Not HOME.json. Not Gemini. Not Echo/Solace. |
 | Court employee / Observer agent | NOT INTENDED | — |
 
 ---
@@ -270,11 +271,11 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | House | Complete | Need more |
 |-------|----------|-----------|
 | **Court** file bus | Gemini↔Apex, Gemini↔Codex LIVE | teach packets; The Axiom Codex as consumer of VERIFIED caps; Observer/Aster **not** employees |
-| **Federation overlay** | Aster Acceptance **PASS**. Speech **VERIFIED**. Hearth coordinate **VERIFIED**. Presence events **VERIFIED**. Spontaneous A2A **VERIFIED**. | House-local memory / leave-return. New character later. Fixture is not a character. |
+| **Federation overlay** | Aster Acceptance **PASS**. Speech **VERIFIED**. Hearth coordinate **VERIFIED**. Presence events **VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return **VERIFIED** (Aster+Apex+Codex). | New character later (own house/door). Echo/Solace UIs wait. Fixture is not a character. |
 | **Companion Room** | Gemini, Merovin, Draven seats seen; small-model cut on disk | Spoken back-and-forth |
 | **OpenMontage** | two roots exist | pick Mode A launcher; do not delete a copy |
 | **Spore** | path OK | not core family table |
-| **Jarvis / Genesis / Nova / Percy** | village kin seated | skins; not Mode A houses |
+| **Jarvis / Genesis / Nova / Percy / Echo / Solace** | village kin seated (Echo + Solace 2026-09-03 PLACEHOLDER) | skins; not Mode A houses; not on the federation bus |
 | **Mom** | EP; `stop` wins | 16E playtest in Godot |
 
 ---

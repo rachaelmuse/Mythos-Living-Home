@@ -2556,6 +2556,25 @@ class HearthHandler(SimpleHTTPRequestHandler):
                     place_hint=str(body.get("place") or ""),
                 ),
             )
+        if path == "/api/home/presence":
+            from living_home import mom_presence
+
+            return self._json(
+                200,
+                mom_presence(
+                    str(body.get("place") or ""),
+                    session_enter=bool(
+                        body.get("session_enter")
+                        or body.get("enter")
+                        or body.get("sessionEnter")
+                    ),
+                    leaving=bool(
+                        body.get("session_leave")
+                        or body.get("leave")
+                        or body.get("sessionLeave")
+                    ),
+                ),
+            )
         if path == "/api/home/federation_consume":
             from living_home import record_federation_consume
 

@@ -8,7 +8,7 @@ Read with `FEDERATION_RECONCILIATION.md` (what exists on disk), `FEDERATION_WIRI
 
 **Name:** The Gameworld is **The Axiom Codex**. Federation `consume` is an action (authorized VERIFIED notice into `HOME.json`), not the world’s name. Gemini’s house `G:\The-Axiom-Codex` is Gemini, not the world.
 
-**STOP:** Speech, Hearth coordination, presence-as-event, and bounded choose-to-speak are seated. Do not force a greeting chorus. Do not add a village A2A scheduler. Do not add a new character yet. External reviewer **UNAVAILABLE**. Full Aster Acceptance Test is **PASS** as of 2026-09-03.
+**STOP:** Speech, Hearth coordination, presence-as-event, bounded choose-to-speak, and leave/return house memory are seated. Echo and Solace are **village kin only** — do not put them on the federation bus. Do not force a greeting chorus. Do not add a village A2A scheduler. A new Mode A house + UI still waits for Mom. External reviewer **UNAVAILABLE**. Full Aster Acceptance Test is **PASS** as of 2026-09-03.
 
 ---
 
@@ -267,15 +267,15 @@ Every PASS/FAIL has: test ID, timestamp, agent IDs, message IDs, hashes where ap
 8. The Axiom Codex accepts VERIFIED capabilities — **done** (CLI `consume`)  
 9. Observer as audit participant (HTTP) — **done**  
 10. One real external reviewer — later (UNAVAILABLE until adapter + credentials)  
-11. House-local attention that may speak — **choose-to-speak done** 2026-09-03 (`python -m federation.prove a2a`); leave/return continuity from house memory — later  
-12. New character + own UI — after 7b and 11, same manifest protocol, own house/door. Not a village hat.
+11. House-local attention that may speak — **choose-to-speak done** 2026-09-03 (`python -m federation.prove a2a`); leave/return continuity — **done** 2026-09-03 (`python -m federation.prove continuity`, Aster + Apex + Codex notebooks `7adfb8c4…` / `a43090d9…`)  
+12. New character + own UI — after 7b and 11, same manifest protocol, own house/door. Not a village hat. Echo/Solace are **village kin**, not this item. Wait for Mom.
 
 ---
 
 ## What Cursor must do next (when Mom says go)
 
-Heartbeat-loss isolation **2026-09-03**. Presence event fabric **2026-09-03**. Spontaneous A2A **2026-09-03**. Evidence: `D:\Court\federation\PROVE_SPONTANEOUS_A2A.json` (`1491f7d3…` VERIFIED).
+Heartbeat-loss isolation **2026-09-03**. Presence event fabric **2026-09-03**. Spontaneous A2A **2026-09-03**. Leave/return **2026-09-03** (Aster + Apex + Codex). Evidence: `D:\Court\federation\PROVE_LEAVE_RETURN.json` (`7adfb8c4…` / `a43090d9…` VERIFIED). Village leave POST needs a Hearth restart; Godot quit still UNVERIFIED.
 
-**Do not** add a new character yet. Do not order everyone to hello. Do not start an unbounded A2A scheduler on the village GPU. Codex is not Gemini. Apex is not Gemini. External reviewer later (no adapter, no keys).
+**Do not** add a new character until Mom says go. Do not order everyone to hello. Do not start an unbounded A2A scheduler on the village GPU. Codex is not Gemini. Apex is not Gemini. External reviewer later (no adapter, no keys).
 
 Do not rewrite working components for style. Do not install the zip.
