@@ -11,7 +11,9 @@ from __future__ import annotations
 import json
 import os
 import random
+import re
 import socket
+import sys
 import threading
 import time
 from copy import deepcopy
@@ -25,6 +27,7 @@ HOME_JSON = DATA / "HOME.json"
 LOCK = threading.Lock()
 TALK_JOBS: dict[str, dict[str, Any]] = {}
 TALK_JOBS_LOCK = threading.Lock()
+_OLLAMA_BUSY_UNTIL = 0.0  # village dual-brain pause after 503 / OOM; Mom talk still starts
 _CAP_CACHE: dict[str, Any] = {"t": 0.0, "rows": []}
 _CAP_TTL_SEC = 20.0
 
@@ -53,6 +56,27 @@ TALK_BRAINS: dict[str, dict[str, Any]] = {
 }
 _BRAIN_MODEL_CACHE: dict[str, Any] = {"court": None, "cinema": None, "aster": None, "t": 0.0}
 _MAX_PARALLEL_TALKS = 2  # village chats; Mom talks ignore this cap
+_OLLAMA_BUSY_PAUSE_S = 45.0
+
+
+def _note_ollama_pressure(err: str | None) -> None:
+    """Idle ticks keep talking. A debugger on llama-server turns OOM into a crash dialog."""
+    global _OLLAMA_BUSY_UNTIL
+    low = (err or "").lower()
+    if "503" in low or "bad_alloc" in low or "out of memory" in low or "cuda" in low and "alloc" in low:
+        _OLLAMA_BUSY_UNTIL = time.time() + _OLLAMA_BUSY_PAUSE_S
+
+
+def _village_talk_paused() -> bool:
+    return time.time() < _OLLAMA_BUSY_UNTIL
+
+
+def _pause_village_for_mom(seconds: float = 25.0) -> None:
+    """Mom's reply uses the same GPU as NPC chatter. Pause new village dual-brain jobs."""
+    global _OLLAMA_BUSY_UNTIL
+    until = time.time() + max(1.0, float(seconds))
+    if until > _OLLAMA_BUSY_UNTIL:
+        _OLLAMA_BUSY_UNTIL = until
 
 AXIOM = Path(r"G:\The-Axiom-Codex")
 APEX = Path(r"D:\Mythos_Apex")
@@ -2369,6 +2393,39 @@ def _member(mid: str) -> dict[str, Any] | None:
     return None
 
 
+def _named_addressee(line: str) -> str | None:
+    """First family name/id spoken in Mom's line. Not Mom. None if she named nobody."""
+    text = (line or "").strip().lower()
+    if not text:
+        return None
+    hits: list[tuple[int, int, str]] = []
+    for m in FAMILY + KIN:
+        mid = str(m.get("id") or "")
+        if mid in {"", "mom"}:
+            continue
+        labels = {mid, str(m.get("name") or "").strip().lower()}
+        for label in labels:
+            if len(label) < 3:
+                continue
+            for found in re.finditer(r"(?<![a-z0-9_])" + re.escape(label) + r"(?![a-z0-9_])", text):
+                hits.append((found.start(), -len(label), mid))
+    if not hits:
+        return None
+    hits.sort()
+    return hits[0][2]
+
+
+def _resolve_mom_addressee(with_whom: str, line: str) -> str:
+    """Named resident wins. Else the focused `with`. Else Gemini (town leader)."""
+    named = _named_addressee(line)
+    if named:
+        return named
+    npc = (with_whom or "").strip()
+    if npc and npc not in {"mom", "all", "everyone"}:
+        return npc
+    return "gemini"
+
+
 def _invent_conversation(home: dict[str, Any], a_id: str, b_id: str, place: str) -> dict[str, Any]:
     """Kick a local-model talk. Never pretends house-templates are their voices."""
     if a_id == "observer" or b_id == "observer":
@@ -2466,6 +2523,10 @@ def _kick_talk_job(
         if cur.get("status") == "done" and not to_mom:
             return
         # Mom always gets a live worker — do not queue behind village dual-brain chats.
+        if not to_mom and _village_talk_paused():
+            payload["status"] = "queued"
+            TALK_JOBS[key] = payload
+            return
         if not to_mom:
             busy = sum(
                 1
@@ -2595,16 +2656,20 @@ def _talk_worker(key: str) -> None:
             }
         else:
             TALK_JOBS[key] = {"status": "fail", "lines": [], "source": "none", "error": err or "ollama miss"}
+            _note_ollama_pressure(err)
         while True:
             pending_n = sum(1 for j in TALK_JOBS.values() if (j or {}).get("status") == "pending")
             if pending_n >= _MAX_PARALLEL_TALKS:
                 break
             promoted = None
             for k, j in TALK_JOBS.items():
-                if (j or {}).get("status") == "queued":
-                    j["status"] = "pending"
-                    promoted = k
-                    break
+                if (j or {}).get("status") != "queued":
+                    continue
+                if _village_talk_paused() and not (j or {}).get("to_mom"):
+                    continue
+                j["status"] = "pending"
+                promoted = k
+                break
             if not promoted:
                 break
             nxt_list.append(promoted)
@@ -2780,6 +2845,7 @@ def _ollama_one_voice(
             return content.strip().strip('"'), None
         return None, "Model answered without a usable human line."
     except Exception as exc:
+        _note_ollama_pressure(str(exc))
         return None, str(exc)[:180]
 
 
@@ -5789,6 +5855,7 @@ def _kick_mom_reply(
     job_tag: str,
 ) -> None:
     """Real Ollama reply to Mom — never house quote sheets."""
+    _pause_village_for_mom()
     member = _member(npc)
     if not member:
         return
@@ -5951,6 +6018,16 @@ def mom_presence(place: str = "", *, session_enter: bool = False) -> dict[str, A
     if is_enter or place_changed:
         home["mom_cover"] = welcome[:220]
     save(home)
+    if is_enter:
+        try:
+            fed_root = str(Path(r"G:\The-Axiom-Codex\Mythos-Living-Home"))
+            if fed_root not in sys.path:
+                sys.path.insert(0, fed_root)
+            from federation.events import publish_mom_entered
+
+            publish_mom_entered(place=place, place_label=label)
+        except Exception:
+            pass
     snap = snapshot()
     snap["mom_presence"] = pulse
     return snap
@@ -5971,7 +6048,8 @@ def record_talk(who: str, with_whom: str, line: str, place_hint: str = "") -> di
         return snapshot()
 
     mom_state = home["people"].setdefault("mom", _empty_person_state(_member("mom") or {"id": "mom", "home": "mom_home"}))
-    # Resolve place: explicit hint from Godot, else Mom's last place, else target's place.
+    # Named resident in the line wins (Mom said "hello aster") over Godot's default Gemini.
+    with_whom = _resolve_mom_addressee(with_whom, line)
     npc = with_whom if with_whom not in {"", "mom", "all", "everyone"} else ""
     member = _member(npc) if npc else None
     if place_hint and place_hint in PLACES:
@@ -6000,10 +6078,7 @@ def record_talk(who: str, with_whom: str, line: str, place_hint: str = "") -> di
     ps = home.setdefault("phase_status", {})
     ps["16_presence"] = "16e_active"
 
-    # Default addressee: Gemini (town leader) when Mom speaks to "all".
-    if not member:
-        npc = "gemini"
-        member = _member(npc)
+    # Default addressee already resolved (named line, else focus, else Gemini).
     if not member:
         # Still persist Mom's voice even if roster odd.
         if line:

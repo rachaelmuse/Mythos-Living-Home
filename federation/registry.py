@@ -387,9 +387,12 @@ class FederationRegistry:
             record.lifecycle.append(CapabilityState.QUARANTINED.value)
             self._write_capability(record)
 
-    def sync_health(self, beats: HeartbeatLog) -> None:
+    def sync_health(self, beats: HeartbeatLog, *, only_agent_id: str | None = None) -> None:
         health = self._read_health()
-        for agent in self.list_participants():
+        agents = self.list_participants()
+        if only_agent_id is not None:
+            agents = [a for a in agents if a.agent_id == only_agent_id]
+        for agent in agents:
             presence = beats.presence(agent.agent_id)
             if presence == Presence.OFFLINE:
                 health[agent.agent_id] = AgentHealth.FAILED.value

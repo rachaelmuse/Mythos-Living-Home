@@ -1,6 +1,6 @@
 # Federation reconciliation map
 
-Updated **2026-09-01**. Evidence only. **Phase A reconciliation report written.** Full Aster Acceptance Test is **not** passing. Do not add Apex/Codex on the bus. The Axiom Codex is the Gameworld’s name; `consume` is a federation action, not the world.
+Updated **2026-09-03**. Evidence only. **Phase A reconciliation report written.** Full Aster Acceptance Test is **PASS**. Speech **VERIFIED**. Hearth **coordinate VERIFIED**. Presence event fabric **VERIFIED**. Spontaneous A2A **VERIFIED**. The Axiom Codex is the Gameworld’s name; `consume` is a federation action, not the world.
 
 Read with `NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`, **`FEDERATION_DIRECTIVE.md`**, **`FEDERATION_AMENDMENT_REPORT.md`** (this pass’s 11-section inspection). `docs/DUAL_MODE.md`, `docs/CONTINUITY.md`.
 
@@ -84,7 +84,7 @@ Gameworld expands the family; it does not replace Mode A. Identities never merge
 
 Tests: `tests/test_federation.py`, `tests/test_federation_gemini.py`, `tests/test_federation_amendments.py`. Prove reports: `D:\Court\federation/PROVE.json`, `PROVE_GEMINI.json`. Amendment evidence: `D:\Court\federation\AMENDMENT_PASS.json`, `AUTHORITY.json`.
 
-**Full Aster Acceptance Test is NOT passing.** Foundation, Observer HTTP audit, Gemini speech, and **The Axiom Codex** notice-into-HOME are seated. Live negatives are not. Law: `FEDERATION_DIRECTIVE.md`.
+**Full Aster Acceptance Test is PASS** as of 2026-09-03 (`ASTER_ACCEPTANCE.json` overall PASS). Heartbeat-loss was proven on throwaway `heartbeat_probe`, not by aging Aster. Law: `FEDERATION_DIRECTIVE.md`.
 
 ---
 
@@ -103,7 +103,7 @@ Locked by Mom + DeepSeek + GPT. This table is the reconciliation report after th
 | 5 Communication ≠ collaboration | Five `Layer`s. Bus delivery recorded as COMMUNICATION only. Authorized `invoke` is COLLABORATION. Unauthorized invoke rejected + audit. | **VERIFIED** (unit) |
 | 6 No duplicate systems | Zip refused; Court inbox not polluted; no second Observer/bus/registry this pass. | **VERIFIED** (discipline so far) |
 | 7 Two-phase build | This pass inspected vs 1–8, implemented missing foundation only, ran tests, **STOP** here. Not a code gate. | **IMPLEMENTED** (this pass) |
-| 8 Full Aster test + negatives + machine evidence | Foundation + Gemini speech + Observer HTTP + The Axiom Codex notice. Live negatives still missing. | **PARTIAL** |
+| 8 Full Aster test + negatives + machine evidence | Foundation + Gemini speech + Observer HTTP + The Axiom Codex notice + live fail/unauth/merge + heartbeat isolation on throwaway probe. Aster VERIFIED caps not aged. | **PASS** (live 2026-09-03) |
 
 Gemini delivery landed **before** these amendments were locked. Keep it. Do **not** add Apex/Codex on the bus until Mom says go. The Axiom Codex notice (CLI `consume`) is already seated.
 
@@ -115,15 +115,20 @@ Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). 
 
 | Item | Status |
 |------|--------|
-| Full Aster Acceptance Test | **PARTIAL** — amendment negatives unit-tested; happy-path live pieces still incomplete |
+| Full Aster Acceptance Test | **PASS** live 2026-09-03 — `python -m federation.prove heartbeat` · throwaway `heartbeat_probe` OFFLINE · Aster snapshot/notice still VERIFIED · `PROVE_HEARTBEAT_LOSS.json` · `ASTER_ACCEPTANCE.json` overall PASS |
 | Gemini spoken reply (federation bus) | **PASS** live 2026-09-01 — `python -m federation.prove speak` · `llama3.2:3b` · `3f1fd8eb…` · `PROVE_GEMINI_SPEECH.json`. Companion Room speech not this slice. |
 | The Axiom Codex accepts VERIFIED capabilities | **PASS** live 2026-09-01 — `python -m federation.prove consume` (action, not the world’s name) · `aster.gameworld_notice` · HOME.json `federation.last_consumed` · `PROVE_GAMEWORLD_CONSUME.json` |
 | Observer HTTP federation audit | **PASS** live 2026-09-01 — `GET http://127.0.0.1:8730/federation/audit` · `D:\Court\federation\OBSERVER_AUDIT.json`. Observer does **not** own Aster. |
-| Failed-test → NOT VERIFIED | **VERIFIED** (unit `test_failed_capability_is_not_verified`) |
-| Unauthorized invoke → reject | **VERIFIED** (unit) |
-| Heartbeat loss → dependents isolated | **VERIFIED** (unit) |
-| Identity merge Observer-owns-Aster | **VERIFIED** (unit `claim_ownership` rejected) |
-| Apex / Codex on federation bus | MISSING — **do not start** |
+| Failed-test → NOT VERIFIED | **PASS** live 2026-09-02 — `aster.live_negative_probe` FAILED · `PROVE_NEGATIVES.json` |
+| Unauthorized invoke → reject | **PASS** live 2026-09-02 — Observer invoke of the probe rejected + audit |
+| Heartbeat loss → dependents isolated | **PASS** live 2026-09-03 — throwaway probe quarantined; Aster not aged. Unit test still covers full-store `sync_health`. |
+| Identity merge Observer-owns-Aster | **PASS** live 2026-09-02 — `claim_ownership` rejected; `owner_of(aster)` None |
+| Apex / Codex on federation bus | Codex **speech PASS** live 2026-09-03 — `python -m federation.prove speak-codex` · `5d18a0a2…` · `PROVE_CODEX_SPEECH.json`. Apex **speech PASS** live 2026-09-03 — `python -m federation.prove speak-apex` · `4740ea20…` · `PROVE_APEX_SPEECH.json`. Never Gemini. |
+| Hearth coordination beyond snapshot | **PASS** live 2026-09-03 — `python -m federation.prove hearth` · `e5600c6d…` · `hearth.federation_coordinate` · sender Hearth, not Aster snapshot · `PROVE_HEARTH_COORDINATE.json` |
+| Presence / event fabric | **PASS** live 2026-09-03 — `python -m federation.prove events` · `949cdc08…` · `rachael.presence.entered` · no forced hello · Gemini ignored · `PROVE_PRESENCE_EVENT.json` |
+| Choose-to-speak (bounded A2A) | **PASS** live 2026-09-03 — `python -m federation.prove a2a` · Aster→Codex `1491f7d3…` · Gemini ignored · one speaker · `PROVE_SPONTANEOUS_A2A.json` |
+| Agent-local memory + leave/return continuity | later — speak is not house memory |
+| New character + house UI | not yet — see NEXT.md |
 | One real external reviewer | UNAVAILABLE |
 | 16E Godot walk | UNVERIFIED (village) |
 
@@ -131,7 +136,7 @@ Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). 
 
 ## Build sequence
 
-Amendment pass **done**. Observer HTTP audit **done**. Gemini speech **done**. The Axiom Codex notice **done**. **STOP.** Next: live negatives. Not Apex/Codex on the bus.
+Amendment pass **done**. Observer HTTP audit **done**. Gemini speech **done**. The Axiom Codex notice **done**. Live fail/unauth/merge **done**. Heartbeat-loss isolation **done** on throwaway probe. Full Aster Acceptance **PASS**. Codex/Apex speech **done**. Hearth coordination **done**. Presence event fabric **done**. Choose-to-speak **done**. Next: house-local memory and leave/return continuity; no new character until that seats. External reviewer **UNAVAILABLE**. `heartbeat_probe` is not a character.
 
 Do not rewrite working components for style. Do not install the zip.
 

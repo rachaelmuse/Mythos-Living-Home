@@ -8,7 +8,7 @@ Read with `FEDERATION_RECONCILIATION.md` (what exists on disk), `FEDERATION_WIRI
 
 **Name:** The Gameworld is **The Axiom Codex**. Federation `consume` is an action (authorized VERIFIED notice into `HOME.json`), not the world’s name. Gemini’s house `G:\The-Axiom-Codex` is Gemini, not the world.
 
-**STOP:** Do not add Apex or Codex on the bus until Mom says go. The Axiom Codex notice-into-HOME, Gemini speech, and Observer HTTP audit already landed after this freeze. Full Aster Acceptance Test is still **not** passing.
+**STOP:** Speech, Hearth coordination, presence-as-event, and bounded choose-to-speak are seated. Do not force a greeting chorus. Do not add a village A2A scheduler. Do not add a new character yet. External reviewer **UNAVAILABLE**. Full Aster Acceptance Test is **PASS** as of 2026-09-03.
 
 ---
 
@@ -197,10 +197,10 @@ Objective is not maximum code generation. Objective is a federation whose claime
 | Aster → Hearth message + ack + persist | **VERIFIED** | required |
 | Aster → Hearth snapshot capability | **VERIFIED** (`aster.hearth_snapshot`) | required |
 | Aster → Gemini **delivery** (Gemini did not speak) | **VERIFIED** (communication only) | COMMUNICATION yes; collaboration **no** |
-| Gemini **responds as Gemini** | **MISSING** | required for full test |
-| Authorized Gameworld invocation + world state change | **MISSING** | required |
-| Independent Observer audit of evidence | **MISSING** (no HTTP audit yet) | required |
-| Negative / refusal-to-lie tests | **PARTIAL** (DECLARED≠VERIFIED; no-owner) | required |
+| Gemini **responds as Gemini** | **PASS** live 2026-09-01 | required for full test |
+| Authorized Gameworld invocation + world state change | **PASS** live 2026-09-01 | required |
+| Independent Observer audit of evidence | **PASS** live 2026-09-01 | required |
+| Negative / refusal-to-lie tests | **PASS** live 2026-09-02/03 (fail / unauth / merge / throwaway heartbeat isolation) | required |
 
 ### Happy path (must all be true)
 
@@ -258,19 +258,24 @@ Every PASS/FAIL has: test ID, timestamp, agent IDs, message IDs, hashes where ap
 2. Extract interfaces — **amendment pass done** (authority, versions, provenance, isolation, layers **unit-tested**)  
 3. Neutral registry — **foundation done**  
 4. Real local transport — **foundation done**  
-5. Connect Aster — **foundation done**; full acceptance **not**  
-6. Connect Gemini — **delivery done**; speech / collaboration **not**; amendment pass **done** — still do not expand  
-7. Hearth coordination beyond snapshot — later  
-8. The Axiom Codex accepts VERIFIED capabilities — later (Aster test step 5; CLI `consume` is the action)  
-9. Observer as audit participant (HTTP) — later (Aster test step 6)  
-10. One real external reviewer — later (UNAVAILABLE until adapter + credentials)
+5. Connect Aster — **foundation done**; full acceptance **PASS** 2026-09-03  
+6. Connect Gemini — **delivery + speech done**  
+6b. Connect Codex — **delivery + speech done** 2026-09-03  
+6c. Connect Apex — **delivery + speech done** 2026-09-03  
+7. Hearth coordination beyond snapshot — **done** 2026-09-03 (`python -m federation.prove hearth`)  
+7b. Presence / event fabric — **done** 2026-09-03 (`python -m federation.prove events`) — awareness, not a greeting order  
+8. The Axiom Codex accepts VERIFIED capabilities — **done** (CLI `consume`)  
+9. Observer as audit participant (HTTP) — **done**  
+10. One real external reviewer — later (UNAVAILABLE until adapter + credentials)  
+11. House-local attention that may speak — **choose-to-speak done** 2026-09-03 (`python -m federation.prove a2a`); leave/return continuity from house memory — later  
+12. New character + own UI — after 7b and 11, same manifest protocol, own house/door. Not a village hat.
 
 ---
 
 ## What Cursor must do next (when Mom says go)
 
-Amendment pass **code** 2026-09-01. Phase A report then Phase B **foundation** (live store) 2026-09-01. Evidence: `D:\Court\federation\ASTER_ACCEPTANCE.json` (`overall: FAIL`). Tests **38 passed**.
+Heartbeat-loss isolation **2026-09-03**. Presence event fabric **2026-09-03**. Spontaneous A2A **2026-09-03**. Evidence: `D:\Court\federation\PROVE_SPONTANEOUS_A2A.json` (`1491f7d3…` VERIFIED).
 
-**Do not** add Apex/Codex on the bus until Mom says go. Gemini speech, Observer HTTP audit, and The Axiom Codex notice (CLI `consume`) already landed. Full Aster Acceptance Test is still **not** passing.
+**Do not** add a new character yet. Do not order everyone to hello. Do not start an unbounded A2A scheduler on the village GPU. Codex is not Gemini. Apex is not Gemini. External reviewer later (no adapter, no keys).
 
 Do not rewrite working components for style. Do not install the zip.

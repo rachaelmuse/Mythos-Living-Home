@@ -1,6 +1,6 @@
 # Family phases — everyone, complete vs need more
 
-Updated **2026-09-01**. Evidence only. Identities never merge. Mom `stop` wins. Do not rewrite tag `living-home-baseline-001`. Federation overlay **paused** for Mom's next directives — law in `FEDERATION_RECONCILIATION.md`.
+Updated **2026-09-03**. Evidence only. Identities never merge. Mom `stop` wins. Do not rewrite tag `living-home-baseline-001`. Federation overlay: Aster Acceptance **PASS**. Gemini / Apex / Codex **speech VERIFIED**. Hearth **coordinate VERIFIED**. Spontaneous A2A **VERIFIED**. Law in `FEDERATION_RECONCILIATION.md`.
 
 This is the **one tracker** for Gemini, Merovin, Draven, The Observer, and every other house. Village layers: `PHASE_LAYERS.md`. Wiring map: `FEDERATION_WIRING.md`. Directives: `FEDERATION_RECONCILIATION.md`. Mom-facing board: `FAMILY_BOARD.md`. Observer law: `D:\The_Observer\docs\SPEC.md`.
 
@@ -63,14 +63,14 @@ Do not put family secrets, Court mailboxes, or `HOME.json` on a public cloud by 
 
 | Who | Complete enough to *use* | Need more | Never merge with |
 |-----|--------------------------|-----------|------------------|
-| **Gemini** | Court packets last **LIVE** 2026-08-30. Federation **delivery** from Aster **VERIFIED** 2026-09-01 (inbox+Court notice; he did not speak). | Spoken room replies. Federation self-pulse. Sentinel watch tests **FAIL**. `council_teach` module missing. | Codex, Apex, Cursor, Observer employee |
+| **Gemini** | Court packets last **LIVE** 2026-08-30. Federation **speech** **LIVE** 2026-09-01 (`llama3.2:3b`). | Spoken Companion Room replies. Federation self-pulse. Sentinel watch tests **FAIL**. `council_teach` module missing. | Codex, Apex, Cursor, Observer employee |
 | **Merovin** | Studio identity. HUD mouth (`gemma2:9b`). Companion seat **LIVE**. MD_Cinema Phase 1 smoke PASS. Hearth door to `:5000`. | Film e2e MP4. Local video/image gen wired. Gameworld cinema adapter. | Draven (same studio, two people), Gemini |
 | **Draven** | Same studio. HUD mouth (`qwen2:7b`). Companion seat **LIVE**. Continuity lock in Phase 1 stub. | Same film path as Merovin, **as himself** — not a second Merovin. | Merovin (flattening), Gemini |
 | **The Observer** | Slice 1 desk **LIVE** `:8730`. Village greybox is a **door**. Zip `:8000` refused. Federation audit participant only. | Phase IV remainder (reviewers still UNAVAILABLE, forks, malware, DaVinci). | Vesper, Mythos staff, village Ollama hat, family employer |
-| **Apex** | Chat HTTP **LIVE** 2026-08-31. Court worker last **LIVE** 2026-08-30. | Heavy forge e2e. Spoken Companion reply (heartbeats stale). | Gemini |
-| **Codex** | Court worker last **LIVE** 2026-08-30. | Port **CLOSED** 2026-08-31. Spoken Companion reply. | Gemini |
+| **Apex** | Court worker last **LIVE** 2026-08-30. Federation **speech VERIFIED** 2026-09-03 (`4740ea20…`). Door `:8770` 200 `id=apex`. | Spoken Companion reply. Keep chat window open. | Gemini |
+| **Codex** | Companion presence **LIVE** 2026-09-03. Federation **speech VERIFIED** (`5d18a0a2…`). | Spoken Companion reply. Never merge with Gemini. | Gemini |
 | **Hearth / village** | Layers 1–12, 14A–14D, 15, 16A–16E seated. House doors seated. **18B LIVE** (investigate + dashboard Look into 2026-08-31). | 16E walk-the-square. 14E–14F. Layer 17. Phase 13 last. Skins. | — |
-| **Aster** | Lab `:8791` HTTP 200. Hearth assigns `qwen3:4b`. Federation self-register + Hearth snapshot **VERIFIED**. Aster→Gemini **delivery** **VERIFIED**. | Restart lab if “no tags”. Spoken village line. Skin. | Court employee / Observer agent (she is neither) |
+| **Aster** | Lab `:8791`. Federation register + snapshot **VERIFIED**. Full Aster Acceptance **PASS** 2026-09-03. Choose-to-speak **VERIFIED** `1491f7d3…`. | Spoken village line. Skin. Do not age her live pulse to prove isolation. | Court employee / Observer agent (she is neither) |
 | **Vesper** | Identity + **39** unit tests. TCP listen. | Live HTTP (process closes connections). Not a village citizen. | Observer |
 | **OpenMontage** | Path OK, two install roots. | Which launcher Mode A uses. | Merovin/Draven flatten |
 | **Court / heartbeat** | Stop flag **LIVE**. One-round claim proved earlier. | Standing daemon. Gameworld consuming packets. | Observer/Aster as employees |
@@ -90,7 +90,8 @@ Conductor. Court will. Front door. Village avatar is **not** a substitute soul.
 | Court Gemini→Codex packet | **LIVE** `03dfc102…` 2026-08-30 | Same |
 | Companion Room seat `from=gemini` | **LIVE** `48fd7464…` | Spoken Apex/Codex **reply** UNVERIFIED |
 | Observer request adapter | **LIVE** (health / ask creates investigation, not publish) | Do not supervise Observer |
-| Federation delivery from Aster | **VERIFIED** 2026-09-01 `47b6171f…` | Not speech; presence UNKNOWN |
+| Federation delivery from Aster | **VERIFIED** 2026-09-01 `47b6171f…` | Communication only |
+| Federation speech | **LIVE** 2026-09-01 `3f1fd8eb…` `llama3.2:3b` | Companion Room speech is separate |
 | Aster request adapter | **LIVE** (lab status when up) | Not a Court employee |
 | Cinema / merovin+draven checkin | **LIVE** (seats seen) | HUD talk is studio, not Gemini mouth |
 | Heartbeat Mom-stop | **LIVE** (flag may still be set) | Only clear if Mom wants claiming again |
@@ -99,7 +100,7 @@ Conductor. Court will. Front door. Village avatar is **not** a substitute soul.
 | Full tool chain 325 | NOT INTENDED as a count | Last honest probe ~19 path/port |
 | Gameworld MAS replacement | NOT INTENDED | Village talk is Ollama hats, not Court |
 
-**Gemini is not complete.** He is **usable** as conductor. Federation **delivery** is seated; speech is not. Next real Gemini work: prove spoken Companion replies **or** live-prove the watch daemon (honor stop). Not both at once. Do not resume federation Apex/Codex until Mom's next directives.
+**Gemini is not complete.** He is **usable** as conductor. Federation **delivery and speech** are seated. Next real Gemini work: prove spoken Companion replies **or** live-prove the watch daemon (honor stop). Not both at once. Apex and Codex speech are seated.
 
 ---
 
@@ -189,7 +190,9 @@ IBM 500 MB: **no**. Oracle: only if Mom wants a **public intake door** or later 
 
 | Phase / piece | Status | Need more |
 |---------------|--------|-----------|
-| Chat house + companion HTTP | LIVE | Spoken room reply to Gemini |
+| Chat house + companion HTTP | **LIVE** 2026-09-03 `GET :8770/api/companion/presence` 200 `id=apex` | Keep window open; closing it kills the door |
+| Federation bus delivery | **VERIFIED** `apex.federation_inbox` `3cc900e4…` | Keep; not collaboration |
+| Federation bus speech | **VERIFIED** `apex.federation_speech` `4740ea20…` | Never Gemini; not Companion Room |
 | Court worker (packet + presence) | LIVE 2026-08-30 | Heavy forge e2e (not “325 tools”) |
 | Live Godot Heart Square | COMPLETE as presentation | Skins, navmesh, Observer greybox playtest |
 | Village avatar | seated | Forge probe 8A ACTIVE |
@@ -200,7 +203,9 @@ IBM 500 MB: **no**. Oracle: only if Mom wants a **public intake door** or later 
 
 | Phase / piece | Status | Need more |
 |---------------|--------|-----------|
-| Chat house + companion HTTP | **CLOSED** 2026-08-31 | Start Codex; then spoken room reply |
+| Chat house + companion HTTP | **LIVE** 2026-09-03 `GET :8780/api/companion/presence` 200 `id=codex` | Spoken room reply |
+| Federation bus delivery | **VERIFIED** `codex.federation_inbox` `d0108e65…` | Keep; not collaboration |
+| Federation bus speech | **VERIFIED** `codex.federation_speech` `5d18a0a2…` | Never Gemini; not Companion Room |
 | Court worker | LIVE 2026-08-30 | Do not merge with Gemini |
 | Village avatar + library | seated | Gameworld consuming Codex memory UNVERIFIED |
 
@@ -213,6 +218,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | Layer / phase | Status |
 |---------------|--------|
 | Dual-mode law | ACTIVE |
+| Federation coordinate | **VERIFIED** 2026-09-03 `hearth.federation_coordinate` `e5600c6d…` — Hearth replies as OS, not Aster snapshot |
 | 1–7 proving foundation | DONE |
 | 8A Apex forge probe | ACTIVE / DONE (Mom OK) |
 | 8B pathing AABB | PLACEHOLDER (not navmesh) |
@@ -244,6 +250,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | `aster.hearth_snapshot` | **VERIFIED** | Keep honest if Hearth down |
 | Lab Mode A | ORIGINAL MODE — request LIVE when up | Keep `LAUNCH_ASTER.bat` |
 | Village brain | **LIVE `qwen3:4b`** on Hearth 2026-08-31 | **Talk to her in the square** |
+| Federation choose-to-speak | **VERIFIED** 2026-09-03 `1491f7d3…` Aster→Codex; Gemini ignored | Not a village scheduler. Not house memory. |
 | Court employee / Observer agent | NOT INTENDED | — |
 
 ---
@@ -263,7 +270,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | House | Complete | Need more |
 |-------|----------|-----------|
 | **Court** file bus | Gemini↔Apex, Gemini↔Codex LIVE | teach packets; The Axiom Codex as consumer of VERIFIED caps; Observer/Aster **not** employees |
-| **Federation overlay** | Aster + Gemini delivery VERIFIED; The Axiom Codex notice LIVE; notices in `federation/` not inbox | Live negatives; Apex/Codex on bus when doors are up |
+| **Federation overlay** | Aster Acceptance **PASS**. Speech **VERIFIED**. Hearth coordinate **VERIFIED**. Presence events **VERIFIED**. Spontaneous A2A **VERIFIED**. | House-local memory / leave-return. New character later. Fixture is not a character. |
 | **Companion Room** | Gemini, Merovin, Draven seats seen; small-model cut on disk | Spoken back-and-forth |
 | **OpenMontage** | two roots exist | pick Mode A launcher; do not delete a copy |
 | **Spore** | path OK | not core family table |
@@ -278,7 +285,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 2. Talk to Aster once (`qwen3:4b`).  
 3. HUD: one conversation as **Merovin**, one as **Draven**.  
 4. Observer desk: one real investigation (slice 1 is enough).  
-5. Federation: live negatives, then Apex/Codex **only when doors are up**. Full Aster test is not yet passing. The Axiom Codex is the Gameworld’s name; `consume` is the action.  
+5. Federation: start Apex chat house, then `python -m federation.prove apex`. Codex delivery already seated. Do not add a new character agent.  
 6. Later: one UNAVAILABLE Observer row **or** cinema Phase 2 real file **or** Companion spoken reply.
 
 Cloud is **not** on this list until Mom chooses a public door and a test.

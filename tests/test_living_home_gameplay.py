@@ -67,3 +67,22 @@ def test_look_into_does_not_hat_observer():
 def test_look_into_missing_lead_returns_none():
     home = _home_with_lead()
     assert look_into(home, "lead_does_not_exist") is None
+
+
+def test_village_talk_pauses_on_ollama_503():
+    import living_home as lh
+
+    lh._OLLAMA_BUSY_UNTIL = 0.0
+    assert lh._village_talk_paused() is False
+    lh._note_ollama_pressure("HTTP Error 503: model busy")
+    assert lh._village_talk_paused() is True
+    lh._OLLAMA_BUSY_UNTIL = 0.0
+
+
+def test_mom_talk_pauses_village_chatter():
+    import living_home as lh
+
+    lh._OLLAMA_BUSY_UNTIL = 0.0
+    lh._pause_village_for_mom(20.0)
+    assert lh._village_talk_paused() is True
+    lh._OLLAMA_BUSY_UNTIL = 0.0

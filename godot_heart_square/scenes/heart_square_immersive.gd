@@ -885,11 +885,7 @@ func _play_overhear(data: Dictionary) -> void:
 	elif src == "ollama":
 		line = str(rec.get("text", "")).substr(0, 180)
 	if line != "":
-		var actors_v: Variant = rec.get("actors")
-		var label := "Family"
-		if actors_v is Array and (actors_v as Array).size() >= 2:
-			label = "%s & %s" % [str((actors_v as Array)[0]).capitalize(), str((actors_v as Array)[1]).capitalize()]
-		_log_convo(label, line, src if src != "" else "talk")
+		_log_convo("Hearth", line, "waiting")
 	var bubble := ""
 	if src == "waiting":
 		bubble = "Standing together. Writer still thinking."
@@ -899,7 +895,9 @@ func _play_overhear(data: Dictionary) -> void:
 		var actors2: Variant = rec.get("actors")
 		if actors2 is Array:
 			for aid in actors2:
-				_speak_named(str(aid), bubble, src)
+				if str(aid) == "mom":
+					continue
+				_speak_named(str(aid), bubble, src, false)
 
 
 func _sync_family_chat_room(data: Dictionary) -> void:
@@ -1976,6 +1974,11 @@ func _log_convo(who: String, text: String, kind: String = "talk") -> void:
 		return
 	if clipped.length() > 220:
 		clipped = clipped.substr(0, 217) + "…"
+	var stamped := "%s: %s" % [who, clipped]
+	var start: int = max(0, _convo_plain.size() - 12)
+	for i in range(start, _convo_plain.size()):
+		if str(_convo_plain[i]) == stamped:
+			return
 	var color := "#d8e0d0"
 	match kind:
 		"mom":
@@ -1988,7 +1991,7 @@ func _log_convo(who: String, text: String, kind: String = "talk") -> void:
 			color = "#d09080"
 		_:
 			color = "#d8e0d0"
-	_convo_plain.append("%s: %s" % [who, clipped])
+	_convo_plain.append(stamped)
 	if _convo_plain.size() > 400:
 		_convo_plain = _convo_plain.slice(_convo_plain.size() - 400)
 	_convo_log.append_text("[color=%s][b]%s[/b][/color]: %s\n" % [color, who, clipped])
@@ -2880,6 +2883,41 @@ func _on_talk_target_picked(idx: int) -> void:
 		talk_input.placeholder_text = "Mom → %s — Enter sends · Esc ends focus" % nice
 
 
+func _named_addressee_from_line(line: String) -> String:
+	var hay: String = line.strip_edges().to_lower()
+	if hay == "" or talk_target == null:
+		return ""
+	var best_at: int = 1000000
+	var best_id: String = ""
+	var best_len: int = 0
+	for i in range(talk_target.item_count):
+		var mid: String = str(talk_target.get_item_metadata(i))
+		if mid == "" or mid == "mom":
+			continue
+		var names: Array[String] = [mid.to_lower(), talk_target.get_item_text(i).strip_edges().to_lower()]
+		for needle: String in names:
+			if needle.length() < 3:
+				continue
+			var at: int = 0
+			while true:
+				var found: int = hay.find(needle, at)
+				if found < 0:
+					break
+				var before_ok: bool = found == 0 or not _is_name_char(hay.unicode_at(found - 1))
+				var after_i: int = found + needle.length()
+				var after_ok: bool = after_i >= hay.length() or not _is_name_char(hay.unicode_at(after_i))
+				if before_ok and after_ok and (found < best_at or (found == best_at and needle.length() > best_len)):
+					best_at = found
+					best_id = mid
+					best_len = needle.length()
+				at = found + 1
+	return best_id
+
+
+func _is_name_char(code: int) -> bool:
+	return (code >= 97 and code <= 122) or (code >= 48 and code <= 57) or code == 95
+
+
 func _resolve_talk_target() -> String:
 	if _talking_to != "":
 		return _talking_to
@@ -2938,7 +2976,8 @@ func _on_talk_submitted(text: String) -> void:
 	if talk_input:
 		talk_input.clear()
 		talk_input.grab_focus()
-	var target := _resolve_talk_target()
+	var named := _named_addressee_from_line(said)
+	var target := named if named != "" else _resolve_talk_target()
 	_talking_to = target
 	_select_talk_target(target)
 	_speak_mom(said, "mom")
@@ -2953,8 +2992,6 @@ func _end_talk() -> void:
 	if talk_input:
 		talk_input.placeholder_text = "Mom — type anytime · Enter sends · Tab / Open Chat · Esc leaves type box"
 		talk_input.release_focus()
-	if talk_target:
-		talk_target.select(0)
 	if _player:
 		_player.set("chat_lock", false)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

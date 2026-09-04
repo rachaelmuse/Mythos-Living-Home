@@ -1,6 +1,6 @@
 # Federation wiring map
 
-Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-01**. Observer HTTP audit **LIVE**. Gemini speech **LIVE**. **The Axiom Codex** notice **LIVE** (CLI `prove consume` = action, not the world’s name). Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Full Aster test **not** passing (live negatives). Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`.
+Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-03**. Observer HTTP audit **LIVE**. Gemini speech **LIVE**. Codex **speech LIVE**. Apex **speech LIVE**. Hearth **coordinate LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE**. **The Axiom Codex** notice **LIVE**. Heartbeat-loss isolation **LIVE** on throwaway `heartbeat_probe`. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Full Aster test **PASS**. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`.
 
 **Registry lie to refuse still stands** below. TCP LISTEN is not HTTP. Disk code is not the running process.
 
@@ -68,6 +68,78 @@ World name: **The Axiom Codex**. `consume` is the prove action (authorized notic
 | Aster hang | Hearth `:8790` was down; lab `/api/status` blocked on tags+Hearth. Hardened. Lab **200** ~0.7s. |
 | Apex / Codex on bus | **NOT THIS SLICE** — Apex `:8770` refused this audit. |
 | Agent doors | `D:\Court\federation\AGENT_READINESS.json` |
+
+### 2026-09-02 live negatives
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove negatives` | **PASS** for fail / unauth / merge. `aster.live_negative_probe` **FAILED**. Observer invoke **rejected**. Observer-owns-Aster **rejected**. |
+| Existing caps | `aster.hearth_snapshot` and `aster.gameworld_notice` still **VERIFIED**. |
+| Heartbeat-loss on live Aster | **NOT RUN** — aging her pulse would quarantine VERIFIED caps. Unit test remains. |
+| `full_aster_acceptance` | Still **false**. `overall` **FAIL**. Apex/Codex **not** on the bus. |
+| Evidence | `D:\Court\federation\PROVE_NEGATIVES.json` |
+
+### 2026-09-03 heartbeat-loss isolation
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove heartbeat` | **PASS**. Throwaway `heartbeat_probe` aged **OFFLINE**. `heartbeat_probe.isolation` **QUARANTINED / UNAVAILABLE**. |
+| Aster caps | `aster.hearth_snapshot` and `aster.gameworld_notice` still **VERIFIED**. Not aged. |
+| Others | `hearth` **ACTIVE**. Participants: aster, gemini, hearth, observer, heartbeat_probe. No Apex/Codex/Nova. |
+| `full_aster_acceptance` | **true**. `overall` **PASS**. |
+| Evidence | `D:\Court\federation\PROVE_HEARTBEAT_LOSS.json` · `ASTER_ACCEPTANCE.json` |
+
+### 2026-09-03 Apex door / Codex delivery
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove apex` (earlier) | **UNAVAILABLE**. `:8770` connection refused. Apex **not** registered. |
+| `python -m federation.prove codex` | **VERIFIED**. Door `GET :8780/api/companion/presence` **200** `id=codex` `online=true`. `codex.federation_inbox`. Message `d0108e65…` acknowledged. Court `federation/` notice, MAS inbox untouched. `codex_spoke: false`. Observer does not own him. Presence **UNKNOWN** (no fake pulse). |
+| Identities | Codex house `codex_twin` / `G:\Mythos_Codex`. Never Gemini. |
+| Evidence | `D:\Court\federation\PROVE_CODEX.json` |
+
+### 2026-09-03 Apex delivery (door up)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove apex` | **VERIFIED**. Door `GET :8770/api/companion/presence` **200** `id=apex` `online=true`. `apex.federation_inbox`. Message `3cc900e4…` acknowledged. Court `federation/` notices, MAS inbox untouched. `apex_spoke: false`. Observer does not own him. Presence **UNKNOWN** (no fake pulse — listed in `test_performed`). |
+| Identities | Apex house `D:\Mythos_Apex`. Never Gemini, never Codex. Participants now include apex. |
+| Evidence | `D:\Court\federation\PROVE_APEX.json` |
+
+### 2026-09-03 Apex speech
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove speak-apex` | **VERIFIED**. Door still **200** `id=apex`. `apex.federation_speech`. Reply `4740ea20…` in Aster inbox. Adapter `apex_ollama`. `apex_spoke: true`. Observer does not own him. Never Gemini. Presence **READY** (real pulse after speech). |
+| Evidence | `D:\Court\federation\PROVE_APEX_SPEECH.json` |
+
+### 2026-09-03 Codex speech
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove speak-codex` | **VERIFIED**. Door **200** `id=codex`. `codex.federation_speech`. Reply `5d18a0a2…` in Aster inbox. Adapter `codex_ollama`. `codex_spoke: true`. Observer does not own him. Never Gemini. Presence **READY** (real pulse after speech). |
+| Evidence | `D:\Court\federation\PROVE_CODEX_SPEECH.json` |
+
+### 2026-09-03 Hearth coordinate (beyond snapshot)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove hearth` | **VERIFIED**. Door `GET :8790/api/home` **200**. `hearth.federation_coordinate`. Reply `e5600c6d…` sender **hearth** (not Aster snapshot). Family roster from kernel. Adapter `hearth_home_http`. Observer does not own him. Presence **READY**. Communication, not collaboration. |
+| Evidence | `D:\Court\federation\PROVE_HEARTH_COORDINATE.json` |
+
+### 2026-09-03 presence event fabric
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove events` | **VERIFIED**. Kind `rachael.presence.entered`. Event `949cdc08…`. Fan-out `world_event` to aster/gemini/apex/codex/hearth. **spoken_replies: 0**. Gemini **ignored** (busy stub). Aster/Apex/Codex/Hearth **noticed**. `forced_hello: false`. Not collaboration. Fixture/Nova not in audience. |
+| Evidence | `D:\Court\federation\PROVE_PRESENCE_EVENT.json` |
+
+### 2026-09-03 spontaneous A2A (choose to speak)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove a2a` | **VERIFIED**. Kind `hearth.world.continues`. Event `4e2c9e29…`. Aster **speak** → Codex spoken_reply `1491f7d3…` adapter `aster_ollama` `llama3.2:3b`. Gemini **ignored**. Apex/Codex/Hearth **noticed**. `spoken_replies: 1`. `forced_hello: false`. Actor **hearth**, not Mom. Not collaboration. Not a greeting chorus. |
+| Evidence | `D:\Court\federation\PROVE_SPONTANEOUS_A2A.json` |
 
 **Registry lie to refuse:** `CAPABILITIES.json` status `VERIFIED` means **path exists** (and the port was up *if* the tool has a port). It does **not** mean a function ran, returned, updated memory, and the caller received the result. `gameworld_available: true` means the same probe was not UNAVAILABLE — **not** that Gameworld can invoke the limb.
 
