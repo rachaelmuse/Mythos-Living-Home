@@ -16,7 +16,16 @@ from federation.atomic import atomic_write_json
 from federation.audit import FederationAuditView
 from federation.codex import CODEX_PORT, codex_manifest_from_living_home, codex_manifest_from_member
 from federation.court_adapter import CourtFederationAdapter
+from federation.draven import CINEMA_PORT, draven_manifest_from_living_home, draven_manifest_from_member
 from federation.gemini import gemini_manifest_from_living_home
+from federation.health import AgentHealth
+from federation.heartbeat import HeartbeatLog, Presence
+from federation.law import CapabilityState, DEFAULT_DATA_ROOT, HonestStatus
+from federation.manifests import AgentManifest, CapabilityManifest
+from federation.merovin import merovin_manifest_from_living_home, merovin_manifest_from_member
+from federation.registry import FederationRegistry
+from federation.transport import LocalFederationBus
+from federation.vesper import VESPER_PORT, vesper_manifest_from_identity, vesper_manifest_from_member
 from federation.health import AgentHealth
 from federation.heartbeat import HeartbeatLog, Presence
 from federation.law import CapabilityState, DEFAULT_DATA_ROOT, HonestStatus
@@ -463,6 +472,31 @@ def probe_companion_door(port: int, agent_id: str, timeout_s: float = 8.0) -> di
         return {"ok": False, "http": None, "id": None, "url": url, "error": str(exc)}
 
 
+def probe_cinema_door(timeout_s: float = 8.0) -> dict[str, Any]:
+    """Shared HUD :5000. TCP listen is not enough. HTTP 2xx is the door. Not two identities."""
+    url = f"http://127.0.0.1:{CINEMA_PORT}/"
+    try:
+        with urllib.request.urlopen(url, timeout=timeout_s) as resp:
+            http = int(resp.status)
+            return {"ok": 200 <= http < 300, "http": http, "id": None, "url": url}
+    except Exception as exc:
+        return {"ok": False, "http": None, "id": None, "url": url, "error": str(exc)}
+
+
+def probe_vesper_door(timeout_s: float = 8.0) -> dict[str, Any]:
+    url = f"http://127.0.0.1:{VESPER_PORT}/api/identity"
+    try:
+        with urllib.request.urlopen(url, timeout=timeout_s) as resp:
+            raw = resp.read().decode("utf-8")
+            http = int(resp.status)
+            body = json.loads(raw) if raw else {}
+            ident = str(body.get("id") or "") if isinstance(body, dict) else ""
+            ok = 200 <= http < 300 and ident == "vesper"
+            return {"ok": ok, "http": http, "id": ident or None, "url": url}
+    except Exception as exc:
+        return {"ok": False, "http": None, "id": None, "url": url, "error": str(exc)}
+
+
 def _apex_stub() -> AgentManifest:
     return apex_manifest_from_member(
         {"id": "apex", "name": "Apex", "house": "apex", "root": r"D:\Mythos_Apex", "port": APEX_PORT}
@@ -477,6 +511,42 @@ def _codex_stub() -> AgentManifest:
             "house": "codex_twin",
             "root": r"G:\Mythos_Codex",
             "port": CODEX_PORT,
+        }
+    )
+
+
+def _merovin_stub() -> AgentManifest:
+    return merovin_manifest_from_member(
+        {
+            "id": "merovin",
+            "name": "Merovin",
+            "house": "merovin",
+            "root": r"F:\Merovin_Draven_Studio\Merovin_Draven_Studio",
+            "port": CINEMA_PORT,
+        }
+    )
+
+
+def _draven_stub() -> AgentManifest:
+    return draven_manifest_from_member(
+        {
+            "id": "draven",
+            "name": "Draven",
+            "house": "draven",
+            "root": r"F:\Merovin_Draven_Studio\Merovin_Draven_Studio",
+            "port": CINEMA_PORT,
+        }
+    )
+
+
+def _vesper_stub() -> AgentManifest:
+    return vesper_manifest_from_member(
+        {
+            "id": "vesper",
+            "name": "Vesper",
+            "house": "vesper",
+            "root": r"D:\Mythos_Vesper",
+            "port": VESPER_PORT,
         }
     )
 
@@ -655,6 +725,100 @@ def prove_codex(
         owns_key="observer_owns_codex",
         presence_key="codex_presence",
         twin_id="apex",
+    )
+
+
+def prove_merovin(
+    root: Path | None = None,
+    *,
+    court_roots: list[Path] | None = None,
+    identity_path: Path | None = None,
+    door_fn: Callable[[], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Aster → Merovin delivery. Cinema HUD must be up. Observer does not own him. Not Draven."""
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    door = door_fn() if door_fn is not None else probe_cinema_door()
+    if door.get("ok") and door.get("id") is None:
+        door = {**door, "id": "merovin"}
+    manifest = merovin_manifest_from_living_home() if _living_home_available() else _merovin_stub()
+    return _prove_house_inbox(
+        agent_id="merovin",
+        manifest=manifest,
+        door=door,
+        data_root=data_root,
+        court_roots=court_roots,
+        identity_path=identity_path,
+        cap_id="merovin.federation_inbox",
+        evidence_name="PROVE_MEROVIN.json",
+        kind="FEDERATION_MEROVIN_DELIVERY",
+        spoke_key="merovin_spoke",
+        owns_key="observer_owns_merovin",
+        presence_key="merovin_presence",
+        twin_id="draven",
+    )
+
+
+def prove_draven(
+    root: Path | None = None,
+    *,
+    court_roots: list[Path] | None = None,
+    identity_path: Path | None = None,
+    door_fn: Callable[[], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Aster → Draven delivery. Cinema HUD must be up. Observer does not own him. Not Merovin."""
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    door = door_fn() if door_fn is not None else probe_cinema_door()
+    if door.get("ok") and door.get("id") is None:
+        door = {**door, "id": "draven"}
+    manifest = draven_manifest_from_living_home() if _living_home_available() else _draven_stub()
+    return _prove_house_inbox(
+        agent_id="draven",
+        manifest=manifest,
+        door=door,
+        data_root=data_root,
+        court_roots=court_roots,
+        identity_path=identity_path,
+        cap_id="draven.federation_inbox",
+        evidence_name="PROVE_DRAVEN.json",
+        kind="FEDERATION_DRAVEN_DELIVERY",
+        spoke_key="draven_spoke",
+        owns_key="observer_owns_draven",
+        presence_key="draven_presence",
+        twin_id="merovin",
+    )
+
+
+def prove_vesper(
+    root: Path | None = None,
+    *,
+    court_roots: list[Path] | None = None,
+    identity_path: Path | None = None,
+    door_fn: Callable[[], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Aster → Vesper delivery. Journalist door must be up. Observer does not own him. Not a village hat."""
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    door = door_fn() if door_fn is not None else probe_vesper_door()
+    identity = Path(identity_path) if identity_path else None
+    if identity and identity.exists():
+        manifest = vesper_manifest_from_identity(identity)
+    elif Path(r"D:\Mythos_Vesper\identity\identity.json").exists():
+        manifest = vesper_manifest_from_identity()
+    else:
+        manifest = _vesper_stub()
+    return _prove_house_inbox(
+        agent_id="vesper",
+        manifest=manifest,
+        door=door,
+        data_root=data_root,
+        court_roots=court_roots,
+        identity_path=None,
+        cap_id="vesper.federation_inbox",
+        evidence_name="PROVE_VESPER.json",
+        kind="FEDERATION_VESPER_DELIVERY",
+        spoke_key="vesper_spoke",
+        owns_key="observer_owns_vesper",
+        presence_key="vesper_presence",
+        twin_id="echo",
     )
 
 
@@ -1174,6 +1338,203 @@ def prove_codex_speech(
     return report
 
 
+def _stamp_merovin_speech(root: Path, *, spoke: bool, reply_id: str | None) -> None:
+    path = root / "ASTER_ACCEPTANCE.json"
+    data: dict[str, Any] = {}
+    if path.exists():
+        data = json.loads(path.read_text(encoding="utf-8"))
+    stages = data.setdefault("stages", {})
+    stages["merovin_response"] = {
+        "status": "PASS" if spoke else "FAIL",
+        "note": "Merovin cinema vision spoke on the federation bus." if spoke else "Speech adapter failed; no canned line.",
+        "message_id": reply_id,
+    }
+    data["merovin_spoke"] = spoke
+    if spoke:
+        data["note"] = (
+            "Merovin speech seated through cinema HUD. Never Draven. "
+            "Heartbeat-loss isolation remains on throwaway probe."
+        )
+    _recompute_aster_acceptance(data)
+    path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+
+
+def prove_merovin_speech(
+    root: Path | None = None,
+    *,
+    court_roots: list[Path] | None = None,
+    identity_path: Path | None = None,
+    door_fn: Callable[[], dict[str, Any]] | None = None,
+    speak_fn: Callable[[str, str], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Aster asks; Merovin answers through the cinema HUD as himself. Not Draven."""
+    from federation.merovin_speech import identity_holds, speak_as_merovin
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    door = door_fn() if door_fn is not None else probe_cinema_door()
+    if door.get("ok") and door.get("id") is None:
+        door = {**door, "id": "merovin"}
+    if not door.get("ok"):
+        report = {
+            "kind": "FEDERATION_MEROVIN_SPEECH",
+            "declared": "Cinema HUD door must be up before a spoken Merovin reply.",
+            "actual": {
+                "root": str(data_root),
+                "participants": sorted(p.agent_id for p in FederationRegistry(data_root).list_participants()),
+                "door_ok": False,
+                "door": door,
+                "merovin_spoke": False,
+                "observer_owns_merovin": None,
+            },
+            "status": HonestStatus.UNAVAILABLE.value,
+            "result": HonestStatus.UNAVAILABLE.value,
+        }
+        (data_root / "PROVE_MEROVIN_SPEECH.json").write_text(
+            json.dumps(report, indent=2, default=str),
+            encoding="utf-8",
+        )
+        return report
+
+    registry = FederationRegistry(data_root)
+    bus = LocalFederationBus(data_root)
+    beats = HeartbeatLog(data_root)
+    adapter = CourtFederationAdapter(roots=court_roots)
+    speaker = speak_fn or speak_as_merovin
+    existing = {p.agent_id for p in registry.list_participants()}
+
+    aster = _load_aster(identity_path)
+    merovin = merovin_manifest_from_living_home() if _living_home_available() else _merovin_stub()
+    registry.register(aster)
+    registry.register(merovin)
+    registry.register(_observer_manifest())
+    registry.register(_hearth_manifest())
+    registry.declare_capability(
+        CapabilityManifest(
+            capability_id="merovin.federation_speech",
+            agent_id="merovin",
+            name="Speak as Merovin on the federation bus",
+            declared=True,
+            adapter_required=True,
+        )
+    )
+
+    ask = "who_are_you"
+    inbound = bus.send(
+        sender="aster",
+        recipient="merovin",
+        message_type="capability_query",
+        payload={"ask": ask, "from": "aster", "note": "speech test — Merovin must answer as himself"},
+    )
+    bus.deliver(inbound.message_id)
+    bus.acknowledge(inbound.message_id, recipient="merovin")
+    registry.record_communication(inbound.message_id, "aster", "merovin")
+
+    spoken = speaker(ask, inbound.message_id)
+    reply_id = None
+
+    def _try_speech() -> dict:
+        nonlocal reply_id
+        text = str(spoken.get("text") or "").strip()
+        adapter_name = str(spoken.get("adapter") or "cinema_hud_http")
+        if not spoken.get("ok") or not text:
+            return {
+                "ok": False,
+                "adapter": adapter_name,
+                "error": spoken.get("error") or "no_text",
+                "merovin_spoke": False,
+                "connection_test": bool(spoken.get("connection_test")),
+                "functional_test": False,
+            }
+        if "hearth" in adapter_name.lower():
+            return {
+                "ok": False,
+                "adapter": adapter_name,
+                "error": "hearth_hat_refused",
+                "merovin_spoke": False,
+                "connection_test": True,
+                "functional_test": False,
+            }
+        if not identity_holds(text, agent_id="merovin", twin_id="draven"):
+            return {
+                "ok": False,
+                "adapter": adapter_name,
+                "error": "identity_leak_or_unidentified",
+                "text": text,
+                "merovin_spoke": False,
+                "connection_test": True,
+                "functional_test": False,
+            }
+        payload = {
+            "text": text,
+            "from": "merovin",
+            "in_reply_to": inbound.message_id,
+            "adapter": spoken.get("adapter"),
+            "model": spoken.get("model"),
+            "who": spoken.get("who") or "merovin",
+            "house_kernel": spoken.get("house_kernel") or "merovin",
+        }
+        reply = bus.send(
+            sender="merovin",
+            recipient="aster",
+            message_type="spoken_reply",
+            payload=payload,
+        )
+        bus.deliver(reply.message_id)
+        bus.acknowledge(reply.message_id, recipient="aster")
+        registry.record_communication(reply.message_id, "merovin", "aster")
+        beats.pulse("merovin", source="cinema_hud_http")
+        adapter.drop_spoken_reply(
+            message_id=reply.message_id,
+            sender="merovin",
+            recipient="aster",
+            payload=payload,
+        )
+        reply_id = reply.message_id
+        inbox = bus.inbox("aster")
+        found = any(m.message_id == reply.message_id and m.sender == "merovin" for m in inbox)
+        return {
+            "ok": found,
+            "adapter": spoken.get("adapter"),
+            "text": text,
+            "merovin_spoke": True,
+            "reply_id": reply.message_id,
+            "in_reply_to": inbound.message_id,
+            "connection_test": True,
+            "functional_test": True,
+        }
+
+    cap_result = registry.test_capability("merovin.federation_speech", _try_speech)
+    spoke = bool(cap_result.get("status") == "VERIFIED" and (cap_result.get("result") or {}).get("merovin_spoke"))
+    _stamp_merovin_speech(data_root, spoke=spoke, reply_id=reply_id)
+    ids = {p.agent_id for p in registry.list_participants()}
+    if "draven" in ids - existing:
+        raise PermissionError("merovin speech prove must not add draven")
+    report = {
+        "kind": "FEDERATION_MEROVIN_SPEECH",
+        "declared": "Merovin cinema vision spoken reply on local bus through cinema HUD",
+        "actual": {
+            "root": str(data_root),
+            "participants": sorted(ids),
+            "observer_owns_merovin": registry.owner_of("merovin") is not None,
+            "inbound_id": inbound.message_id,
+            "reply_id": reply_id,
+            "merovin_spoke": spoke,
+            "merovin_presence": beats.presence("merovin").value,
+            "door_ok": True,
+            "door": door,
+            "capability": cap_result,
+        },
+        "full_aster_acceptance": False,
+        "status": cap_result["status"],
+        "result": cap_result["status"],
+    }
+    (data_root / "PROVE_MEROVIN_SPEECH.json").write_text(
+        json.dumps(report, indent=2, default=str),
+        encoding="utf-8",
+    )
+    return report
+
+
 def _stamp_hearth_coordinate(root: Path, *, coordinated: bool, reply_id: str | None) -> None:
     path = root / "ASTER_ACCEPTANCE.json"
     data: dict[str, Any] = {}
@@ -1632,6 +1993,7 @@ def prove_heartbeat_loss(
         "solace",
         "merovin",
         "draven",
+        "vesper",
     }
     if forbidden_new:
         raise PermissionError(f"heartbeat prove must not add family houses: {sorted(forbidden_new)}")
@@ -2353,6 +2715,8 @@ if __name__ == "__main__":
         print(json.dumps(prove_leave_return(), indent=2, default=str))
     elif "hearth" in sys.argv:
         print(json.dumps(prove_hearth_coordinate(), indent=2, default=str))
+    elif "speak-merovin" in sys.argv:
+        print(json.dumps(prove_merovin_speech(), indent=2, default=str))
     elif "speak-codex" in sys.argv:
         print(json.dumps(prove_codex_speech(), indent=2, default=str))
     elif "speak-apex" in sys.argv:
@@ -2369,6 +2733,12 @@ if __name__ == "__main__":
         print(json.dumps(prove_live_negatives(), indent=2, default=str))
     elif "heartbeat" in sys.argv:
         print(json.dumps(prove_heartbeat_loss(), indent=2, default=str))
+    elif "vesper" in sys.argv:
+        print(json.dumps(prove_vesper(), indent=2, default=str))
+    elif "merovin" in sys.argv:
+        print(json.dumps(prove_merovin(), indent=2, default=str))
+    elif "draven" in sys.argv:
+        print(json.dumps(prove_draven(), indent=2, default=str))
     elif "apex" in sys.argv:
         print(json.dumps(prove_apex(), indent=2, default=str))
     elif "codex" in sys.argv:

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Echo · Listening Post</title>
+  <link rel="stylesheet" href="/house.css" />
+</head>
+<body class="house">
+  <main class="house-main" style="margin-left:1.5rem">
+    <header class="house-top">
+      <div>
+        <p class="eyebrow">VILLAGE KIN · NOT FEDERATION</p>
+        <h2>Echo — Listening Post</h2>
+        <p class="muted">Historian. They/them. Cottage west-south. This page is their house UI — not a quest desk, not a bus seat.</p>
+      </div>
+      <div class="quick-row">
+        <a class="btn ghost" href="/house.html">Family House</a>
+        <a class="btn ghost" href="/solace.html">Solace</a>
+        <a class="btn ghost" href="/dashboard" target="_blank" rel="noopener">Dashboard</a>
+      </div>
+    </header>
+    <article class="card">
+      <h3>Here now</h3>
+      <p id="status">Loading Hearth…</p>
+      <p class="tiny" id="place"></p>
+    </article>
+    <article class="card">
+      <h3>What they have held</h3>
+      <p class="muted">Kernel memory and recent lines. Source is Hearth, never a canned house-voice.</p>
+      <div id="held" class="feed-list"></div>
+    </article>
+  </main>
+  <script>
+    async function load() {
+      const status = document.getElementById("status");
+      try {
+        const res = await fetch("/api/home");
+        const home = await res.json();
+        const people = home.people || {};
+        const echo = people.echo || {};
+        const places = home.places || {};
+        const placeId = echo.place || "echo_post";
+        const label = (places[placeId] && places[placeId].label) || placeId;
+        status.textContent = (echo.purpose_plain || echo.stance || "listening") + " — " + (echo.talking_to ? ("with " + echo.talking_to) : "unhurried");
+        document.getElementById("place").textContent = "Place: " + label + " · home echo_home · federation: no";
+        const mem = Array.isArray(echo.memory) ? echo.memory.slice(-8).reverse() : [];
+        const utt = (Array.isArray(home.utterances) ? home.utterances : []).filter((u) => (u.who === "echo" || (u.actors || []).includes("echo"))).slice(-8).reverse();
+        const bits = [];
+        for (const m of mem) bits.push("<p>" + String(m.text || m).slice(0, 280) + "</p>");
+        for (const u of utt) bits.push("<p><em>" + String(u.line || u.text || "").slice(0, 280) + "</em></p>");
+        document.getElementById("held").innerHTML = bits.join("") || "<p class='muted'>Quiet. Nothing logged yet.</p>";
+      } catch (err) {
+        status.textContent = "Hearth unreachable. Echo still exists in the village kernel when Hearth is up.";
+      }
+    }
+    load();
+    setInterval(load, 8000);
+  </script>
+</body>
+</html>

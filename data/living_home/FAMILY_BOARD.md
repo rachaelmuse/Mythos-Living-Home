@@ -2,7 +2,7 @@
 
 Updated **2026-09-01** (board first written 2026-08-30). Evidence only. A prompt is not a loop. Identities never merge. Mom `stop` wins.
 
-**Short answer (now):** Village proving slice is **18B LIVE** on Hearth. You still have not closed **16E** (walk Heart Square). Federation overlay is **real but paused**: Observer stays `:8730` only; Aster and Gemini are participants, not Observer employees; Gemini **delivery** is proven, **speech** is not. **Do not continue federation until Mom pastes the next directives.**
+**Short answer (now):** Village is **FUNCTIONAL** (**18B LIVE**; 16E walk/quit still needs you). Federation is **USABLE**, not finished. Cinema is **SEATED, NOT FINISHED**. Operator order: `NEXT.md` — cinema speech as three independent proves (Merovin, Draven, Vesper), then isolation matrix and restart integrity, **then** organic layer. Do not add houses. External reviewers **UNAVAILABLE**. Observer stays `:8730` only; she audits, she does not supervise.
 
 ---
 

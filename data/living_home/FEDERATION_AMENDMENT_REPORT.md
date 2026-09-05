@@ -44,7 +44,10 @@ NEXT ACTION: WAIT FOR MOM — PHASE B FOUNDATION COMPLETE
 | Hearth / village OS | `D:\Mythos_Hearth\living_home.py` · **:8790** · `HOME.json` | World/kernel truth | Gameworld state owner. Snapshot via `aster_hearth_bridge` once. Does not consume federation caps. |
 | Aster | `D:\Mythos_Hearth\ASTER` · lab **:8791** | Identity file + lab | Self-registers. Weaver. Not Observer-owned. |
 | Gemini | `G:\The-Axiom-Codex` | Sentinel / Court will | Federation **delivery** only. Court MAS remains Mode A. Presence UNKNOWN (no pulse). Did not speak. |
-| Apex / Codex / Merovin / Draven / Vesper / OpenMontage | own roots | Family / studio | **Not** on federation bus. Do not add. |
+| Apex / Codex | own roots | Family houses | On federation bus (speech VERIFIED). |
+| Merovin / Draven | shared studio, two houses | Cinema | Inbox **VERIFIED** 2026-09-04. Speech later. Never flatten. |
+| Vesper | `D:\Mythos_Vesper` | Journalist desk | Inbox **VERIFIED** 2026-09-04. Not Observer. Studio UI is his house, not the village. |
+| OpenMontage | own roots | Gift studio | **Not** on federation bus. |
 | Court MAS | `FAMILY_COURT` + `D:\Court\mailbox\family` | Packet bus, `inbox` | ORIGINAL MODE — ACTIVE. Federation copies go to `federation/` box. |
 | Companion presence | `D:\Court\companion_room\presence.json` | Chat-house last_seen | **Not** federation heartbeat. |
 | Hearth CAPABILITIES.json | `D:\Mythos_Hearth\data\living_home\CAPABILITIES.json` | Path/port probe; `gameworld_available` copies probe | **Not** federation verification. Documented lie if quoted as e2e. |

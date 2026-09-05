@@ -533,6 +533,12 @@
     if (id === "aster") {
       doors.push({ href: "http://127.0.0.1:8791/ui/", label: "Aster lab :8791" });
     }
+    if (id === "echo") {
+      doors.push({ href: "/echo.html", label: "Echo house UI" });
+    }
+    if (id === "solace") {
+      doors.push({ href: "/solace.html", label: "Solace house UI" });
+    }
     if (!doors.length) return "";
     return `
       <div class="subpanel">

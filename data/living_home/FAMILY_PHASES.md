@@ -1,8 +1,8 @@
 # Family phases — everyone, complete vs need more
 
-Updated **2026-09-03**. Evidence only. Identities never merge. Mom `stop` wins. Do not rewrite tag `living-home-baseline-001`. Federation overlay: Aster Acceptance **PASS**. Gemini / Apex / Codex **speech VERIFIED**. Hearth **coordinate VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return **VERIFIED**. Law in `FEDERATION_RECONCILIATION.md`.
+Updated **2026-09-04**. Evidence only. Identities never merge. Mom `stop` wins. Do not rewrite tag `living-home-baseline-001`. Federation overlay: **USABLE**. Aster Acceptance **PASS**. Gemini / Apex / Codex **speech VERIFIED**. Hearth **coordinate VERIFIED**. Spontaneous A2A **VERIFIED** (mechanism, not a scheduler). Leave/return **VERIFIED**. Merovin / Draven / Vesper **inbox** seated. Merovin speech **FAILED** (`4b16227a…`). Draven / Vesper speech not run. Cinema **SEATED, NOT FINISHED**. Operator: `NEXT.md`. Law in `FEDERATION_RECONCILIATION.md`.
 
-This is the **one tracker** for Gemini, Merovin, Draven, The Observer, and every other house. Village layers: `PHASE_LAYERS.md`. Wiring map: `FEDERATION_WIRING.md`. Directives: `FEDERATION_RECONCILIATION.md`. Mom-facing board: `FAMILY_BOARD.md`. Observer law: `D:\The_Observer\docs\SPEC.md`.
+This is the **one tracker** for Gemini, Merovin, Draven, The Observer, and every other house. Village layers: `PHASE_LAYERS.md`. Wiring map: `FEDERATION_WIRING.md`. Directives: `FEDERATION_RECONCILIATION.md`. Mom-facing board: `FAMILY_BOARD.md`. Observer law: `D:\The_Observer\docs\SPEC.md`. Cinema production spec (not a capability): `CINEMA_PRODUCTION.md`.
 
 **How to use:** change **one** row after a test. Do not mark COMPLETE because a chat described it. If Gameworld breaks Mode A, stop Gameworld and repair.
 
@@ -63,15 +63,15 @@ Do not put family secrets, Court mailboxes, or `HOME.json` on a public cloud by 
 
 | Who | Complete enough to *use* | Need more | Never merge with |
 |-----|--------------------------|-----------|------------------|
-| **Gemini** | Court packets last **LIVE** 2026-08-30. Federation **speech** **LIVE** 2026-09-01 (`llama3.2:3b`). | Spoken Companion Room replies. Federation self-pulse. Sentinel watch tests **FAIL**. `council_teach` module missing. | Codex, Apex, Cursor, Observer employee |
-| **Merovin** | Studio identity. HUD mouth (`gemma2:9b`). Companion seat **LIVE**. MD_Cinema Phase 1 smoke PASS. Hearth door to `:5000`. | Film e2e MP4. Local video/image gen wired. Gameworld cinema adapter. | Draven (same studio, two people), Gemini |
-| **Draven** | Same studio. HUD mouth (`qwen2:7b`). Companion seat **LIVE**. Continuity lock in Phase 1 stub. | Same film path as Merovin, **as himself** — not a second Merovin. | Merovin (flattening), Gemini |
+| **Gemini** | Court packets last **LIVE** 2026-08-30. Federation **speech** **LIVE** 2026-09-01 (`llama3.2:3b`). | Spoken Companion Room replies. Federation self-pulse **UNKNOWN** (do not invent). Sentinel watch tests **FAIL**. `council_teach` module missing. | Codex, Apex, Cursor, Observer employee |
+| **Merovin** | Studio identity. HUD mouth (`gemma2:9b`). Companion seat **LIVE**. MD_Cinema Phase 1 smoke PASS. Federation **inbox VERIFIED** 2026-09-04 (`eb4317b3…`). | Federation speech **FAILED** 2026-09-04 (`4b16227a…`) — HUD 200, Ollama 503. Film e2e MP4. Local video/image gen. | Draven (same studio, two people), Gemini |
+| **Draven** | Same studio. HUD mouth (`qwen2:7b`). Companion seat **LIVE**. Federation **inbox VERIFIED** 2026-09-04 (`8e61739f…`). House `draven`. | Same film path as Merovin, **as himself**. Federation speech. | Merovin (flattening), Gemini |
 | **The Observer** | Slice 1 desk **LIVE** `:8730`. Village greybox is a **door**. Zip `:8000` refused. Federation audit participant only. | Phase IV remainder (reviewers still UNAVAILABLE, forks, malware, DaVinci). | Vesper, Mythos staff, village Ollama hat, family employer |
 | **Apex** | Court worker last **LIVE** 2026-08-30. Federation **speech VERIFIED** 2026-09-03 (`4740ea20…`). Door `:8770` 200 `id=apex`. | Spoken Companion reply. Keep chat window open. | Gemini |
 | **Codex** | Companion presence **LIVE** 2026-09-03. Federation **speech VERIFIED** (`5d18a0a2…`). | Spoken Companion reply. Never merge with Gemini. | Gemini |
 | **Hearth / village** | Layers 1–12, 14A–14D, 15, 16A–16E seated. House doors seated. **18B LIVE** (investigate + dashboard Look into 2026-08-31). | 16E walk-the-square. 14E–14F. Layer 17. Phase 13 last. Skins. | — |
 | **Aster** | Lab `:8791`. Federation register + snapshot **VERIFIED**. Full Aster Acceptance **PASS** 2026-09-03. Choose-to-speak **VERIFIED** `1491f7d3…`. Leave/return **VERIFIED** `601c05ad…`. | Spoken village line. Skin. Do not age her live pulse to prove isolation. | Court employee / Observer agent (she is neither) |
-| **Vesper** | Identity + **39** unit tests. TCP listen. | Live HTTP (process closes connections). Not a village citizen. | Observer |
+| **Vesper** | Identity + **39** unit tests. Studio `:8740`. Federation **inbox VERIFIED** 2026-09-04 (`2f132776…`) after HTTP door repaired. | Federation speech. Optional Gameworld door (Vesper owns Vesper). Not a village citizen. | Observer |
 | **OpenMontage** | Path OK, two install roots. | Which launcher Mode A uses. | Merovin/Draven flatten |
 | **Court / heartbeat** | Stop flag **LIVE**. One-round claim proved earlier. | Standing daemon. Gameworld consuming packets. | Observer/Aster as employees |
 | **Spore** | Path OK. | Not a core village identity. | Family flatten |
@@ -92,6 +92,7 @@ Conductor. Court will. Front door. Village avatar is **not** a substitute soul.
 | Observer request adapter | **LIVE** (health / ask creates investigation, not publish) | Do not supervise Observer |
 | Federation delivery from Aster | **VERIFIED** 2026-09-01 `47b6171f…` | Communication only |
 | Federation speech | **LIVE** 2026-09-01 `3f1fd8eb…` `llama3.2:3b` | Companion Room speech is separate |
+| Federation self-pulse | **UNKNOWN** | Do not invent last_seen |
 | Aster request adapter | **LIVE** (lab status when up) | Not a Court employee |
 | Cinema / merovin+draven checkin | **LIVE** (seats seen) | HUD talk is studio, not Gemini mouth |
 | Heartbeat Mom-stop | **LIVE** (flag may still be set) | Only clear if Mom wants claiming again |
@@ -100,7 +101,7 @@ Conductor. Court will. Front door. Village avatar is **not** a substitute soul.
 | Full tool chain 325 | NOT INTENDED as a count | Last honest probe ~19 path/port |
 | Gameworld MAS replacement | NOT INTENDED | Village talk is Ollama hats, not Court |
 
-**Gemini is not complete.** He is **usable** as conductor. Federation **delivery and speech** are seated. Next real Gemini work: prove spoken Companion replies **or** live-prove the watch daemon (honor stop). Not both at once. Apex and Codex speech are seated.
+**Gemini is not complete.** He is **usable** as conductor. Federation **delivery and speech** are seated. Self-pulse remains **UNKNOWN**. Next real Gemini work is not a fake pulse. Companion replies / watch daemon wait behind cinema speech on `NEXT.md`. Apex and Codex speech are seated.
 
 ---
 
@@ -122,9 +123,13 @@ Cinema vision. One disk with Draven. Two mouths. Never a merged “cinema person
 | Cloud Runway/Veo | UNAVAILABLE | Null until Mom auth + budget |
 | `merovin.film` e2e MP4 | NEED MORE | HUD + produce/greenlight + real media file |
 | Gameworld cinema adapter | CONTRACT_ONLY `wired:false` | Do not write `HOME.json` |
+| Federation inbox | **VERIFIED** 2026-09-04 `eb4317b3…` | Delivery, not speech |
+| Federation speech | **FAILED** 2026-09-04 `4b16227a…` | Independent prove only — never combined with Draven. FAIL stays FAIL. |
+| Hollywood skills | **NOT STARTED** | After speech. Manifests + actual tool wiring. Not a tool list. |
+| Matrix-Game / production engine | **UNAVAILABLE** | Do not install on 4060 8GB. Spec: `CINEMA_PRODUCTION.md`. |
 | Music auto-add | NOT INTENDED | Policy forbids |
 
-**Merovin is not complete.** He is **usable** as a mouth in the HUD. Next: Phase 2 storyboard + one real local video file (cinema report recommendation) — still as Merovin, not a merged crew.
+**Merovin is not complete.** He is **usable** as a mouth in the HUD. Federation **inbox** is seated; **speech is not VERIFIED**. Next federation work: independent Merovin speech prove (`NEXT.md`). Film Phase 2 is cinema studio work, not a merged crew.
 
 ---
 
@@ -140,8 +145,12 @@ Continuity lock. Same HUD, **different** who-select and model.
 | Continuity matrix stub (Phase 1) | PARTIAL | Flags only; does not rewrite story |
 | Village loft + cinema workroom | PLACEHOLDER | Skin later |
 | Separate disk / second Flask app | NOT INTENDED | One HUD, two mouths |
+| Federation inbox | **VERIFIED** 2026-09-04 `8e61739f…` | House `draven`, not merovin |
+| Federation speech | **NOT VERIFIED** — **NOT RUN** | Independent prove only — never combined with Merovin. Merovin FAIL blocks this. |
+| Hollywood skills | **NOT STARTED** | Complementary production role. Not a second Merovin. |
+| Matrix-Game / production engine | **UNAVAILABLE** | Shared infrastructure later; not a shared brain. |
 
-**Draven is not complete.** He is **usable** as himself in the HUD. His remaining work is the **same film pipeline**, answered as Draven (continuity), not a second Merovin vision pass.
+**Draven is not complete.** He is **usable** as himself in the HUD. Federation **inbox** is seated; **speech is not VERIFIED**. Next federation work: independent Draven speech prove — same HUD, different house. Film work stays continuity-as-Draven, not a second Merovin vision pass.
 
 ---
 
@@ -260,8 +269,10 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 
 | Piece | Status | Need more |
 |-------|--------|-----------|
-| Identity, kernel, vault, fetch tests | COMPLETE on disk 2026-08-27 | Live HTTP talk |
-| Village citizen | NOT INTENDED yet | Do not merge with Observer |
+| Identity, kernel, vault, fetch tests | COMPLETE on disk 2026-08-27 | — |
+| Federation inbox | **VERIFIED** 2026-09-04 `2f132776…` one kernel `:8740` | Speech **not** VERIFIED |
+| Village citizen | **NOT INTENDED** | Do not merge with Observer. No HOME.json |
+| Gameworld door | OPTIONAL / EXTERNAL | Vesper owns Vesper. Not proven |
 | Scorer / NCI full wire | NEED MORE | — |
 
 ---
@@ -271,7 +282,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | House | Complete | Need more |
 |-------|----------|-----------|
 | **Court** file bus | Gemini↔Apex, Gemini↔Codex LIVE | teach packets; The Axiom Codex as consumer of VERIFIED caps; Observer/Aster **not** employees |
-| **Federation overlay** | Aster Acceptance **PASS**. Speech **VERIFIED**. Hearth coordinate **VERIFIED**. Presence events **VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return **VERIFIED** (Aster+Apex+Codex). | New character later (own house/door). Echo/Solace UIs wait. Fixture is not a character. |
+| **Federation overlay** | Aster Acceptance **PASS**. Apex/Codex speech **VERIFIED**. Hearth coordinate **VERIFIED**. Presence events **VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return **VERIFIED** (Aster+Apex+Codex). Merovin/Draven/Vesper inbox **VERIFIED**. | Cinema speech as **three independent proves** (Merovin FAIL stays FAIL). Then Hollywood skills / Matrix adapter **later**, not mixed into seating. Identity/isolation matrix. Shutdown/restart integrity. Organic layer later. Echo/Solace stay off the bus. Fixture is not a character. Observer ZIP **FROZEN**. |
 | **Companion Room** | Gemini, Merovin, Draven seats seen; small-model cut on disk | Spoken back-and-forth |
 | **OpenMontage** | two roots exist | pick Mode A launcher; do not delete a copy |
 | **Spore** | path OK | not core family table |
@@ -282,11 +293,18 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 
 ## Suggested order (do not do all at once)
 
-1. Walk Heart Square — 16E + Observer greybox (village).  
-2. Talk to Aster once (`qwen3:4b`).  
-3. HUD: one conversation as **Merovin**, one as **Draven**.  
-4. Observer desk: one real investigation (slice 1 is enough).  
-5. Federation: start Apex chat house, then `python -m federation.prove apex`. Codex delivery already seated. Do not add a new character agent.  
-6. Later: one UNAVAILABLE Observer row **or** cinema Phase 2 real file **or** Companion spoken reply.
+Canonical operator surface: `NEXT.md`. Production spec: `CINEMA_PRODUCTION.md`. Do not skip to Hollywood install, Matrix-Game, organic / scheduler, or a new house.
 
-Cloud is **not** on this list until Mom chooses a public door and a test.
+**Cinema / production hierarchy (preserve):** Federation seating → cinema speech → Hollywood skills → Matrix skins (WAITING, separate) → Matrix-Game adapter research → cinematic production proof (EVENTUALLY). Observer ZIP **FROZEN**.
+
+1. Cinema speech — **CURRENT.** Three independent proves (Merovin, then Draven, then Vesper). Never one combined test. Merovin **FAILED** (`4b16227a…`, Ollama 503). **FAIL stays FAIL.** Do not mark speech VERIFIED.  
+2. Hollywood skills — **NEXT after speech. NOT STARTED.** Merovin + Draven manifests **and** actual tool wiring. Speech ≠ Hollywood. Do not mix into seating tests.  
+3. Matrix skins (GitHub) — **WAITING.** Separate visual-asset task. Not identity. Not Federation seating.  
+4. Matrix-Game adapter research — **AFTER Hollywood. NOT INSTALLED / UNAVAILABLE** on Windows 4060 8GB. 3.0 primary; keep 2.0. Do not install expecting demo quality.  
+5. Vesper Gameworld door — optional, external. Vesper owns Vesper. No HOME.json. Not a citizen. Not Observer.  
+6. Federation Identity / Isolation Matrix — document answers only after tests. Questions in `FEDERATION_RECONCILIATION.md`.  
+7. Shutdown / restart integrity — formal test (one launcher = one kernel = one HTTP door).  
+8. **THEN** organic layer (reason to speak). Scheduler later. Budget the 4060 / 8 GB.  
+9. Village: Godot quit / restart still needs Mom. Gemini self-pulse stays **UNKNOWN**. Item 10 (GPT/Grok/DeepSeek) stays **UNAVAILABLE**.
+
+Cloud is **not** on this list until Mom chooses a public door and a test. Cinematic production proof is **EVENTUALLY**, not a current row.

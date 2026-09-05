@@ -115,6 +115,8 @@ Currency: **Axiom (⨁)**. Hearth is truth; dashboard + Godot present.
 
 **Repo:** [SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game) (MIT) · interactive world model (image + keyboard/mouse → streaming video; 2.0 real-time; 3.0 long-horizon memory).
 
+**Not the cinema production adapter.** Layer 17 is a village optional **look**. Merovin/Draven Hollywood skills + Matrix-Game as a pluggable film engine live in `CINEMA_PRODUCTION.md` and stay **UNAVAILABLE** on this Windows RTX 4060 8GB (Skywork: Linux, 64 GB RAM, A/H or ≥24 GB VRAM). Do not flatten the two. Do not install on this card.
+
 **Do not start until Layer 16 is closed.** Optional media limb only — never replaces Hearth, Godot greybox, Ollama speech, or family identities.
 
 | Slice | Intent | Status |

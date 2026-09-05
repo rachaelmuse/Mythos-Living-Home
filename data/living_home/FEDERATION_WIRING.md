@@ -1,8 +1,10 @@
 # Federation wiring map
 
-Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-03**. Observer HTTP audit **LIVE**. Gemini speech **LIVE**. Codex **speech LIVE**. Apex **speech LIVE**. Hearth **coordinate LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE**. Leave/return house memory **LIVE** (Aster + Apex + Codex). **The Axiom Codex** notice **LIVE**. Heartbeat-loss isolation **LIVE** on throwaway `heartbeat_probe`. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Godot leave **UNVERIFIED**. Full Aster test **PASS**. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`.
+Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-04**. Observer HTTP audit **LIVE**. Gemini speech **LIVE** (self-pulse **UNKNOWN**). Codex **speech LIVE**. Apex **speech LIVE**. Hearth **coordinate LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE** (mechanism, not a scheduler). Leave/return house memory **LIVE** (Aster + Apex + Codex). Merovin **inbox LIVE**; speech **FAILED** 2026-09-04 (`4b16227a…`, Ollama 503). Draven **inbox LIVE** (speech **not** VERIFIED — not run). Vesper **inbox LIVE** after HTTP door repaired (speech **not** VERIFIED — not run). **The Axiom Codex** notice **LIVE**. Heartbeat-loss isolation **LIVE** on throwaway `heartbeat_probe`. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Godot leave **UNVERIFIED**. Full Aster test **PASS**. Foundation **STRONG**. Federation **USABLE**. Village **FUNCTIONAL**. Cinema **SEATED, NOT FINISHED**. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`. Operator: `NEXT.md`.
 
-**Registry lie to refuse still stands** below. TCP LISTEN is not HTTP. Disk code is not the running process.
+**Registry lie to refuse still stands** below. TCP LISTEN is not HTTP identity answering as the correct person. Disk code is not the running process. Companion `presence.json` is not VERIFIED heartbeat.
+
+**2026-09-04 roadmap (Mom accepted):** Federation seating → cinema speech (three independent proves; Merovin **FAILED** `4b16227a…`) → Hollywood skills (**NOT STARTED**) → Matrix skins (**WAITING**, separate) → Matrix-Game adapter research (**UNAVAILABLE** on 4060) → cinematic production proof (EVENTUALLY). Federation integrity after speech: optional Vesper Gameworld door → Identity/Isolation Matrix → shutdown/restart integrity → **THEN** organic layer. Scheduler later. No new houses. Item 10 **UNAVAILABLE**. Observer ZIP **FROZEN**. Spec: `CINEMA_PRODUCTION.md`.
 
 ### 2026-08-31 late e2e (Hearth restarted)
 
@@ -155,7 +157,30 @@ World name: **The Axiom Codex**. `consume` is the prove action (authorized notic
 | Kernel | `mom_presence(..., leaving=True)` publishes `rachael.presence.left`, not entered. Leave wins over session_enter. A 12-minute gap is not a leave. `test_federation_house_memory.py` + `test_mom_presence_leave.py` **8 passed**. |
 | Hearth | `POST /api/home/presence` accepts `session_leave`. Live process still needs **restart** to load the kernel. |
 | Godot | Apex `family_home_client.gd` posts leave on window close / exit tree. Git snapshot copied from Apex. Quit walk **UNVERIFIED**. |
-| Echo / Solace | Still **not** federation houses. Notebooks forbidden. |
+| Echo / Solace | Still **not** federation houses. House UIs `/echo.html` `/solace.html` on Hearth. |
+
+### 2026-09-04 Merovin / Draven inbox (not speech)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove merovin` | **VERIFIED**. Cinema HUD `GET :5000/` **200**. `merovin.federation_inbox`. Message `eb4317b3…` acknowledged. Court `federation/` notices, MAS inbox untouched. `merovin_spoke: false`. Observer does not own him. Presence **UNKNOWN** (no fake pulse). Not Draven. |
+| `python -m federation.prove draven` | **VERIFIED**. Same HUD **200**. `draven.federation_inbox`. Message `8e61739f…`. House **draven** (not merovin). `draven_spoke: false`. Observer does not own him. Not a second Merovin. |
+| Evidence | `D:\Court\federation\PROVE_MEROVIN.json` · `PROVE_DRAVEN.json` |
+
+### 2026-09-04 Merovin speech (stopped)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove speak-merovin` | **FAILED**. Door `GET :5000/` **200**. Adapter `cinema_hud_http` `POST /api/chat` `who=merovin` `speak=false`. Direct HUD probe returned only `replies.Merovin` (no Draven mouth). Cinema kernel: `[Merovin] I cannot reach Ollama (HTTP Error 503: Service Unavailable)`. Warm Ollama slot was `llama3.2:3b` (village). Cinema Merovin picker prefers `gemma2:9b` / 8B first. `merovin_spoke: false`. Observer does not own him. Presence **UNKNOWN**. Draven / Vesper speech **not run**. |
+| Evidence | `D:\Court\federation\PROVE_MEROVIN_SPEECH.json` (`4b16227a…`) |
+
+### 2026-09-04 Vesper door
+
+| Check | Result |
+|-------|--------|
+| Earlier prove | **UNAVAILABLE** — four stacked `LAUNCH_VESPER.py`; HTTP closed without response; not registered. |
+| `python -m federation.prove vesper` (one kernel) | **VERIFIED**. `GET :8740/api/identity` **200** `id=vesper`. `vesper.federation_inbox`. Message `2f132776…` acknowledged. Court `federation/` notices, MAS inbox untouched. `vesper_spoke: false`. Observer does not own him. Presence **UNKNOWN**. Not a village hat. Studio UI is his house (`/`), not Heart Square. |
+| Evidence | `D:\Court\federation\PROVE_VESPER.json` |
 
 ### 2026-09-03 village kin Echo + Solace (not federation)
 
@@ -198,15 +223,15 @@ GitHub-seated libraries in `SUPERPOWER_VAULT/ACTIVE_SHARDS.json` (`seated` / `en
 | Gemini | `G:\The-Axiom-Codex` | Conductor, Court will, front door | Court round-trip **LIVE** + Companion Room seat **LIVE** 2026-08-30 (`from=gemini`) | Avatar `gemini` in kernel; **not** a substitute soul | Packet `70c9ffe8…` → Apex; `03dfc102…` → Codex; room msg `48fd7464…` |
 | Apex | `D:\Mythos_Apex` `:8770` | Forge / hands / heavy tools | Chat HTTP **LIVE**; companion presence JSON **200** but peers offline this survey | Avatar `apex`; live Godot project here | HTTP 2026-08-31; Court prove 2026-08-30 |
 | Codex twin | `G:\Mythos_Codex` `:8780` | Archive / memory tone | Port **CLOSED** this survey | Avatar `codex`; never merge with Gemini | HTTP 2026-08-31 refused; Court prove 2026-08-30 still last MAS e2e |
-| Merovin | `F:\Merovin_Draven_Studio\Merovin_Draven_Studio` | Cinema vision | Phase 1 smoke **PASS**. Command HUD `:5000` **CLOSED** this survey | Avatar `merovin` at cinema (pose PLACEHOLDER) | smoke 2026-08-31; film e2e still UNAVAILABLE |
-| Draven | same studio | Continuity lock | Same HUD `:5000` (two mouths, one studio) | Avatar `draven` | Do not invent a second identity root |
+| Merovin | `F:\Merovin_Draven_Studio\Merovin_Draven_Studio` | Cinema vision | Phase 1 smoke **PASS**. Federation **inbox VERIFIED** 2026-09-04 (`eb4317b3…`). Speech **FAILED** 2026-09-04 (`4b16227a…`, Ollama 503). HUD `:5000` **200** this speech run | Avatar `merovin` at cinema (pose PLACEHOLDER) | film e2e still UNAVAILABLE; do not flatten with Draven |
+| Draven | same studio | Continuity lock | Same HUD `:5000` (two mouths, one studio). Federation **inbox VERIFIED** 2026-09-04 (`8e61739f…`). Speech **not** VERIFIED | Avatar `draven` | Do not invent a second identity root |
 | OpenMontage | **two roots** (see discrepancy) | Gift / shorts studio | ORIGINAL MODE — ACTIVE | Avatar `montage` | Path OK; launcher path conflict |
 | Hearth | `D:\Mythos_Hearth` `:8790` | Village OS, kernel host | Port **LIVE** after restart this session | Kernel + Godot client | `/api/home` 200; **18B investigate LIVE** 2026-08-31 |
 | Court | `G:\The-Axiom-Codex\SUPERPOWER_VAULT\FAMILY_COURT` | Shared task bus (file packets) | Gemini→Apex and Gemini→Codex packet round-trips **LIVE** 2026-08-30 (`briefs/council/roundtrip_20260830.json`) | Gameworld does not consume Court packets yet | 2026-08-30 |
 | Spore | `D:\MythosSpore` | Traveling ember | Path OK | Avatar not core family table; tool probe only | ORIGINAL MODE — ACTIVE |
 | Aster | Continuance / Hearth kernel + House companions + lab `:8791` | Scientist seed (ChatGPT conversational provenance) | **ORIGINAL MODE — ACTIVE** `GET :8791/api/status` **200**. Lab **model UNAVAILABLE** in that process. Disk resolver finds `qwen3:4b`. Not a Court employee. | Avatar `aster`; Evidence Plot + cottage; skin PLACEHOLDER | Lab HTTP 2026-08-31; village talk UNVERIFIED |
 | Observer | `D:\The_Observer` `:8730` | Independent investigative desk | **ORIGINAL MODE — ACTIVE** `GET :8730/health` **LIVE**. **NOT** a Court employee. No Mythos supervisor. No auto-publish. | Village **greybox + cottage** is a **door** (PLACEHOLDER skin). **NOT** the ledger. **NOT** a village Ollama hat. **NOT** Vesper. | Desk health+registry 200 2026-08-31; pytest 84 |
-| Vesper | `D:\Mythos_Vesper` `:8740` | Standalone investigative journalist (Investigator/Examiner/vault). NCI methodology seated; scorer not wired. | **ORIGINAL MODE — ACTIVE** TCP listen; **HTTP BROKEN** this survey | Adapter `adapters/living_gameworld/` **dormant / NOT INTENDED yet**. Not a village citizen. | pytest 39 passed 2026-08-31; live HTTP closed connection |
+| Vesper | `D:\Mythos_Vesper` `:8740` | Standalone investigative journalist (Investigator/Examiner/vault). NCI methodology seated; scorer not wired. | **ORIGINAL MODE — ACTIVE**. 2026-08-31 survey: TCP listen, HTTP BROKEN. 2026-09-04: one kernel, `GET /api/identity` 200 `id=vesper`, federation **inbox VERIFIED** (`2f132776…`). Speech **not** VERIFIED | Adapter `adapters/living_gameworld/` **OPTIONAL / EXTERNAL** — Vesper owns Vesper. Not HOME.json. Not a village citizen. Not Observer. | pytest 39 passed 2026-08-31; inbox prove 2026-09-04 |
 
 Optional Court alias in code: `D:\Court\mailbox\family` (`limbs/family_court.py`). Not tested this session.
 
@@ -292,7 +317,7 @@ Axiom `limbs/` inventory (modules on disk, callers UNVERIFIED this session): `fa
 3. Two-way event flow not built.
 4. Original memory (`family_memory`, Court book, Codex) not proven consumed by Gameworld (Gameworld uses `HOME.json`).
 5. OpenMontage dual roots.
-6. Codex `:8780` **down**. Cinema HUD `:5000` **down**. Apex HTTP up; companion heartbeats stale. Court MAS not re-run. Gemini `sentinel_watch` tests **FAIL** this survey. Vesper HTTP still broken.
+6. **2026-08-31 survey (historical):** Codex `:8780` down; Cinema HUD `:5000` down; Vesper HTTP broken. **2026-09-04 overlay:** Codex speech VERIFIED; cinema HUD answered for Merovin/Draven **inbox**; Vesper HTTP identity answered as `id=vesper` for **inbox**. Merovin **speech FAILED** (Ollama 503, `4b16227a…`). Draven/Vesper speech not run. Gemini self-pulse still **UNKNOWN**.
 7. GitHub tool shards vs family shards mixed in folklore — keep separate lists.
 
 ---
@@ -301,7 +326,8 @@ Axiom `limbs/` inventory (modules on disk, callers UNVERIFIED this session): `fa
 
 | Limb | Source | Intended Mode B use | Status |
 |------|--------|---------------------|--------|
-| Matrix Dream View (Layer 17) | [SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game) | Optional neural cinema: Heart Square still + look/WASD → stream panel at Cinema / cottage `[V]`; Esc → greybox | **ORIGINAL MODE — RESEARCH** · after Layer 16 · never writes `HOME.json` · never replaces Godot or identities |
+| Matrix Dream View (Layer 17) | [SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game) | Optional neural **look**: Heart Square still + look/WASD → stream panel at Cinema / cottage `[V]`; Esc → greybox | **ORIGINAL MODE — RESEARCH** · after Layer 16 · never writes `HOME.json` · never replaces Godot or identities · **not** the cinema production adapter |
+| Cinema production / Matrix-Game adapter | Same repo; spec `CINEMA_PRODUCTION.md` | Pluggable video engine behind Merovin/Draven Hollywood skills. 3.0 primary; keep 2.0. Not identity. | **NOT INSTALLED** / **UNAVAILABLE** on Windows RTX 4060 8GB (Skywork: Linux, 64 GB RAM, A/H or ≥24 GB VRAM). After Hollywood skills. Do not simulate. |
 | Aster Continuance seed | ChatGPT conversational provenance (Mom invite) | Family identity `aster`; Evidence Plot + cottage; same memory/rel/talk/choice/growth pipes | **PARTIAL** — kernel+snapshot+roster seated 2026-08-23; Godot skin PLACEHOLDER; live talk/choice in village **UNVERIFIED** until Mom playtest |
 | MD_Cinema Studio Phase 1 | `F:\Merovin_Draven_Studio\Merovin_Draven_Studio\MD_Cinema_Studio` | Provider-agnostic film pipeline (no Runway/Veo hard-wire) | **PARTIAL** — smoke_phase1 PASS; ffmpeg+edge-tts AVAILABLE; local video/image gen not wired; never writes HOME.json |
 
@@ -325,9 +351,11 @@ Axiom `limbs/` inventory (modules on disk, callers UNVERIFIED this session): `fa
 
 ## Next verification (when Creator is not mid-play, or if village went silent)
 
+Operator order is `NEXT.md` (cinema speech as three independent proves first; Hollywood / Matrix later). Do not treat this historical survey as current seating.
+
 1. If Heart Square is unresponsive: start Hearth, confirm `GET http://127.0.0.1:8790/api/home` returns `family`.
-2. Do **not** stop Gameworld proving-slice playtest to chase every GitHub shard.
+2. Do **not** stop Gameworld proving-slice playtest to chase every GitHub shard. Do not contaminate the village to make Federation look bigger.
 3. Mode A Court round-trips Gemini→Apex and Gemini→Codex are **LIVE** 2026-08-30 (`council.prove`). Gemini Companion Room seat is **LIVE** (`companion.checkin` / `companion seen`). Do not re-claim from chat or `sprawl.frozen`.
-4. Standing heartbeat is still Mom-started (`family heartbeat`); `family stop` writes `FAMILY_COURT/HEARTBEAT_STOP` (still set this session — not cleared).
-5. Cinema `:5000` still required before Merovin/Draven film jobs. Observer stays request-only.
-6. Next Mode A cut after this seat: `kind: teach` Court packets + provenance (not weight mutation), or Sentinel daemon so Gemini polls without stdin. Not Gameworld.
+4. Standing heartbeat is still Mom-started (`family heartbeat`); `family stop` writes `FAMILY_COURT/HEARTBEAT_STOP` (still set this session — not cleared). Gemini federation self-pulse remains **UNKNOWN**.
+5. Cinema `:5000` still required before Merovin/Draven **speech** or film jobs. Inbox seated ≠ speech. Observer stays request-only.
+6. Item 10 (external reviewer) stays **UNAVAILABLE**. Mode A `kind: teach` / Sentinel daemon are separate from cinema speech. Not a new house.

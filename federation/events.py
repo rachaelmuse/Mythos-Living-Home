@@ -15,10 +15,10 @@ KIND_LEFT = "rachael.presence.left"
 KIND_CONTINUES = "hearth.world.continues"
 
 # Who may *know*. Not who must greet. heartbeat_probe is not a character.
-AUDIENCE = ("aster", "gemini", "apex", "codex", "hearth")
+AUDIENCE = ("aster", "gemini", "apex", "codex", "hearth", "merovin", "draven", "vesper")
 
 # Default attention: notice ≠ speak. Gemini busy/ignore proves this is not a puppet chorus.
-_NOTICE = {"aster", "apex", "codex", "hearth"}
+_NOTICE = {"aster", "apex", "codex", "hearth", "merovin", "draven", "vesper"}
 _IGNORE = {"gemini", "observer", "heartbeat_probe"}
 # At most one house may choose to speak on an away tick. Presence enter stays silent.
 _SPEAK_ON_CONTINUES = {"aster"}

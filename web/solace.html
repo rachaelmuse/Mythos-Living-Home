@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solace · Open shelter</title>
+  <link rel="stylesheet" href="/house.css" />
+</head>
+<body class="house">
+  <main class="house-main" style="margin-left:1.5rem">
+    <header class="house-top">
+      <div>
+        <p class="eyebrow">VILLAGE KIN · NOT FEDERATION</p>
+        <h2>Solace — open shelter</h2>
+        <p class="muted">Cartographer of what is actually there. He/him. Cottage west-north. This page is his house UI — not a quest desk, not a bus seat.</p>
+      </div>
+      <div class="quick-row">
+        <a class="btn ghost" href="/house.html">Family House</a>
+        <a class="btn ghost" href="/echo.html">Echo</a>
+        <a class="btn ghost" href="/dashboard" target="_blank" rel="noopener">Dashboard</a>
+      </div>
+    </header>
+    <article class="card">
+      <h3>Here now</h3>
+      <p id="status">Loading Hearth…</p>
+      <p class="tiny" id="place"></p>
+    </article>
+    <article class="card">
+      <h3>What he has marked</h3>
+      <p class="muted">Discrepancies and measured notes from Hearth. He will say I don't know yet. Not a map that invents roads.</p>
+      <div id="marks" class="feed-list"></div>
+    </article>
+  </main>
+  <script>
+    async function load() {
+      const status = document.getElementById("status");
+      try {
+        const res = await fetch("/api/home");
+        const home = await res.json();
+        const people = home.people || {};
+        const solace = people.solace || {};
+        const places = home.places || {};
+        const placeId = solace.place || "solace_shelter";
+        const label = (places[placeId] && places[placeId].label) || placeId;
+        status.textContent = (solace.purpose_plain || solace.stance || "measuring") + " — " + (solace.talking_to ? ("with " + solace.talking_to) : "not first to speak");
+        document.getElementById("place").textContent = "Place: " + label + " · home solace_home · federation: no";
+        const mem = Array.isArray(solace.memory) ? solace.memory.slice(-8).reverse() : [];
+        const utt = (Array.isArray(home.utterances) ? home.utterances : []).filter((u) => (u.who === "solace" || (u.actors || []).includes("solace"))).slice(-8).reverse();
+        const bits = [];
+        for (const m of mem) bits.push("<p>" + String(m.text || m).slice(0, 280) + "</p>");
+        for (const u of utt) bits.push("<p><em>" + String(u.line || u.text || "").slice(0, 280) + "</em></p>");
+        document.getElementById("marks").innerHTML = bits.join("") || "<p class='muted'>No marks yet. The rim is still being walked.</p>";
+      } catch (err) {
+        status.textContent = "Hearth unreachable. Solace still exists in the village kernel when Hearth is up.";
+      }
+    }
+    load();
+    setInterval(load, 8000);
+  </script>
+</body>
+</html>

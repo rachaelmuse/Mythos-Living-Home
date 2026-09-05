@@ -327,6 +327,7 @@ KIN: list[dict[str, Any]] = [
         "federation": False,
         "quest_giver": False,
         "skin": "PLACEHOLDER — identity seated, final skin pending.",
+        "house_ui": "/echo.html",
         "never_merge": ["gemini", "aster", "solace", "observer", "hearth", "codex", "apex"],
         "pronouns": "they/them",
     },
@@ -349,6 +350,7 @@ KIN: list[dict[str, Any]] = [
         "federation": False,
         "quest_giver": False,
         "skin": "PLACEHOLDER — identity seated, final skin pending.",
+        "house_ui": "/solace.html",
         "never_merge": ["gemini", "echo", "aster", "observer", "hearth", "codex", "apex"],
         "pronouns": "he/him",
     },
@@ -425,11 +427,27 @@ def _house_doors() -> list[dict[str, Any]]:
         },
         {
             "id": "vesper",
-            "label": "Vesper",
+            "label": "Vesper studio",
             "who": [],
             "url": "http://127.0.0.1:8740/",
             "port": 8740,
-            "note": "Standalone journalist. Not a village citizen. Not the Observer.",
+            "note": "Optional Gameworld door. Not a village citizen. Not the Observer. Studio Listen is his mic.",
+        },
+        {
+            "id": "echo_house",
+            "label": "Echo — Listening Post",
+            "who": ["echo"],
+            "url": "http://127.0.0.1:8790/echo.html",
+            "port": 8790,
+            "note": "Village historian kin. Not federation. Not a quest giver.",
+        },
+        {
+            "id": "solace_house",
+            "label": "Solace — open shelter",
+            "who": ["solace"],
+            "url": "http://127.0.0.1:8790/solace.html",
+            "port": 8790,
+            "note": "Village cartographer kin. Not federation. Not a quest giver.",
         },
     ]
     out: list[dict[str, Any]] = []
@@ -438,6 +456,21 @@ def _house_doors() -> list[dict[str, Any]]:
         row = dict(d)
         row["up"] = up
         row["status"] = "LISTEN" if up else "CLOSED"
+        if d["id"] == "vesper":
+            health = _http_get_json("http://127.0.0.1:8740/health")
+            ident = str((health or {}).get("identity") or "")
+            if ident == "vesper":
+                row["up"] = True
+                row["status"] = "HTTP"
+                try:
+                    from federation.vesper_gameworld import snapshot as vesper_gw
+
+                    row["gameworld"] = vesper_gw()
+                except Exception:
+                    row["gameworld"] = {"gameworld_required": False, "village_citizen": False}
+            elif up:
+                row["up"] = False
+                row["status"] = "LISTEN_NO_HTTP"
         out.append(row)
     return out
 

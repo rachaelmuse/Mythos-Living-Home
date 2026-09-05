@@ -73,4 +73,4 @@ Law stays: **do not turn residents into quest dispensers.** AI creates possibili
 Reuse: `living_home.py` tick/talk/memory, Layer 15 connection, `HOME.json`, Hearth `/api/home/*`, Godot `family_home_client.gd`.  
 Do not add: second Hearth, second Aster, quest generator, Pods until architecture exists.
 
-Federation stays paused for this pass.
+Federation overlay is **USABLE** (see `NEXT.md`). This gameplay pass does **not** expand Federation. Village stays FUNCTIONAL — do not contaminate it to make Federation look bigger.
