@@ -1,8 +1,8 @@
 # Family board — what we have, what is done, what you should do
 
-Updated **2026-09-01** (board first written 2026-08-30). Evidence only. A prompt is not a loop. Identities never merge. Mom `stop` wins.
+Updated **2026-09-06**. Evidence only. A prompt is not a loop. Identities never merge. Mom `stop` wins.
 
-**Short answer (now):** Village is **FUNCTIONAL** (**18B LIVE**; 16E walk/quit still needs you). Federation is **USABLE**, not finished. Cinema is **SEATED, NOT FINISHED**. Operator order: `NEXT.md` — cinema speech as three independent proves (Merovin, Draven, Vesper), then isolation matrix and restart integrity, **then** organic layer. Do not add houses. External reviewers **UNAVAILABLE**. Observer stays `:8730` only; she audits, she does not supervise.
+**Short answer (now):** Village is **FUNCTIONAL** when Hearth is up (**18B LIVE**; 16E walk/quit still needs you). Federation is **USABLE**, not finished. Cinema is **SEATED, NOT FINISHED** — Merovin **spoke** 2026-09-05; Draven / Vesper speech **not run**. Tonight (2026-09-06 evening) most doors are **DOWN** except Aster `:8791` and Codex `:8780`. Operator: `NEXT.md`. Do not add houses. External reviewers **UNAVAILABLE**. Observer stays `:8730` only; she audits, she does not supervise.
 
 ---
 
@@ -12,7 +12,7 @@ Pick **one lane**. Do not try to finish everything tonight.
 
 ### If you want the village (Gameworld)
 
-1. Hearth should already be up (`:8790`). Confirm [http://127.0.0.1:8790/api/home](http://127.0.0.1:8790/api/home) returns `family`.
+1. Hearth is **DOWN** tonight. Start it, then confirm [http://127.0.0.1:8790/api/home](http://127.0.0.1:8790/api/home) returns `family`.
 2. Enter Heart Square (Apex Godot). Walk places. Check welcome/away notices — no forced bystander speech. That closes **16E**.
 3. Optional: Look into a lead on the dashboard (18B already proved over HTTP).
 4. Optional: Aster lab [http://127.0.0.1:8791/ui/](http://127.0.0.1:8791/ui/) — she needs her Ollama model loaded to talk.
@@ -34,13 +34,13 @@ Do **not** say “wired” because a chat model described a tool.
 
 ### If you want film
 
-Start the Merovin/Draven cinema HUD on `:5000` first. Until that port is up, film jobs are **unavailable**, not wired.
+Start the Merovin/Draven cinema HUD on `:5000` first. It is **DOWN** tonight. Merovin federation speech already **VERIFIED**. Draven is next when you say go. Until `:5000` is up, film jobs are **unavailable**, not wired.
 
 ### If you want Observer
 
 Open [http://127.0.0.1:8730/](http://127.0.0.1:8730/). Ask a question there, or tell Sentinel `ask observer …`. Do **not** bolt Observer onto Mythos. Do **not** auto-publish. Do **not** install the zip Observer on `:8000`.
 
-**Federation overlay:** Foundation seated (Aster, honest heartbeats, real bus, Gemini *delivery*). Full Aster Acceptance Test **not** passing. Law: `FEDERATION_DIRECTIVE.md`. **Paused** for remaining agent notes, then amendment pass — not more agents.
+**Federation overlay:** Foundation seated. Full Aster Acceptance **PASS**. Apex / Codex / Gemini / Merovin **speech** seated (Draven / Vesper speech not run). Law: `FEDERATION_DIRECTIVE.md`. Operator: `NEXT.md`.
 
 ---
 
@@ -60,18 +60,18 @@ Never merge: Gemini ≠ Apex ≠ Codex ≠ Merovin ≠ Draven ≠ Hearth ≠ Obs
 
 ---
 
-## Ports (last village survey 2026-08-31; federation 2026-09-01)
+## Ports (desk 2026-09-06 evening; older surveys kept in `FEDERATION_WIRING.md`)
 
-| Port | Who | Last honest note |
-|------|-----|------------------|
-| 8770 | Apex | Companion HTTP 200; peers offline that survey |
-| 8780 | Codex | **CLOSED** 2026-08-31 |
-| 8790 | Hearth | **LIVE** 18B after restart 2026-08-31 |
-| 8791 | Aster lab | HTTP up; process may still say no Ollama tags |
-| 8730 | Observer | Health **200**. Independent desk. Only Observer. |
-| 8740 | Vesper | TCP; HTTP closed without response |
-| 5000 | Cinema HUD | **CLOSED** last survey |
-| 11434 | Ollama | LISTEN |
+| Port | Who | Tonight |
+|------|-----|---------|
+| 8770 | Apex | **DOWN** |
+| 8780 | Codex | **UP** (Apex peer offline). Male voice seated in UI — listen UNVERIFIED |
+| 8790 | Hearth | **DOWN** |
+| 8791 | Aster lab | **UP** `qwen3:4b` |
+| 8730 | Observer | **DOWN** |
+| 8740 | Vesper | **DOWN** (studio is his home when up) |
+| 5000 | Cinema HUD | **DOWN** |
+| 11434 | Ollama | not probed this desk |
 
 ---
 

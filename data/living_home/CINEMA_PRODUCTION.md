@@ -2,7 +2,7 @@
 
 Updated **2026-09-04**. **Not a capability claim.** Speech proof ≠ Hollywood skill proof ≠ a finished film. Do not mark anything here VERIFIED. Operator surface: `NEXT.md`.
 
-This note records Mom’s production stack **after** cinema speech. It does **not** install Matrix-Game, Hollywood tools, adapters, or tests. Do not resume `speak-merovin` from this file.
+This note records Mom’s production stack **after** cinema speech. It does **not** install Matrix-Game, Hollywood tools, adapters, or tests. Do not start `speak-draven` from this file.
 
 ---
 
@@ -10,7 +10,7 @@ This note records Mom’s production stack **after** cinema speech. It does **no
 
 | Piece | Status |
 |-------|--------|
-| Cinema speech (Merovin → Draven → Vesper) | **CURRENT.** Last live prove: Merovin **FAILED** (`4b16227a…`, Ollama 503). FAIL stays FAIL. |
+| Cinema speech (Merovin → Draven → Vesper) | **CURRENT.** Merovin **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`). Draven / Vesper **NOT RUN**. FAIL artifacts kept. |
 | Hollywood skills (manifests + actual tool wiring) | **NOT STARTED** |
 | Matrix skins (GitHub visual assets) | **WAITING** — separate asset task. Not Federation seating. Not identity. |
 | Matrix-Game 3.0 / 2.0 on this machine | **NOT INSTALLED** / **UNAVAILABLE** |
@@ -131,8 +131,8 @@ Skywork’s 3.0 “40 FPS at 720p” claim is their **tested** pipeline (paper n
 
 ## What this session must not do
 
-- Implement cinema speech, Hollywood tools, Matrix-Game install, adapters, or tests
-- Resume `speak-merovin` or mark speech VERIFIED
+- Implement Hollywood tools, Matrix-Game install, adapters, or a combined cinema-speech test
+- Start `speak-draven` or `speak-vesper` from this file
 - Mix Hollywood tooling into Federation seating tests
 - Touch Observer ZIP / `D:\The_Observer` / zip Observer
 - Merge Observer into cinema

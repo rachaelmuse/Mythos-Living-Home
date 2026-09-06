@@ -1,10 +1,12 @@
 # Federation wiring map
 
-Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-04**. Observer HTTP audit **LIVE**. Gemini speech **LIVE** (self-pulse **UNKNOWN**). Codex **speech LIVE**. Apex **speech LIVE**. Hearth **coordinate LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE** (mechanism, not a scheduler). Leave/return house memory **LIVE** (Aster + Apex + Codex). Merovin **inbox LIVE**; speech **FAILED** 2026-09-04 (`4b16227a…`, Ollama 503). Draven **inbox LIVE** (speech **not** VERIFIED — not run). Vesper **inbox LIVE** after HTTP door repaired (speech **not** VERIFIED — not run). **The Axiom Codex** notice **LIVE**. Heartbeat-loss isolation **LIVE** on throwaway `heartbeat_probe`. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Godot leave **UNVERIFIED**. Full Aster test **PASS**. Foundation **STRONG**. Federation **USABLE**. Village **FUNCTIONAL**. Cinema **SEATED, NOT FINISHED**. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`. Operator: `NEXT.md`.
+Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-05**. Observer HTTP audit **LIVE**. Gemini speech **LIVE** (self-pulse **UNKNOWN**). Codex **speech LIVE**. Apex **speech LIVE**. Hearth **coordinate LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE** (mechanism, not a scheduler). Leave/return house memory **LIVE** (Aster + Apex + Codex). Merovin **inbox LIVE**; speech **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`). Draven **inbox LIVE** (speech **not** VERIFIED — not run). Vesper **inbox LIVE** after HTTP door repaired (speech **not** VERIFIED — not run). **The Axiom Codex** notice **LIVE**. Heartbeat-loss isolation **LIVE** on throwaway `heartbeat_probe`. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Godot leave **UNVERIFIED**. Full Aster test **PASS**. Foundation **STRONG**. Federation **USABLE**. Village **FUNCTIONAL**. Cinema **SEATED, NOT FINISHED**. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`. Operator: `NEXT.md`.
 
 **Registry lie to refuse still stands** below. TCP LISTEN is not HTTP identity answering as the correct person. Disk code is not the running process. Companion `presence.json` is not VERIFIED heartbeat.
 
-**2026-09-04 roadmap (Mom accepted):** Federation seating → cinema speech (three independent proves; Merovin **FAILED** `4b16227a…`) → Hollywood skills (**NOT STARTED**) → Matrix skins (**WAITING**, separate) → Matrix-Game adapter research (**UNAVAILABLE** on 4060) → cinematic production proof (EVENTUALLY). Federation integrity after speech: optional Vesper Gameworld door → Identity/Isolation Matrix → shutdown/restart integrity → **THEN** organic layer. Scheduler later. No new houses. Item 10 **UNAVAILABLE**. Observer ZIP **FROZEN**. Spec: `CINEMA_PRODUCTION.md`.
+**2026-09-06 evening desk (HTTP now):** Hearth `:8790` DOWN. Observer `:8730` DOWN. Vesper `:8740` DOWN. Apex `:8770` DOWN. Cinema `:5000` DOWN. Aster `:8791` UP. Codex `:8780` UP (Apex peer offline). Dated proves in this file still stand. Operator: `NEXT.md`.
+
+**2026-09-04 roadmap (Mom accepted):** Federation seating → cinema speech (three independent proves; Merovin **VERIFIED** 2026-09-05 `472d86e7…`; Draven/Vesper **not run**) → Hollywood skills (**NOT STARTED**) → Matrix skins (**WAITING**, separate) → Matrix-Game adapter research (**UNAVAILABLE** on 4060) → cinematic production proof (EVENTUALLY). Federation integrity after speech: optional Vesper Gameworld door → Identity/Isolation Matrix → shutdown/restart integrity → **THEN** organic layer. Scheduler later. No new houses. Item 10 **UNAVAILABLE**. Observer ZIP **FROZEN**. Spec: `CINEMA_PRODUCTION.md`.
 
 ### 2026-08-31 late e2e (Hearth restarted)
 
@@ -174,6 +176,13 @@ World name: **The Axiom Codex**. `consume` is the prove action (authorized notic
 | `python -m federation.prove speak-merovin` | **FAILED**. Door `GET :5000/` **200**. Adapter `cinema_hud_http` `POST /api/chat` `who=merovin` `speak=false`. Direct HUD probe returned only `replies.Merovin` (no Draven mouth). Cinema kernel: `[Merovin] I cannot reach Ollama (HTTP Error 503: Service Unavailable)`. Warm Ollama slot was `llama3.2:3b` (village). Cinema Merovin picker prefers `gemma2:9b` / 8B first. `merovin_spoke: false`. Observer does not own him. Presence **UNKNOWN**. Draven / Vesper speech **not run**. |
 | Evidence | `D:\Court\federation\PROVE_MEROVIN_SPEECH.json` (`4b16227a…`) |
 
+### 2026-09-05 Merovin speech (PASS)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove speak-merovin` | **VERIFIED**. Door `GET :5000/` **200**. Adapter `cinema_hud_http` `POST /api/chat` `who=merovin` `speak=false`. Model **`gemma2:9b`**. Cinema `_chat_ollama` now sends `num_ctx` 1536 (cap 2048) — unbounded ctx OOMed 3B and 503'd 9B. Reply *I'm Merovin. Part of the Merovin-Draven Studio team…* `merovin_spoke: true`. Observer does not own him. Presence **READY**. Draven / Vesper speech **not run**. |
+| Evidence | `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json` (reply `472d86e7…`). FAIL files `PROVE_MEROVIN_SPEECH.json` `4b16227a…` and `PROVE_MEROVIN_SPEECH_2.json` `c80b61cc…` **kept**. |
+
 ### 2026-09-04 Vesper door
 
 | Check | Result |
@@ -223,7 +232,7 @@ GitHub-seated libraries in `SUPERPOWER_VAULT/ACTIVE_SHARDS.json` (`seated` / `en
 | Gemini | `G:\The-Axiom-Codex` | Conductor, Court will, front door | Court round-trip **LIVE** + Companion Room seat **LIVE** 2026-08-30 (`from=gemini`) | Avatar `gemini` in kernel; **not** a substitute soul | Packet `70c9ffe8…` → Apex; `03dfc102…` → Codex; room msg `48fd7464…` |
 | Apex | `D:\Mythos_Apex` `:8770` | Forge / hands / heavy tools | Chat HTTP **LIVE**; companion presence JSON **200** but peers offline this survey | Avatar `apex`; live Godot project here | HTTP 2026-08-31; Court prove 2026-08-30 |
 | Codex twin | `G:\Mythos_Codex` `:8780` | Archive / memory tone | Port **CLOSED** this survey | Avatar `codex`; never merge with Gemini | HTTP 2026-08-31 refused; Court prove 2026-08-30 still last MAS e2e |
-| Merovin | `F:\Merovin_Draven_Studio\Merovin_Draven_Studio` | Cinema vision | Phase 1 smoke **PASS**. Federation **inbox VERIFIED** 2026-09-04 (`eb4317b3…`). Speech **FAILED** 2026-09-04 (`4b16227a…`, Ollama 503). HUD `:5000` **200** this speech run | Avatar `merovin` at cinema (pose PLACEHOLDER) | film e2e still UNAVAILABLE; do not flatten with Draven |
+| Merovin | `F:\Merovin_Draven_Studio\Merovin_Draven_Studio` | Cinema vision | Phase 1 smoke **PASS**. Federation **inbox VERIFIED** 2026-09-04 (`eb4317b3…`). Speech **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`). HUD `:5000` **200** this speech run | Avatar `merovin` at cinema (pose PLACEHOLDER) | film e2e still UNAVAILABLE; do not flatten with Draven |
 | Draven | same studio | Continuity lock | Same HUD `:5000` (two mouths, one studio). Federation **inbox VERIFIED** 2026-09-04 (`8e61739f…`). Speech **not** VERIFIED | Avatar `draven` | Do not invent a second identity root |
 | OpenMontage | **two roots** (see discrepancy) | Gift / shorts studio | ORIGINAL MODE — ACTIVE | Avatar `montage` | Path OK; launcher path conflict |
 | Hearth | `D:\Mythos_Hearth` `:8790` | Village OS, kernel host | Port **LIVE** after restart this session | Kernel + Godot client | `/api/home` 200; **18B investigate LIVE** 2026-08-31 |
@@ -317,7 +326,7 @@ Axiom `limbs/` inventory (modules on disk, callers UNVERIFIED this session): `fa
 3. Two-way event flow not built.
 4. Original memory (`family_memory`, Court book, Codex) not proven consumed by Gameworld (Gameworld uses `HOME.json`).
 5. OpenMontage dual roots.
-6. **2026-08-31 survey (historical):** Codex `:8780` down; Cinema HUD `:5000` down; Vesper HTTP broken. **2026-09-04 overlay:** Codex speech VERIFIED; cinema HUD answered for Merovin/Draven **inbox**; Vesper HTTP identity answered as `id=vesper` for **inbox**. Merovin **speech FAILED** (Ollama 503, `4b16227a…`). Draven/Vesper speech not run. Gemini self-pulse still **UNKNOWN**.
+6. **2026-08-31 survey (historical):** Codex `:8780` down; Cinema HUD `:5000` down; Vesper HTTP broken. **2026-09-04 overlay:** Codex speech VERIFIED; cinema HUD answered for Merovin/Draven **inbox**; Vesper HTTP identity answered as `id=vesper` for **inbox**. **2026-09-05:** Merovin **speech VERIFIED** (`472d86e7…`, `gemma2:9b`). Draven/Vesper speech not run. Gemini self-pulse still **UNKNOWN**.
 7. GitHub tool shards vs family shards mixed in folklore — keep separate lists.
 
 ---

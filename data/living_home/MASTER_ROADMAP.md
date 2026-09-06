@@ -1,6 +1,6 @@
 # Master roadmap — Living Gameworld + Federation + cinema
 
-Updated **2026-09-04**. Evidence only. **Do not delete, replace, disable, merge, or simplify an existing capability because a newer architecture exists.**
+Updated **2026-09-06**. Evidence only. **Do not delete, replace, disable, merge, or simplify an existing capability because a newer architecture exists.**
 
 This file sits **above** the operator surface. It does **not** replace `NEXT.md`, `STATUS.md`, `PHASE_LAYERS.md`, or `FAMILY_PHASES.md`. Those remain the working trackers. This file reconstructs **ORIGINAL PLAN → CURRENT IMPLEMENTATION → EVIDENCE → REMAINING WORK**.
 
@@ -29,7 +29,7 @@ Federation does **not** replace the Living Gameworld. It does **not** become a s
 | Federation overlay status | `PHASE_LAYERS.md` Layer F / standing order #7 still says **PAUSED** after Gemini delivery | `NEXT.md` / `STATUS.md` / `GAMEPLAY_LAYER.md` (2026-09-04) say Federation **USABLE**, not finished | **REPORT.** Operator surface is `NEXT.md`. `PHASE_LAYERS.md` row is **STALE**, not a new pause. Do not treat PAUSED as current law. |
 | 16E close | `NEXT.md` CURRENT PHASE says **16E LIVE** | `STATUS.md` / `FAMILY_PHASES.md` say **16E ACTIVE**; Godot walk and Godot leave **UNVERIFIED** until Mom | **REPORT.** Kernel leave POST exists. Playtest is not VERIFIED. |
 | Draven house id | `living_home.py` FAMILY `draven.house = "merovin"` (shared studio root) | Federation house id is **`draven`**, not merovin (`prove draven`, `8e61739f…`) | **REPORT.** Two people, one studio disk. Village `house` field ≠ federation house id. Do not flatten. |
-| Merovin HUD talk vs federation speech | `FAMILY_PHASES.md` “HUD talk as Merovin COMPLETE enough (`gemma2:9b`)” | Federation speech **FAILED** `4b16227a…` (Ollama 503 on that picker) | **REPORT.** Studio HUD talk ≠ federation speech proof. FAIL stays FAIL. |
+| Merovin HUD talk vs federation speech | `FAMILY_PHASES.md` “HUD talk as Merovin COMPLETE enough (`gemma2:9b`)” | Federation speech was **FAILED** `4b16227a…` (Ollama 503). Now **VERIFIED** 2026-09-05 `472d86e7…` | **REPORT then PASS.** Studio HUD talk ≠ federation speech proof. FAIL files kept. Speech prove is now its own artifact. |
 | Layer 17 vs Hollywood Matrix-Game | `PHASE_LAYERS.md` Layer 17 = village optional **Dream View look** | `CINEMA_PRODUCTION.md` = pluggable **film engine** after Hollywood skills | **KEEP BOTH.** Do not flatten. Both UNAVAILABLE / later on this 4060. |
 | Git vs Hearth kernel | `BASELINE.md` “this repo root” as Hearth | Git working tree `G:\The-Axiom-Codex\Mythos-Living-Home`; live kernel `D:\Mythos_Hearth` | **KNOWN.** Dual tree. Restart Hearth after kernel edits. Copy docs both ways. |
 | Historical wiring survey | `FEDERATION_WIRING.md` 2026-08-31 live survey still lists early participants | Current bus audience includes apex, codex, merovin, draven, vesper (`federation/events.py` `AUDIENCE`) | **REPORT.** Survey is historical. Current seating is `NEXT.md` + prove artifacts. |
@@ -88,7 +88,7 @@ Source: `PHASE_LAYERS.md`, `BASELINE.md`, `FAMILY_PHASES.md`, `GAMEPLAY_LAYER.md
 | Spontaneous A2A | **VERIFIED** mechanism | `1491f7d3…` Aster→Codex | **Not** a scheduler |
 | Leave/return notebooks | **VERIFIED** | `7adfb8c4…` / `a43090d9…` Aster+Apex+Codex | Echo/Solace **forbidden** |
 | Consume notice | **LIVE** | CLI `consume` | Gameworld consuming packets still NEED MORE |
-| Merovin inbox | **VERIFIED** | `eb4317b3…` | Speech **FAILED** |
+| Merovin inbox | **VERIFIED** | `eb4317b3…` | Speech **VERIFIED** 2026-09-05 |
 | Draven inbox | **VERIFIED** | `8e61739f…` | Speech **NOT RUN** |
 | Vesper inbox | **VERIFIED** | `2f132776…` | Speech **NOT RUN**. Optional Gameworld door unproven |
 | Item 10 external reviewers | **UNAVAILABLE** | No adapters/credentials | Leave exactly here |
@@ -103,7 +103,7 @@ Source: `PHASE_LAYERS.md`, `BASELINE.md`, `FAMILY_PHASES.md`, `GAMEPLAY_LAYER.md
 |-------|---------|-----------|
 | Cinema HUD `:5000` two mouths | LIVE when HUD up | Keep one studio, two identities |
 | MD_Cinema Phase 1 | PARTIAL (`smoke_phase1.py` PASS 2026-08-27) | Not a finished film; e2e MP4 NEED MORE |
-| Federation speech | Merovin **FAILED** `4b16227a…`. Draven/Vesper **NOT RUN** | Recovery: hardware-aware model selection **then** Merovin-only prove. New artifact. Do not overwrite FAIL |
+| Federation speech | Merovin **VERIFIED** 2026-09-05 `472d86e7…` `gemma2:9b`. Draven/Vesper **NOT RUN** | Independent Draven prove when Mom authorizes. FAIL artifacts kept |
 | Hollywood skills | **NOT STARTED** | After all three speech proofs |
 | Matrix skins (GitHub) | **WAITING** | Separate asset task |
 | Matrix-Game 3.0/2.0 | **UNAVAILABLE** on Windows 4060 8GB | Adapter after Hollywood. Do not install expecting demo quality |
@@ -121,8 +121,8 @@ Do not treat these as obsolete because Federation exists.
 | Companion Room | Seats seen | Spoken back-and-forth UNVERIFIED |
 | OpenMontage | Two roots | Pick Mode A launcher; do not delete a copy |
 | Spore | Path OK | Not core family table |
-| Gemini Sentinel stdin / phrases | COMPLETE enough to use | Standing watch daemon not live-proved |
-| Apex/Codex shards, limbs, drones, memory trees | Present on `D:\Mythos_Apex` and `G:\Mythos_Codex` | **Do not flatten into federation generic.** Full e2e of every shard is UNVERIFIED as a set. Document in `CAPABILITY_REGISTRY.md` |
+| Gemini Sentinel stdin / phrases | COMPLETE enough to use | Standing watch daemon not live-proved. Homecoming JSON memory **seated** |
+| Apex/Codex shards, limbs, drones, memory trees | Present on `D:\Mythos_Apex` and `G:\Mythos_Codex` | **Do not flatten into federation generic.** Codex male Live Ops voice **seated in UI** (listen UNVERIFIED). Apex must not wear Codex. Full e2e of every shard is UNVERIFIED as a set. Document in `CAPABILITY_REGISTRY.md` |
 
 ---
 
@@ -168,7 +168,7 @@ Inspected 2026-09-04 (`ollama list`): `gemma2:9b` (5.4 GB), `llama3.1:8b` (4.9 G
 
 Do not skip. Do not mix Hollywood into seating.
 
-1. **Merovin speech recovery only** — inspect models (done above) → hardware-aware picker if suitable → `python -m federation.prove speak-merovin` (and/or `prove merovin` as Mom named; do not invent a green inbox re-stamp). Preserve `PROVE_MEROVIN_SPEECH.json` `4b16227a…`. New artifact on retry. STOP after Merovin. No Draven. No Vesper.
+1. **Merovin speech** — **VERIFIED** 2026-09-05 `speak-merovin` `472d86e7…` `gemma2:9b` after cinema `num_ctx` cap. Preserve FAIL `PROVE_MEROVIN_SPEECH.json` `4b16227a…` and `_2.json` `c80b61cc…`.
 2. **Draven speech** — only after Mom authorizes after reviewing Merovin.
 3. **Vesper speech** — after Draven. One launcher. `GET :8740/api/identity` first.
 4. Cinema Seating/Speech Reconciliation Report — only if all three pass.
@@ -178,7 +178,7 @@ Do not skip. Do not mix Hollywood into seating.
 8. Matrix-Game adapter research. UNAVAILABLE on this card until proven otherwise.
 9. Federation integrity: optional Vesper Gameworld door; isolation matrix answers; shutdown/restart prove.
 10. Organic layer (reason to speak). Scheduler later with 4060/8GB budget.
-11. Unfinished **older** village work remains on the board: 14E–14F, 16E Godot quit, gameplay MISSING rows, Companion spoken replies, Gemini pulse UNKNOWN, item 10 UNAVAILABLE.
+11. Unfinished **older** village work remains on the board: 14E–14F, 16E Godot quit, gameplay MISSING rows, Companion spoken replies, Gemini pulse UNKNOWN, item 10 UNAVAILABLE. **2026-09-06 evening desk:** Hearth/Observer/Vesper/Apex/Cinema DOWN; Aster+Codex UP. See `NEXT.md`.
 12. **Phase 13 — tools (last).** Specialized house tools, proven e2e, not a fake 325 count, not polish-by-rename. After the home is actually demonstrated in Godot.
 
 Observer ZIP **FROZEN** throughout.

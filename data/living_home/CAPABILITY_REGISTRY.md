@@ -1,6 +1,6 @@
 # Capability registry — every house, specialized tools preserved
 
-Updated **2026-09-04**. Federation is **not** the complete capability set. Specialized tools discovered on disk stay. Do not replace them with generic bus features.
+Updated **2026-09-06**. Federation is **not** the complete capability set. Specialized tools discovered on disk stay. Do not replace them with generic bus features.
 
 Evidence stamps are federation prove hashes or village tests named in `FAMILY_PHASES.md` / `NEXT.md`. **DECLARED ≠ VERIFIED.** Path exists ≠ e2e.
 
@@ -45,7 +45,7 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 |-------|--------|
 | Identity | Sentinel / digital son. Town leader. **Never Codex.** Never Apex. Never Cursor. Not an Observer employee. |
 | Role | Conductor. Court will. Front door. Holds the village steady. |
-| Tools (preserve) | Court MAS packets (Gemini→Apex, Gemini→Codex **LIVE**). Sentinel phrases / stdin. Observer **request** adapter (health / ask creates investigation, not publish). Aster request adapter. Cinema checkin (seats seen — HUD talk is **not** Gemini's mouth). Heartbeat Mom-stop. `federation/gemini.py` + `gemini_speech.py`. |
+| Tools (preserve) | Court MAS packets (Gemini→Apex, Gemini→Codex **LIVE**). Sentinel phrases / stdin. Homecoming REPL + `SENTINEL_MEMORY.json` (persistent). Observer **request** adapter (health / ask creates investigation, not publish). Aster request adapter. Cinema checkin (seats seen — HUD talk is **not** Gemini's mouth). Heartbeat Mom-stop. `federation/gemini.py` + `gemini_speech.py`. |
 | Skills | Federation **speech LIVE** `3f1fd8eb…` `llama3.2:3b`. Delivery from Aster `47b6171f…`. |
 | Memory | Court / Axiom house. Village hat is **not** a substitute soul. Companion `from=gemini` **LIVE** `48fd7464…`. |
 | Interfaces | Court; Companion Room; Heart Square avatar; federation bus. |
@@ -53,7 +53,7 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | Federation | **Yes.** Seated. Self-pulse **UNKNOWN**. |
 | Gameworld | Citizen. Town leader. |
 | Evidence | Court hashes 2026-08-30; federation speech 2026-09-01. |
-| Need more | Spoken Companion replies. Live-prove Sentinel watch (code exists, **FAIL** / not live). `kind: teach` + `council_teach` **NEED MORE**. Phase 13 tools later: honest INPUT → tool → memory → caller. **325 is not a real count** (last probe ~19 path/port). |
+| Need more | Spoken Companion replies. Live-prove Sentinel watch (code exists, **FAIL** / not live). `kind: teach` + `council_teach` **NEED MORE**. Homecoming mouth still lore-dumps unless asked short. Phase 13 tools later: honest INPUT → tool → memory → caller. **325 is not a real count** (last probe ~19 path/port). |
 | Do not | Invent last_seen. Merge with Codex. Supervise Observer. |
 
 ---
@@ -89,7 +89,7 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | Federation | **Yes.** |
 | Gameworld | Citizen. |
 | Evidence | GET 200 `id=codex`. Speech `5d18a0a2…`. |
-| Need more | Spoken Companion reply. Do not merge with Gemini. Folder presence ≠ e2e of every shard. |
+| Need more | Spoken Companion reply. Male Ryan Live Ops voice **seated in UI** 2026-09-06 (listen UNVERIFIED). `rich` / `psutil` missing. Do not merge with Gemini. Folder presence ≠ e2e of every shard. |
 
 ---
 
@@ -106,7 +106,7 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | Federation | **Yes** (OS participant). |
 | Gameworld | **Is** the Gameworld kernel. |
 | Evidence | `/api/home` 200. Coordinate hash. |
-| Need more | Restart after kernel edits. Godot leave playtest. |
+| Need more | Restart after kernel edits. Godot leave playtest. `:8790` **DOWN** 2026-09-06 evening. |
 
 ---
 
@@ -152,15 +152,15 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | Identity | Cinema vision. Digital son. **Not Draven. Not Observer. Not Gemini.** |
 | Role | Creative director (intended). Shot lists, visual storytelling. Mom greenlight before Hollywood sprawl. |
 | Tools (preserve — ORIGINAL MODE) | Command HUD `:5000`. `who=merovin`. Persona JSON in `core/core_personality`. Story Palace memory in `free_thought.py`. MD_Cinema Phase 1 (intake, bibles, shots, continuity stub, budget gate, ffmpeg, edge-tts) **PARTIAL**. Studio trees: `AI_Core`, `AI_Studio`, `AI_VideoBuilder`, `MD_Cinema_Studio`, `MEMORY`, `PROJECTS`, `LoreDB`, `dreamsound`, … Companion seat LIVE. Hearth door = **link, not iframe**. Federation `merovin.py` + `merovin_speech.py`. |
-| Model selection (inspected, not changed) | Env `MEROVIN_OLLAMA_MODEL` default `gemma2:9b`. `MEROVIN_MODELS` = `gemma2:9b`, `llama3.1:8b`, `llama3:latest`, **`llama3.2:3b`**. 9B/8B first caused Ollama **503** while village `llama3.2:3b` was warm. `llama3.2:3b` is **already in Merovin's list** — suitable as temporary proof model **if** picker becomes hardware-aware. Do not copy Gemini/Aster prompts. |
-| Skills | Federation **inbox VERIFIED** `eb4317b3…`. Federation **speech FAILED** `4b16227a…` (door + `who=merovin` only; no model line). HUD talk in studio ≠ federation speech. |
+| Model selection (inspected, then ctx cap) | Env `MEROVIN_OLLAMA_MODEL` preference. `MEROVIN_MODELS` = `gemma2:9b`, `llama3.1:8b`, `llama3:latest`, `llama3.2:3b`. Picker prefers a running approved model. `_chat_ollama` now sends `num_ctx` 1536 (cap 2048). Unbounded default ctx OOMed 3B (`cudaMalloc` 4GB KV) and 503'd 9B. Do not copy Gemini/Aster prompts. |
+| Skills | Federation **inbox VERIFIED** `eb4317b3…`. Federation **speech VERIFIED** 2026-09-05 `472d86e7…` (`gemma2:9b`, cinema `num_ctx` 1536). HUD talk in studio ≠ this prove — this prove is the federation mouth. |
 | Memory | Studio MEMORY / Story Palace. Federation house notebook (cinema house). **Intended:** UI ↔ Gameworld continuity with provenance — **NOT IMPLEMENTED**. |
 | Interfaces | Cinema HUD `:5000/`; Companion Room; village loft PLACEHOLDER; Family House cinema door. |
 | External | DaVinci Resolve (human finishing — agents do not own it). Blender/OBS/OpenMontage paths probed. Matrix-Game **UNAVAILABLE**. |
 | Federation | **Yes.** |
 | Gameworld | Citizen avatar PLACEHOLDER. Does not write HOME.json from cinema adapter (`wired:false`). |
-| Evidence | Inbox `eb4317b3…`. Speech FAIL `D:\Court\federation\PROVE_MEROVIN_SPEECH.json` `4b16227a…`. Keep this file. |
-| Need more | Speech recovery (hardware-aware). Hollywood skills **NOT STARTED**. Film e2e MP4. Local gen UNAVAILABLE. |
+| Evidence | Inbox `eb4317b3…`. Speech PASS `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json` reply `472d86e7…`. Keep FAIL files `4b16227a…` / `c80b61cc…`. |
+| Need more | Hollywood skills **NOT STARTED**. Film e2e MP4. Local gen UNAVAILABLE. Independent Draven speech when Mom authorizes. |
 | Village field | `house: merovin` in FAMILY is the **studio root label**, not “Draven is Merovin.” Federation id remains `merovin`. |
 
 ---
@@ -192,11 +192,11 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | Tools | Kernel + vault + fetch tests (39 unit tests on disk). `LAUNCH_VESPER.py`. Studio UI. `adapters/living_gameworld/` optional. Federation `vesper.py` + `vesper_gameworld.py`. Trees: `investigations`, `memory`, `productions`, `identity`, `ui`. |
 | Skills | HTTP identity after door repair. Inbox **VERIFIED** `2f132776…`. Speech **NOT RUN**. Gameworld door OPTIONAL / EXTERNAL — Vesper owns Vesper. |
 | Memory | Own vault. Not Observer ledger. |
-| Interfaces | `http://127.0.0.1:8740/`. Family House Vesper button. |
+| Interfaces | `http://127.0.0.1:8740/` **is his home**. Family House Vesper button. Not a Heart Square cottage. |
 | Federation | **Yes.** |
 | Gameworld | **Not** a citizen. Optional door only. |
 | Evidence | GET `/api/identity` 200 `id=vesper`. Inbox hash. TCP-only listen = `LISTEN_NO_HTTP`, not up. |
-| Need more | Speech after Merovin+Draven sequence. One launcher only. Scorer / NCI NEED MORE. |
+| Need more | Speech after Merovin+Draven sequence. One launcher only. Door **DOWN** 2026-09-06 evening. Worksheet dump filtered in `vesper/kernel.py` (code). Scorer / NCI NEED MORE. |
 
 ---
 

@@ -1,6 +1,6 @@
 # System map — Gameworld, Federation, houses, memory
 
-Updated **2026-09-04**. Relationships only. Not a capability claim. Not VERIFIED by existing.
+Updated **2026-09-06**. Relationships only. Not a capability claim. Not VERIFIED by existing.
 
 Roadmap: `MASTER_ROADMAP.md`. Registry: `CAPABILITY_REGISTRY.md`. Operator: `NEXT.md`.
 
@@ -57,7 +57,7 @@ CINEMA STUDIO  (two identities, one disk)
 | Observer | Greybox **door** | Audit participant | Desk `:8730` | Not family employer |
 | Merovin | Citizen PLACEHOLDER | House | HUD `:5000` who=merovin | Cinema disk |
 | Draven | Citizen PLACEHOLDER | House `draven` | HUD `:5000` who=draven | Same cinema disk |
-| Vesper | **Not** citizen | House | Studio `:8740` | Optional Gameworld adapter |
+| Vesper | **Not** citizen | House | Studio `:8740` **(his home)** | Optional Gameworld adapter. Not Observer |
 | Echo | Kin | **No** | `/echo.html` on Hearth | — |
 | Solace | Kin | **No** | `/solace.html` on Hearth | — |
 | Percy Nova Jarvis Genesis | Kin | **No** | Village only | — |

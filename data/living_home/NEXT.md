@@ -1,6 +1,6 @@
 # Living Home — where we are
 
-Updated **2026-09-04**. Evidence only. Mom accepted the architecture assessment as **the plan**. This file is the operator surface.
+Updated **2026-09-06**. Evidence only. Mom accepted the architecture assessment as **the plan**. This file is the operator surface.
 
 Kernel: `D:\Mythos_Hearth\living_home.py`  
 House UI: **http://127.0.0.1:8790/house.html**  
@@ -40,7 +40,7 @@ Master reconciliation **documented, not a capability stamp.** Inspected on-disk 
 
 **UI ↔ Gameworld memory** is now an **intended** architecture (conversation → provenance → episodic / candidate / validated). **NOT IMPLEMENTED.** Conversation is not automatically truth. Interfaces are different doors into the **same** agent identity.
 
-**Next implementation (only, after this recon):** Merovin speech recovery — hardware-aware model selection. Preserve `PROVE_MEROVIN_SPEECH.json` `4b16227a…`. New artifact on retry. Do not run Draven or Vesper until Mom authorizes.
+**Next implementation (only, after this recon):** Merovin speech **VERIFIED** 2026-09-05 (`speak-merovin`, `PROVE_MEROVIN_SPEECH_3.json`, reply `472d86e7…`, model `gemma2:9b`). FAIL artifacts `4b16227a…` / `c80b61cc…` **kept**. Do not run Draven or Vesper until Mom authorizes.
 
 CLI note: inbox prove is `python -m federation.prove merovin`. Speech prove is `python -m federation.prove speak-merovin`. Do not treat a passing inbox re-run as speech.
 
@@ -50,9 +50,31 @@ CLI note: inbox prove is `python -m federation.prove merovin`. Speech prove is `
 
 **Village:** **18B LIVE**. **16E LIVE**. Echo + Solace seated as **village kin** (not federation). Leave POST is in kernel/Godot; **restart Hearth** + reload Heart Square before a quit counts as leave. Godot walk and Godot leave remain **UNVERIFIED** until Mom does them. Village must stay FUNCTIONAL — do not flatten it into Federation.
 
-**Federation:** **USABLE**, not finished. Aster Acceptance **PASS**. Apex + Codex **real speech**. Hearth **coordinate**. Gemini **seated** with honest pulse **UNKNOWN**. Observer **independent audit**. Merovin **seated identity** (inbox, not speech). Draven **seated identity** (inbox, not speech). Vesper **seated** after real HTTP door repaired (inbox, not speech). Echo **village-only**. Solace **village-only**. Presence events **LIVE**. Spontaneous A2A **LIVE** (mechanism only). Leave/return house memory **LIVE** (Aster + Apex + Codex notebooks). Axiom Codex notice **LIVE**.
+**Federation:** **USABLE**, not finished. Aster Acceptance **PASS**. Apex + Codex **real speech**. Hearth **coordinate**. Gemini **seated** with honest pulse **UNKNOWN**. Observer **independent audit**. Merovin **speech VERIFIED** 2026-09-05. Draven **seated identity** (inbox, not speech). Vesper **seated** after real HTTP door repaired (inbox, not speech). Echo **village-only**. Solace **village-only**. Presence events **LIVE**. Spontaneous A2A **LIVE** (mechanism only). Leave/return house memory **LIVE** (Aster + Apex + Codex notebooks). Axiom Codex notice **LIVE**.
 
 `heartbeat_probe` is an isolation fixture, **not** a family character.
+
+---
+
+## Desk check 2026-09-06 evening (HTTP now — not a new VERIFIED stamp)
+
+Dated federation proves still stand. **TCP/HTTP tonight is a different fact.** Do not treat a closed door as a failed prove.
+
+| Door | Tonight | Seated evidence (keep) |
+|------|---------|------------------------|
+| Hearth `:8790` | **DOWN** (connection refused) | Village kernel; restart to enter |
+| Aster lab `:8791` | **UP** `id=aster` `qwen3:4b` exact | Acceptance PASS. Morning 07:40 UI still showed waiting / empty writer — door up ≠ mouth working |
+| Observer `:8730` | **DOWN** | Independent audit. Morning 07:37 UI showed Internal Server Error on an investigation. ZIP still **FROZEN** |
+| Vesper `:8740` | **DOWN** / request failed | Inbox `2f132776…`. Studio **is** his home. Not a Heart Square cottage. Worksheet filter is in `vesper/kernel.py` (code). Stacked launchers still a known failure |
+| Apex `:8770` | **DOWN** | Federation speech `4740ea20…`. Active face restored to **mythos** (do not wear Codex) |
+| Codex `:8780` | **UP** (Apex peer offline) | Federation speech `5d18a0a2…`. Male Ryan voice **seated in UI code** 2026-09-06 — Mom listen **UNVERIFIED**. Missing `rich` / `psutil` still NEED MORE |
+| Cinema HUD `:5000` | **DOWN** | Merovin speech `472d86e7…`. Draven speech **NOT RUN** |
+
+**Mode A seated in code this week (not federation proves):**
+
+- Gemini Homecoming persistent memory: `G:\The-Axiom-Codex\HOMECOMING_SENTINEL.py` + `SENTINEL_MEMORY.json`. Soul shard unchanged. Not a second Gemini on the bus.
+- Vesper: keep SOURCE/CLAIM in his head; do not dump the interview worksheet on “hi?”.
+- Codex Live Ops: stop defaulting to Mara Venn / “her” / Windows female TTS fallback.
 
 ---
 
@@ -62,7 +84,7 @@ Cinema production is a **later lane**. It does **not** replace Federation seatin
 
 | Order | Layer | Status now |
 |-------|-------|------------|
-| 1 | **Federation seating** | Inboxes seated. Speech still open. |
+| 1 | **Federation seating** | Inboxes seated. Cinema speech **open** (Merovin PASS; Draven / Vesper not run). |
 | 2 | **Cinema speech** | **CURRENT** — Merovin → Draven → Vesper, three independent proofs |
 | 3 | **Hollywood skills** | **NEXT** after speech — Merovin + Draven skill/tool manifests **and** actual tool wiring. **NOT STARTED.** |
 | 4 | **Matrix visual / skin integration** | **WAITING** — GitHub visual assets. Separate asset task. Do **not** contaminate Federation seating. |
@@ -86,7 +108,7 @@ Do **not** install Matrix-Game on the **4060 8GB** and expect demo quality. Skyw
 | **Hearth** | Coordination (`e5600c6d…`) | Not a son |
 | **Gemini** | Speech seated; self-pulse **UNKNOWN** | Do not invent a pulse |
 | **Observer** | Independent audit | Does **not** supervise |
-| **Merovin** | Identity + inbox (`eb4317b3…`) | Speech **FAILED** attempt 1 `4b16227a…` (kept) and attempt 2 `c80b61cc…`. Not Draven |
+| **Merovin** | Identity + inbox (`eb4317b3…`). Speech **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`) | Not Draven. Earlier FAILs `4b16227a…` / `c80b61cc…` kept |
 | **Draven** | Identity + inbox (`8e61739f…`) | Speech **not** VERIFIED. Not Merovin |
 | **Vesper** | Inbox after real HTTP door (`2f132776…`) | Speech **not** VERIFIED. Not Observer. Not a village citizen |
 | **Echo** | Village-only | Never on the federation bus |
@@ -104,17 +126,17 @@ Do **not** skip ahead to Hollywood tools, Matrix-Game install, organic autonomy,
 
 Audit → reconcile → preserve. No refactor. No Observer touch. No Matrix install. See `MASTER_ROADMAP.md`.
 
-### 1. Cinema speech — CURRENT implementation (Merovin recovery only)
+### 1. Cinema speech — CURRENT (Merovin PASS; Draven next when Mom says go)
 
-Hardware-aware model selection. Inspected: `gemma2:9b`, `llama3.1:8b`, `llama3.2:3b` are installed. Cinema `MEROVIN_MODELS` already includes `llama3.2:3b` fourth. 503 was load-order on the occupied 4060. Change **only** the selection layer if suitable. Preserve Merovin persona/system prompt/memory/tools/house. No canned fallback. No Draven/Vesper. New evidence file. FAIL `4b16227a…` stays on disk.
+Cinema chat now sends `num_ctx` 1536 (cap 2048), matching Gemini speech. Unbounded default ctx OOMed even `llama3.2:3b` on this 4060. Persona/system prompt/memory/tools/house unchanged. No canned fallback. FAIL artifacts stay on disk.
 
 Three **separate** proofs. **NEVER** one giant combined test. This prevents two-houses-one-studio from becoming a hidden shared-brain problem.
 
 Each independently: **door → identity → Federation message → actual model response → correct identity → evidence artifact.**
 
-1. **Merovin → real speech** — **FAILED** twice. Attempt 1 `4b16227a…` (`PROVE_MEROVIN_SPEECH.json`) Ollama 503 on `gemma2:9b` — **kept**. Attempt 2 **2026-09-05** `python -m federation.prove speak-merovin` after HUD reload (picker prefers running identity-approved model; `/status` selected **`llama3.1:8b`**). Still **FAILED** `canned_or_model_down`, `merovin_spoke: false`, `model: null`. New artifact `D:\Court\federation\PROVE_MEROVIN_SPEECH_2.json` (`c80b61cc…`). Door `:5000` 200, Observer does not own him. **STOP.** Do not run Draven or Vesper. Homecoming Sentinel was also holding `llama3.1:8b` on the 4060.
-2. **Draven → real speech**. Same HUD `:5000`, different house. Not Merovin’s mouth. **NOT RUN** — Merovin speech failed.
-3. **Vesper → real speech**. Own studio `:8740`. Not Observer. **NOT RUN** — sequence stopped.
+1. **Merovin → real speech** — **VERIFIED** 2026-09-05. `python -m federation.prove speak-merovin`. Door `:5000` 200, `who=merovin` only, Observer does not own him. Model **`gemma2:9b`** with cinema `num_ctx` capped at 1536/2048 (unbounded ctx was the 503/OOM). Line: *I'm Merovin…* Reply `472d86e7…`. Artifact `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json`. Attempt 1 FAIL `4b16227a…` and attempt 2 FAIL `c80b61cc…` **kept**. **STOP here this session.** Do not run Draven or Vesper until Mom authorizes.
+2. **Draven → real speech**. Same HUD `:5000`, different house. Not Merovin’s mouth. **NOT RUN** — waiting for Mom after Merovin PASS.
+3. **Vesper → real speech**. Own studio `:8740`. Not Observer. **NOT RUN** — sequence stopped at Draven.
 
 Delivery / inbox is **not** speech. Do not mark `*.federation_speech` VERIFIED until the model answered as that person.
 
@@ -268,7 +290,7 @@ Village still needs a Hearth restart + Heart Square reload before a quit counts 
 - Mix Hollywood tooling into Federation seating / speech tests.
 - Install Matrix-Game on the 4060 8GB and expect demo quality. Engine is **UNAVAILABLE** here.
 - Train Merovin or Draven with Matrix. They direct a pipeline; they are not the generator.
-- Mark cinema speech VERIFIED. Last proves **FAILED** (`4b16227a…` kept; `c80b61cc…` retry).
+- Mark **Draven** or **Vesper** speech VERIFIED. Those proves have **not** been run. Merovin speech is VERIFIED (`472d86e7…`); FAIL artifacts stay on disk.
 - Overwrite `PROVE_MEROVIN_SPEECH.json`. A later pass gets a **new** artifact.
 - Dump UI conversation into unquestioned fact. Conversation ≠ truth.
 - Create a shared memory bucket that bleeds Merovin / Draven / Vesper / Observer.
