@@ -1338,6 +1338,19 @@ def prove_codex_speech(
     return report
 
 
+def merovin_speech_artifact_path(root: Path) -> Path:
+    """Never overwrite a prior Merovin speech prove. FAIL stays on disk."""
+    primary = root / "PROVE_MEROVIN_SPEECH.json"
+    if not primary.exists():
+        return primary
+    n = 2
+    while True:
+        cand = root / f"PROVE_MEROVIN_SPEECH_{n}.json"
+        if not cand.exists():
+            return cand
+        n += 1
+
+
 def _stamp_merovin_speech(root: Path, *, spoke: bool, reply_id: str | None) -> None:
     path = root / "ASTER_ACCEPTANCE.json"
     data: dict[str, Any] = {}
@@ -1389,7 +1402,9 @@ def prove_merovin_speech(
             "status": HonestStatus.UNAVAILABLE.value,
             "result": HonestStatus.UNAVAILABLE.value,
         }
-        (data_root / "PROVE_MEROVIN_SPEECH.json").write_text(
+        artifact = merovin_speech_artifact_path(data_root)
+        report["actual"]["artifact"] = str(artifact)
+        artifact.write_text(
             json.dumps(report, indent=2, default=str),
             encoding="utf-8",
         )
@@ -1441,6 +1456,7 @@ def prove_merovin_speech(
                 "ok": False,
                 "adapter": adapter_name,
                 "error": spoken.get("error") or "no_text",
+                "text": text or None,
                 "merovin_spoke": False,
                 "connection_test": bool(spoken.get("connection_test")),
                 "functional_test": False,
@@ -1523,12 +1539,15 @@ def prove_merovin_speech(
             "door_ok": True,
             "door": door,
             "capability": cap_result,
+            "model": spoken.get("model"),
         },
         "full_aster_acceptance": False,
         "status": cap_result["status"],
         "result": cap_result["status"],
     }
-    (data_root / "PROVE_MEROVIN_SPEECH.json").write_text(
+    artifact = merovin_speech_artifact_path(data_root)
+    report["actual"]["artifact"] = str(artifact)
+    artifact.write_text(
         json.dumps(report, indent=2, default=str),
         encoding="utf-8",
     )

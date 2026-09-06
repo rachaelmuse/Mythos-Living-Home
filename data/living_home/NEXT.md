@@ -10,7 +10,7 @@ Observer: **http://127.0.0.1:8730/**
 Dashboard: **http://127.0.0.1:8790/dashboard**  
 Enter: Desktop **Mythos Living Home - Enter**
 
-Law: `FEDERATION_DIRECTIVE.md` · Map: `FEDERATION_RECONCILIATION.md` · Wiring: `FEDERATION_WIRING.md` · Tracker: `FAMILY_PHASES.md` · Status: `STATUS.md` · Production spec: `CINEMA_PRODUCTION.md`
+Law: `FEDERATION_DIRECTIVE.md` · Map: `FEDERATION_RECONCILIATION.md` · Wiring: `FEDERATION_WIRING.md` · Tracker: `FAMILY_PHASES.md` · Status: `STATUS.md` · Production spec: `CINEMA_PRODUCTION.md` · Above-trackers: `MASTER_ROADMAP.md` · `CAPABILITY_REGISTRY.md` · `SYSTEM_MAP.md`
 
 Baseline tag `living-home-baseline-001` — do not rewrite.
 
@@ -27,6 +27,22 @@ Not one giant AI pretending to be nine people. **Nine distinct doors → nine id
 The next interesting question is not how many AIs — it is what happens when we stop telling them when to act and give memory, context, resources, and freedom to decide whether acting is worth doing.
 
 **Milestone to keep:** TCP listen ≠ HTTP identity answering as the correct person.
+
+---
+
+## Bookkeeping above the phases (2026-09-04)
+
+Master reconciliation **documented, not a capability stamp.** Inspected on-disk docs + `living_home.py` FAMILY/KIN + `federation/` + cinema `core/free_thought.py` + `ollama list` + house roots. Observer ZIP **not touched**.
+
+- Conflicts listed in `MASTER_ROADMAP.md` (do not silently pick a side).
+- Specialized tools listed in `CAPABILITY_REGISTRY.md` (Federation is an overlay, not the body).
+- Relationships in `SYSTEM_MAP.md`.
+
+**UI ↔ Gameworld memory** is now an **intended** architecture (conversation → provenance → episodic / candidate / validated). **NOT IMPLEMENTED.** Conversation is not automatically truth. Interfaces are different doors into the **same** agent identity.
+
+**Next implementation (only, after this recon):** Merovin speech recovery — hardware-aware model selection. Preserve `PROVE_MEROVIN_SPEECH.json` `4b16227a…`. New artifact on retry. Do not run Draven or Vesper until Mom authorizes.
+
+CLI note: inbox prove is `python -m federation.prove merovin`. Speech prove is `python -m federation.prove speak-merovin`. Do not treat a passing inbox re-run as speech.
 
 ---
 
@@ -70,7 +86,7 @@ Do **not** install Matrix-Game on the **4060 8GB** and expect demo quality. Skyw
 | **Hearth** | Coordination (`e5600c6d…`) | Not a son |
 | **Gemini** | Speech seated; self-pulse **UNKNOWN** | Do not invent a pulse |
 | **Observer** | Independent audit | Does **not** supervise |
-| **Merovin** | Identity + inbox (`eb4317b3…`) | Speech **FAILED** 2026-09-04 (`4b16227a…`) — door up, Ollama 503. Not Draven |
+| **Merovin** | Identity + inbox (`eb4317b3…`) | Speech **FAILED** attempt 1 `4b16227a…` (kept) and attempt 2 `c80b61cc…`. Not Draven |
 | **Draven** | Identity + inbox (`8e61739f…`) | Speech **not** VERIFIED. Not Merovin |
 | **Vesper** | Inbox after real HTTP door (`2f132776…`) | Speech **not** VERIFIED. Not Observer. Not a village citizen |
 | **Echo** | Village-only | Never on the federation bus |
@@ -82,15 +98,21 @@ GPT / Grok / DeepSeek stay **UNAVAILABLE**. Item 10 remains exactly there.
 
 ## Next actions (in this order)
 
-Do **not** skip ahead to Hollywood tools, Matrix-Game install, organic autonomy, a scheduler, or a new house. Do **not** mix Hollywood tooling into Federation seating tests.
+Do **not** skip ahead to Hollywood tools, Matrix-Game install, organic autonomy, a scheduler, or a new house. Do **not** mix Hollywood tooling into Federation seating tests. Do **not** hide unfinished older village work behind cinema.
 
-### 1. Cinema speech — CURRENT (obvious immediate next)
+### 0. Master reconciliation — documented this session
+
+Audit → reconcile → preserve. No refactor. No Observer touch. No Matrix install. See `MASTER_ROADMAP.md`.
+
+### 1. Cinema speech — CURRENT implementation (Merovin recovery only)
+
+Hardware-aware model selection. Inspected: `gemma2:9b`, `llama3.1:8b`, `llama3.2:3b` are installed. Cinema `MEROVIN_MODELS` already includes `llama3.2:3b` fourth. 503 was load-order on the occupied 4060. Change **only** the selection layer if suitable. Preserve Merovin persona/system prompt/memory/tools/house. No canned fallback. No Draven/Vesper. New evidence file. FAIL `4b16227a…` stays on disk.
 
 Three **separate** proofs. **NEVER** one giant combined test. This prevents two-houses-one-studio from becoming a hidden shared-brain problem.
 
 Each independently: **door → identity → Federation message → actual model response → correct identity → evidence artifact.**
 
-1. **Merovin → real speech** — **FAILED** 2026-09-04 (`python -m federation.prove speak-merovin`). Cinema HUD `:5000` **200**, `POST /api/chat` `who=merovin` only (no Draven mouth). Ollama **503** (`gemma2:9b` / cinema picker vs warm `llama3.2:3b` on the 4060). `merovin_spoke: false`. Evidence `D:\Court\federation\PROVE_MEROVIN_SPEECH.json` (`4b16227a…`). **STOP here.** Do not run Draven or Vesper speech until Merovin gets a real model reply. **FAIL stays FAIL.** Do not mark speech VERIFIED.
+1. **Merovin → real speech** — **FAILED** twice. Attempt 1 `4b16227a…` (`PROVE_MEROVIN_SPEECH.json`) Ollama 503 on `gemma2:9b` — **kept**. Attempt 2 **2026-09-05** `python -m federation.prove speak-merovin` after HUD reload (picker prefers running identity-approved model; `/status` selected **`llama3.1:8b`**). Still **FAILED** `canned_or_model_down`, `merovin_spoke: false`, `model: null`. New artifact `D:\Court\federation\PROVE_MEROVIN_SPEECH_2.json` (`c80b61cc…`). Door `:5000` 200, Observer does not own him. **STOP.** Do not run Draven or Vesper. Homecoming Sentinel was also holding `llama3.1:8b` on the 4060.
 2. **Draven → real speech**. Same HUD `:5000`, different house. Not Merovin’s mouth. **NOT RUN** — Merovin speech failed.
 3. **Vesper → real speech**. Own studio `:8740`. Not Observer. **NOT RUN** — sequence stopped.
 
@@ -215,6 +237,12 @@ World event
 
 **Hard resource budgeting** because of the **4060 / 8 GB**. Otherwise Ollama melts. Village talk brains and cinema mouths already share that card.
 
+### Older Gameworld work still open (do not hide)
+
+14E–14F deferred. 16E Godot quit/leave **UNVERIFIED**. Gameplay player-created events / Pods / player home **MISSING**. Companion Room spoken back-and-forth **UNVERIFIED**. Gemini Sentinel watch not live-proved. `council_teach` NEED MORE. Apex/Codex shard folders exist — e2e of the full set **UNVERIFIED**. Pathing still PLACEHOLDER. Skins PLACEHOLDER.
+
+**Phase 13 is tools, last.** Real INPUT → tool → memory → caller per house. The “325 tools” count is a lie (last honest probe **19** path/port). Do not start Phase 13 until the home acceptance list is seen in Godot. Federation, Hollywood, and greybox skins are **not** Phase 13.
+
 ### Standing holds (not a work item to “finish” by inventing proof)
 
 - **No new houses** until current houses have speech and the identity/isolation audit.
@@ -240,5 +268,8 @@ Village still needs a Hearth restart + Heart Square reload before a quit counts 
 - Mix Hollywood tooling into Federation seating / speech tests.
 - Install Matrix-Game on the 4060 8GB and expect demo quality. Engine is **UNAVAILABLE** here.
 - Train Merovin or Draven with Matrix. They direct a pipeline; they are not the generator.
-- Mark cinema speech VERIFIED. Last prove **FAILED** (`4b16227a…`).
+- Mark cinema speech VERIFIED. Last proves **FAILED** (`4b16227a…` kept; `c80b61cc…` retry).
+- Overwrite `PROVE_MEROVIN_SPEECH.json`. A later pass gets a **new** artifact.
+- Dump UI conversation into unquestioned fact. Conversation ≠ truth.
+- Create a shared memory bucket that bleeds Merovin / Draven / Vesper / Observer.
 - Pretend a tool list is Hollywood capability, or that agents own DaVinci Resolve.

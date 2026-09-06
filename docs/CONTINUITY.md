@@ -7,6 +7,9 @@ Standing rule. GitHub stores history. These files store **where we actually are*
 - `data/living_home/FEDERATION_WIRING.md`
 - `data/living_home/FEDERATION_DIRECTIVE.md` — full build law, amendments 1–8, Aster Acceptance Test (happy path + refusal-to-lie)
 - `data/living_home/FEDERATION_RECONCILIATION.md` — what exists vs what is missing
+- `data/living_home/MASTER_ROADMAP.md` — original plan vs remaining work (does not replace NEXT)
+- `data/living_home/CAPABILITY_REGISTRY.md` — per-agent tools (Federation is not the whole body)
+- `data/living_home/SYSTEM_MAP.md` — Gameworld / Federation / houses / memory relationships
 - Law: `docs/DUAL_MODE.md`
 
 ## Session start

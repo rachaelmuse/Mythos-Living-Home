@@ -20,9 +20,9 @@
 | 15 | Connection, Choice & Consequence | **DONE** | 15A–15D seated (bonds, choice, growth, dashboard). |
 | 16 | Integration & Autonomous Life | **16E ACTIVE** · Layer 16 closed · Gameplay P1 scaffold | Phase 6 complete (16A–16E) |
 | 18B | Human Gameplay Phase 2 thin | **LIVE** | Look into + profession posts. Observer stays a door. Not Pods. |
-| F | Federation overlay (parallel) | **PAUSED** after Gemini delivery | Outside Observer. Law: `FEDERATION_RECONCILIATION.md`. |
+| F | Federation overlay (parallel) | **STALE ROW — see conflict** | This table previously said **PAUSED** after Gemini delivery. `NEXT.md` / `STATUS.md` (2026-09-04) say Federation is **USABLE**, not finished. Operator surface is `NEXT.md`. Do not treat PAUSED as current law. Law: `FEDERATION_RECONCILIATION.md`. Map: `MASTER_ROADMAP.md`. |
 | 17 | Matrix Dream View | **LATER** | SkyworkAI Matrix-Game — optional neural cinema/view. Not village truth. |
-| 13 | Final polish (Phase 13) | LAST | Do not jump here. |
+| 13 | **Tools** (Phase 13) | LAST | Real per-house tools: INPUT → tool → memory → caller. **Not** “325 tools” (that count is a lie; last probe **19** path/port). **Not** Federation seating. **Not** Hollywood. **Not** skins-as-a-substitute. Do not start until the home acceptance list is seen in Godot (`docs/CONTINUITY.md`, `BASELINE.md`). |
 
 ## Standing choice
 
@@ -37,9 +37,9 @@
 4. Living Economy (14A–14D) — DONE · 14E–14F deferred  
 5. **Phase 5 / Layer 15 Connection** — **DONE** (15A–15D)  
 6. **Phase 6 / Layer 16 Integration & Autonomous Life** — **16E ACTIVE** (16A–16E closed) · Human Gameplay Phase 1 scaffold beside 16 · **18B LIVE** · optional 14E–14F · then Layer 17 / Phase 13  
-7. **Federation overlay** — **PAUSED** (Mom adding directives). Aster + Gemini delivery seated. Not village truth.  
+7. **Federation overlay** — **CONFLICT with NEXT.md.** This file still described PAUSED; current operator surface says **USABLE** (inboxes seated; cinema speech open). Not village truth. Overlay ≠ shared brain. See `MASTER_ROADMAP.md`.  
 8. **Layer 17 Matrix Dream View** — **LATER** (after 16; before Phase 13)  
-9. Final Phase 13 — last  
+9. **Phase 13 tools** — last. Honest e2e of specialized house tools. Do not fake 325. Do not skip the proving slice to get here.  
 
 ## Layer 15 — Connection, Choice & Consequence
 
@@ -95,7 +95,7 @@
 - Wildlife stays AUTONOMOUS. Pathing stays PLACEHOLDER until later.
 - Dual-mode: Mode A Court/MAS stays; Gameworld expands it.
 - Complete = seen in the running village after Hearth + Enter restart.
-- Phase 13 remains last.
+- Phase 13 remains last (tools, not polish-by-rename).
 
 ## Layer 14 — Living Economy (detail)
 
@@ -132,7 +132,7 @@ Currency: **Axiom (⨁)**. Hearth is truth; dashboard + Godot present.
 - Identities never merge. Mom `stop` wins. Evidence only.
 - Dual-mode: keep Mode A; prefer adapter over rewrite. If GPU/unavailable → keep ORIGINAL MODE — RESEARCH; do not delete greybox.
 - Speech stays `ollama` / `mom` / `waiting` / `none`.
-- Phase 13 remains last.
+- Phase 13 remains last (tools, not polish-by-rename).
 
 ## Later (not now)
 
@@ -140,4 +140,4 @@ Currency: **Axiom (⨁)**. Hearth is truth; dashboard + Godot present.
 - Navmesh, final art
 - Full face morph / paid APIs
 - **Layer 17 Matrix Dream View** (after 16)
-- Final Phase 13 polish
+- **Phase 13 tools** (last — not polish-as-a-name; skins stay PLACEHOLDER until tools are honest)

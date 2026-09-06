@@ -250,6 +250,38 @@ def test_merovin_speech_persists_reply_and_pulses(tmp_path: Path):
     assert (root / "PROVE_MEROVIN_SPEECH.json").is_file()
 
 
+def test_merovin_speech_retry_does_not_overwrite_failed_artifact(tmp_path: Path):
+    from federation.prove import prove_merovin_speech
+
+    root = tmp_path / "fed"
+    root.mkdir()
+    failed = root / "PROVE_MEROVIN_SPEECH.json"
+    failed.write_text('{"kind": "FEDERATION_MEROVIN_SPEECH", "status": "FAILED", "keep": "4b16227a"}', encoding="utf-8")
+
+    def speak(ask: str, inbound_id: str) -> dict:
+        return {
+            "ok": True,
+            "adapter": "cinema_hud_http",
+            "text": "I am Merovin, cinema vision. Aster reached my house.",
+            "model": "llama3.2:3b",
+            "who": "merovin",
+            "house_kernel": "merovin",
+            "merovin_spoke": True,
+        }
+
+    report = prove_merovin_speech(
+        root,
+        court_roots=[tmp_path / "court"],
+        door_fn=_cinema_door_up_merovin,
+        speak_fn=speak,
+    )
+    assert '"keep": "4b16227a"' in failed.read_text(encoding="utf-8")
+    retry = root / "PROVE_MEROVIN_SPEECH_2.json"
+    assert retry.is_file()
+    assert report["actual"].get("artifact") == str(retry)
+    assert "llama3.2:3b" in retry.read_text(encoding="utf-8")
+
+
 def test_merovin_speech_does_not_crash_if_draven_already_seated(tmp_path: Path):
     from federation.prove import prove_merovin_speech
 

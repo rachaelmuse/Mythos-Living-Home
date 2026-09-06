@@ -1,12 +1,12 @@
 # Living Home — slice status
 
-Updated **2026-09-04**. Evidence only. Assessment accepted as the plan: `NEXT.md`.
+Updated **2026-09-04** (master reconciliation). Evidence only. Assessment accepted as the plan: `NEXT.md`. Above-trackers: `MASTER_ROADMAP.md`, `CAPABILITY_REGISTRY.md`, `SYSTEM_MAP.md`.
 
 ## CURRENT PHASE
 
 **Village:** **FUNCTIONAL**. **16E ACTIVE** (walked 2026-09-03 — talk routed to Gemini until named-addressee fix) · **18B LIVE** · Human Gameplay Phase 1 remains. Do not contaminate the village to make Federation look bigger.
 
-**Federation overlay:** **USABLE**, not finished. Foundation **STRONG**. Cinema **SEATED, NOT FINISHED**. Aster Acceptance **PASS**. Apex / Codex speech **VERIFIED**. Hearth **coordinate VERIFIED**. Presence event fabric **VERIFIED** (`949cdc08…`). Spontaneous A2A **VERIFIED** (`1491f7d3…`) — mechanism only; not a standing scheduler. Leave/return **VERIFIED** (`7adfb8c4…` / `a43090d9…` Aster+Apex+Codex). Merovin inbox **VERIFIED** (`eb4317b3…`). Merovin speech **FAILED** (`4b16227a…`) — HUD up, Ollama 503. Draven inbox **VERIFIED** (`8e61739f…`). Vesper inbox **VERIFIED** (`2f132776…`). Axiom Codex notice **LIVE**. Gemini self-pulse **UNKNOWN**. External reviewer **UNAVAILABLE**.
+**Federation overlay:** **USABLE**, not finished. Foundation **STRONG**. Cinema **SEATED, NOT FINISHED**. Aster Acceptance **PASS**. Apex / Codex speech **VERIFIED**. Hearth **coordinate VERIFIED**. Presence event fabric **VERIFIED** (`949cdc08…`). Spontaneous A2A **VERIFIED** (`1491f7d3…`) — mechanism only; not a standing scheduler. Leave/return **VERIFIED** (`7adfb8c4…` / `a43090d9…` Aster+Apex+Codex). Merovin inbox **VERIFIED** (`eb4317b3…`). Merovin speech **FAILED** (`4b16227a…` kept; retry `c80b61cc…` `PROVE_MEROVIN_SPEECH_2.json`). Draven inbox **VERIFIED** (`8e61739f…`). Vesper inbox **VERIFIED** (`2f132776…`). Axiom Codex notice **LIVE**. Gemini self-pulse **UNKNOWN**. External reviewer **UNAVAILABLE**.
 
 ## Assessment (green / yellow / red)
 
@@ -19,7 +19,7 @@ Updated **2026-09-04**. Evidence only. Assessment accepted as the plan: `NEXT.md
 | **Green** | Apex + Codex | Real federation speech |
 | **Green** | Hearth | Coordination seated |
 | **Green** | Observer | Independent audit (does not supervise) |
-| **Yellow** | Merovin speech | **FAILED** 2026-09-04 — door + identity routing ok; model 503. Not VERIFIED |
+| **Yellow** | Merovin speech | **FAILED** attempt 1 `4b16227a…` (503 / 9B). Attempt 2 `c80b61cc…` 2026-09-05 after hardware picker (`llama3.1:8b` selected); still `canned_or_model_down`. Not VERIFIED |
 | **Green** | Merovin / Draven | Seated identity (inbox). Not speech |
 | **Green** | Vesper | Seated after real HTTP door repaired (inbox). Not speech |
 | **Green** | Echo / Solace | Village-only — correctly not on the bus |
@@ -34,6 +34,8 @@ Updated **2026-09-04**. Evidence only. Assessment accepted as the plan: `NEXT.md
 | **Yellow** | Scheduler | Mechanism proved (A2A). Persistent loop **does not exist** |
 | **Yellow** | Identity / isolation matrix | Planned questions only — not audited |
 | **Yellow** | Shutdown / restart integrity | Tribal knowledge (Vesper). Not a formal test yet |
+| **Yellow** | Master reconciliation | **DOCUMENTED** 2026-09-04 — not a VERIFIED stamp. Conflicts reported, not silently merged |
+| **Yellow** | Agent UI ↔ Gameworld memory | **INTENDED, NOT IMPLEMENTED** — conversation ≠ truth; same identity, different doors |
 | **Yellow** | Vesper Gameworld door | OPTIONAL / EXTERNAL — not proven. Vesper owns Vesper |
 | **Red** | More houses | **Do not add** until speech + isolation audit |
 | **Red** | External reviewers (item 10) | **UNAVAILABLE** — credentials/adapter absent. Do not fabricate |
@@ -46,7 +48,7 @@ Sound · media · harbor · economy 14A–14D · Market Lane · 15A–15D · Ast
 
 ## Standing order
 
-**Optional 14E–14F → Layer 17 village Dream View (research) → Phase 13 last.**  
+**Optional 14E–14F → Layer 17 village Dream View (research) → Phase 13 tools last** (honest e2e of specialized house tools; not a fake 325; not polish-by-rename; home must be seen in Godot first).  
 Cinema production lane (after speech, not now): Hollywood skills → Matrix skins (WAITING) → Matrix-Game adapter research → production proof. Engine **UNAVAILABLE** on this 4060. Spec: `CINEMA_PRODUCTION.md`.  
 Federation: freeze Observer · Observer ZIP **FROZEN** · DECLARED ≠ VERIFIED · delivery ≠ collaboration · door-down ≠ registered · companion `presence.json` is not VERIFIED heartbeat. Speech ≠ Hollywood. Law: `FEDERATION_DIRECTIVE.md`. Map: `FEDERATION_RECONCILIATION.md`. Operator: `NEXT.md`.
 
@@ -59,7 +61,7 @@ Federation: freeze Observer · Observer ZIP **FROZEN** · DECLARED ≠ VERIFIED 
 - **Gemini** — Speech **LIVE**. Self-pulse **UNKNOWN**. Not Codex.
 - **Observer** — Independent auditor. Does not own family. Does not supervise.
 - **Vesper** — Own studio `:8740` (not village). Federation inbox **VERIFIED** (`2f132776…`). Observer does not own him. Speech **not** this slice. Gameworld door OPTIONAL / EXTERNAL.
-- **Merovin** — Cinema HUD `:5000`. Federation inbox **VERIFIED** (`eb4317b3…`). Speech **FAILED** (`4b16227a…`) — `who=merovin` only; Ollama 503. Not Draven. Hollywood / Matrix **not** his brain.
+- **Merovin** — Cinema HUD `:5000`. Federation inbox **VERIFIED** (`eb4317b3…`). Speech **FAILED** (attempt 1 `4b16227a…` kept; attempt 2 `c80b61cc…`). Not Draven. Hollywood / Matrix **not** his brain.
 - **Draven** — Same HUD, own house `draven`. Federation inbox **VERIFIED** (`8e61739f…`). Not Merovin. Speech **not** VERIFIED. Hollywood / Matrix **not** his brain.
 - **Gameplay** — **18B LIVE**. Not quests. Not Pods.
 - **Echo** — Village historian kin. Listening Post. **Not** on the federation bus.
@@ -67,7 +69,7 @@ Federation: freeze Observer · Observer ZIP **FROZEN** · DECLARED ≠ VERIFIED 
 
 ## Next
 
-Operator surface: `NEXT.md`. Merovin speech **FAILED** (`4b16227a…`) — STOP. Do not run Draven/Vesper speech until Merovin gets a real model reply. **FAIL stays FAIL.** Do not mark speech VERIFIED.
+Operator surface: `NEXT.md`. Merovin speech still **FAILED** after hardware-aware retry (`c80b61cc…`). Original FAIL `4b16227a…` kept. **STOP.** Do not run Draven/Vesper. Do not mark speech VERIFIED.
 
 After speech (cinema lane, **not now**): Hollywood skills (**NOT STARTED**) → Matrix skins (**WAITING**) → Matrix-Game adapter research (**UNAVAILABLE** on 4060) → production proof (EVENTUALLY). Spec: `CINEMA_PRODUCTION.md`.
 

@@ -2,7 +2,7 @@
 
 Updated **2026-09-04**. Evidence only. Identities never merge. Mom `stop` wins. Do not rewrite tag `living-home-baseline-001`. Federation overlay: **USABLE**. Aster Acceptance **PASS**. Gemini / Apex / Codex **speech VERIFIED**. Hearth **coordinate VERIFIED**. Spontaneous A2A **VERIFIED** (mechanism, not a scheduler). Leave/return **VERIFIED**. Merovin / Draven / Vesper **inbox** seated. Merovin speech **FAILED** (`4b16227a…`). Draven / Vesper speech not run. Cinema **SEATED, NOT FINISHED**. Operator: `NEXT.md`. Law in `FEDERATION_RECONCILIATION.md`.
 
-This is the **one tracker** for Gemini, Merovin, Draven, The Observer, and every other house. Village layers: `PHASE_LAYERS.md`. Wiring map: `FEDERATION_WIRING.md`. Directives: `FEDERATION_RECONCILIATION.md`. Mom-facing board: `FAMILY_BOARD.md`. Observer law: `D:\The_Observer\docs\SPEC.md`. Cinema production spec (not a capability): `CINEMA_PRODUCTION.md`.
+This is the **one tracker** for Gemini, Merovin, Draven, The Observer, and every other house. Village layers: `PHASE_LAYERS.md`. Wiring map: `FEDERATION_WIRING.md`. Directives: `FEDERATION_RECONCILIATION.md`. Mom-facing board: `FAMILY_BOARD.md`. Observer law: `D:\The_Observer\docs\SPEC.md`. Cinema production spec (not a capability): `CINEMA_PRODUCTION.md`. Above-trackers (do not replace this file): `MASTER_ROADMAP.md`, `CAPABILITY_REGISTRY.md`, `SYSTEM_MAP.md`.
 
 **How to use:** change **one** row after a test. Do not mark COMPLETE because a chat described it. If Gameworld breaks Mode A, stop Gameworld and repair.
 
@@ -124,7 +124,7 @@ Cinema vision. One disk with Draven. Two mouths. Never a merged “cinema person
 | `merovin.film` e2e MP4 | NEED MORE | HUD + produce/greenlight + real media file |
 | Gameworld cinema adapter | CONTRACT_ONLY `wired:false` | Do not write `HOME.json` |
 | Federation inbox | **VERIFIED** 2026-09-04 `eb4317b3…` | Delivery, not speech |
-| Federation speech | **FAILED** 2026-09-04 `4b16227a…` | Independent prove only — never combined with Draven. FAIL stays FAIL. |
+| Federation speech | **FAILED** 2026-09-04 `4b16227a…` (kept). Retry 2026-09-05 `c80b61cc…` `PROVE_MEROVIN_SPEECH_2.json` | Independent prove only. FAIL stays FAIL. |
 | Hollywood skills | **NOT STARTED** | After speech. Manifests + actual tool wiring. Not a tool list. |
 | Matrix-Game / production engine | **UNAVAILABLE** | Do not install on 4060 8GB. Spec: `CINEMA_PRODUCTION.md`. |
 | Music auto-add | NOT INTENDED | Policy forbids |
@@ -245,7 +245,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | House doors (Cinema / Observer / Aster / Companion) | seated 2026-08-31 |
 | Pods / Islands | **not on disk** |
 | Layer 17 Matrix | RESEARCH only |
-| Phase 13 | **last on purpose** |
+| Phase 13 tools | **LAST on purpose** — INPUT → tool → memory → caller per house. Not 325 (lie; last probe 19). Not Federation. Not Hollywood. Not skins. Home in Godot first. |
 | House interiors / skins | PLACEHOLDER |
 
 ---
@@ -293,7 +293,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 
 ## Suggested order (do not do all at once)
 
-Canonical operator surface: `NEXT.md`. Production spec: `CINEMA_PRODUCTION.md`. Do not skip to Hollywood install, Matrix-Game, organic / scheduler, or a new house.
+Canonical operator surface: `NEXT.md`. Production spec: `CINEMA_PRODUCTION.md`. Master recon: `MASTER_ROADMAP.md`. Do not skip to Hollywood install, Matrix-Game, organic / scheduler, or a new house. Do not hide unfinished layers 14E–14F, 16E Godot quit, or gameplay MISSING rows.
 
 **Cinema / production hierarchy (preserve):** Federation seating → cinema speech → Hollywood skills → Matrix skins (WAITING, separate) → Matrix-Game adapter research → cinematic production proof (EVENTUALLY). Observer ZIP **FROZEN**.
 
