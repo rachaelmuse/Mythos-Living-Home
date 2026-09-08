@@ -36,5 +36,8 @@ web/assets/
 **/.godot/
 **/*.import
 
+# Local Cursor MCP (machine path; not family infrastructure)
+.cursor/mcp.json
+
 APEX.env.bat
 .aider*

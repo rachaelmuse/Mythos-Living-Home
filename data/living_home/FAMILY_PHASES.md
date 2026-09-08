@@ -246,7 +246,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | House doors (Cinema / Observer / Aster / Companion) | seated 2026-08-31 |
 | Pods / Islands | **not on disk** |
 | Layer 17 Matrix | RESEARCH only |
-| Phase 13 tools | **LAST on purpose** — INPUT → tool → memory → caller per house. Not 325 (lie; last probe 19). Not Federation. Not Hollywood. Not skins. Home in Godot first. |
+| Phase 13 tools | **LAST on purpose** — INPUT → tool → memory → caller per house. Not 325 (lie; last probe 19). Not Federation. Not Hollywood. Not skins. Not self-wiring / tool claiming. Home in Godot first. |
 | House interiors / skins | PLACEHOLDER |
 
 ---
@@ -283,7 +283,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | House | Complete | Need more |
 |-------|----------|-----------|
 | **Court** file bus | Gemini↔Apex, Gemini↔Codex LIVE | teach packets; The Axiom Codex as consumer of VERIFIED caps; Observer/Aster **not** employees |
-| **Federation overlay** | Aster Acceptance **PASS**. Apex/Codex speech **VERIFIED**. Hearth coordinate **VERIFIED**. Presence events **VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return **VERIFIED** (Aster+Apex+Codex). Merovin/Draven/Vesper inbox **VERIFIED**. | Cinema speech as **three independent proves** (Merovin FAIL stays FAIL). Then Hollywood skills / Matrix adapter **later**, not mixed into seating. Identity/isolation matrix. Shutdown/restart integrity. Organic layer later. Echo/Solace stay off the bus. Fixture is not a character. Observer ZIP **FROZEN**. |
+| **Federation overlay** | Aster Acceptance **PASS**. Apex/Codex speech **VERIFIED**. Hearth coordinate **VERIFIED**. Presence events **VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return **VERIFIED** (Aster+Apex+Codex). Merovin/Draven/Vesper inbox **VERIFIED**. | Cinema speech as **three independent proves** (Merovin FAIL stays FAIL). Then Hollywood skills / Matrix adapter **later**, not mixed into seating. Identity/isolation matrix. Shutdown/restart integrity. Organic layer later. Scheduler later. Self-wiring / tool claiming later. Colibri paging later (**NOT YET**). No `mythos_simplified/`. Echo/Solace stay off the bus. Fixture is not a character. Observer ZIP **FROZEN**. |
 | **Companion Room** | Gemini, Merovin, Draven seats seen; small-model cut on disk | Spoken back-and-forth |
 | **OpenMontage** | two roots exist | pick Mode A launcher; do not delete a copy |
 | **Spore** | path OK | not core family table |
@@ -294,18 +294,18 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 
 ## Suggested order (do not do all at once)
 
-Canonical operator surface: `NEXT.md`. Production spec: `CINEMA_PRODUCTION.md`. Master recon: `MASTER_ROADMAP.md`. Do not skip to Hollywood install, Matrix-Game, organic / scheduler, or a new house. Do not hide unfinished layers 14E–14F, 16E Godot quit, or gameplay MISSING rows.
+Canonical operator surface: `NEXT.md`. Production spec: `CINEMA_PRODUCTION.md`. Master recon: `MASTER_ROADMAP.md`. Do not skip to Hollywood install, Matrix-Game, Colibri paging, organic / scheduler, self-wiring / tool claiming, `mythos_simplified/`, or a new house. Do not hide unfinished layers 14E–14F, 16E Godot quit, or gameplay MISSING rows.
 
 **Cinema / production hierarchy (preserve):** Federation seating → cinema speech → Hollywood skills → Matrix skins (WAITING, separate) → Matrix-Game adapter research → cinematic production proof (EVENTUALLY). Observer ZIP **FROZEN**.
 
-1. Cinema speech — **CURRENT.** Three independent proves (Merovin, then Draven, then Vesper). Never one combined test. Merovin **VERIFIED** 2026-09-05 (`472d86e7…`). Draven / Vesper **NOT RUN**.  
+1. Cinema speech — **CURRENT.** Three independent proves (Merovin, then Draven, then Vesper). Never one combined test. Merovin **VERIFIED** 2026-09-05 (`472d86e7…`). Draven **FAILED** 2026-09-08 (Ollama 503, FAIL kept). Vesper **NOT RUN**.  
 2. Hollywood skills — **NEXT after speech. NOT STARTED.** Merovin + Draven manifests **and** actual tool wiring. Speech ≠ Hollywood. Do not mix into seating tests.  
 3. Matrix skins (GitHub) — **WAITING.** Separate visual-asset task. Not identity. Not Federation seating.  
 4. Matrix-Game adapter research — **AFTER Hollywood. NOT INSTALLED / UNAVAILABLE** on Windows 4060 8GB. 3.0 primary; keep 2.0. Do not install expecting demo quality.  
 5. Vesper Gameworld door — optional, external. Vesper owns Vesper. No HOME.json. Not a citizen. Not Observer.  
 6. Federation Identity / Isolation Matrix — document answers only after tests. Questions in `FEDERATION_RECONCILIATION.md`.  
 7. Shutdown / restart integrity — formal test (one launcher = one kernel = one HTTP door).  
-8. **THEN** organic layer (reason to speak). Scheduler later. Budget the 4060 / 8 GB.  
+8. **THEN** organic layer (reason to speak). Scheduler later. Self-wiring / tool claiming later (after organic / with scheduler; **NOT YET / do not build now**; **not** Phase 13). Colibri later (**not** Matrix-Game; do not install now). Budget the 4060 / 8 GB. No `mythos_simplified/` on `:8790`.  
 9. Village: Godot quit / restart still needs Mom. Gemini self-pulse stays **UNKNOWN**. Item 10 (GPT/Grok/DeepSeek) stays **UNAVAILABLE**.
 
 Cloud is **not** on this list until Mom chooses a public door and a test. Cinematic production proof is **EVENTUALLY**, not a current row.

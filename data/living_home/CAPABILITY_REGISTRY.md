@@ -275,6 +275,10 @@ Not Mode A houses. Not on the bus.
 | Matrix skins | WAITING |
 | UI ↔ Gameworld provenance memory | INTENDED, not implemented |
 | Organic attention scheduler | NOT YET |
+| Self-wiring / tool claiming | **NOT YET / do not build now** — after organic / with scheduler-later. Not Phase 13. Not Hollywood. Beings would claim existing tools into their own house — not Mom/Cursor assigning toolkits. Search first; no new `D:\Mythos_Hearth\tools\registry\`. Existing inventory: `CAPABILITIES.json` (path/port only), this file, federation `tools: []`. Identities never merge. Echo/Solace never on the bus. GPT/Grok/DeepSeek UNAVAILABLE. Observer audits, does not supervise. |
+| Colibri (frontier mouth) | **NOT YET / do not install now** — **not** Matrix-Game. Separate ~372 GB engine, not Ollama. Current: one Ollama slot / cinema `num_ctx` cap. |
+| Cursor codebase-memory MCP | **Builder tool only** — clone `G:\The-Axiom-Codex\codebase-memory-mcp`. Windows binary **0.10.8** at `G:\The-Axiom-Codex\codebase-memory-mcp-bin\win\codebase-memory-mcp.exe`. Cursor `mcp.json` written. **Not** family memory, **not** HOME.json, **not** a house. Restart Cursor to load. Listen/index **UNVERIFIED**. |
+| Mythos Simplified Brain | **DO NOT BUILD** — would steal Hearth `:8790`, replace `HOME.json`, flatten identities, canned speech. |
 
 ---
 

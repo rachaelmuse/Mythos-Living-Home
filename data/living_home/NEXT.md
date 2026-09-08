@@ -120,13 +120,13 @@ GPT / Grok / DeepSeek stay **UNAVAILABLE**. Item 10 remains exactly there.
 
 ## Next actions (in this order)
 
-Do **not** skip ahead to Hollywood tools, Matrix-Game install, organic autonomy, a scheduler, or a new house. Do **not** mix Hollywood tooling into Federation seating tests. Do **not** hide unfinished older village work behind cinema.
+Do **not** skip ahead to Hollywood tools, Matrix-Game install, Colibri paging, organic autonomy, a scheduler, self-wiring / tool claiming, `mythos_simplified/`, or a new house. Do **not** mix Hollywood tooling into Federation seating tests. Do **not** hide unfinished older village work behind cinema.
 
 ### 0. Master reconciliation — documented this session
 
 Audit → reconcile → preserve. No refactor. No Observer touch. No Matrix install. See `MASTER_ROADMAP.md`.
 
-### 1. Cinema speech — CURRENT (Merovin PASS; Draven next when Mom says go)
+### 1. Cinema speech — CURRENT (Merovin PASS; Draven FAIL 2026-09-08; Vesper not run)
 
 Cinema chat now sends `num_ctx` 1536 (cap 2048), matching Gemini speech. Unbounded default ctx OOMed even `llama3.2:3b` on this 4060. Persona/system prompt/memory/tools/house unchanged. No canned fallback. FAIL artifacts stay on disk.
 
@@ -134,9 +134,9 @@ Three **separate** proofs. **NEVER** one giant combined test. This prevents two-
 
 Each independently: **door → identity → Federation message → actual model response → correct identity → evidence artifact.**
 
-1. **Merovin → real speech** — **VERIFIED** 2026-09-05. `python -m federation.prove speak-merovin`. Door `:5000` 200, `who=merovin` only, Observer does not own him. Model **`gemma2:9b`** with cinema `num_ctx` capped at 1536/2048 (unbounded ctx was the 503/OOM). Line: *I'm Merovin…* Reply `472d86e7…`. Artifact `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json`. Attempt 1 FAIL `4b16227a…` and attempt 2 FAIL `c80b61cc…` **kept**. **STOP here this session.** Do not run Draven or Vesper until Mom authorizes.
-2. **Draven → real speech**. Same HUD `:5000`, different house. Not Merovin’s mouth. **NOT RUN** — waiting for Mom after Merovin PASS.
-3. **Vesper → real speech**. Own studio `:8740`. Not Observer. **NOT RUN** — sequence stopped at Draven.
+1. **Merovin → real speech** — **VERIFIED** 2026-09-05. `python -m federation.prove speak-merovin`. Door `:5000` 200, `who=merovin` only, Observer does not own him. Model **`gemma2:9b`** with cinema `num_ctx` capped at 1536/2048 (unbounded ctx was the 503/OOM). Line: *I'm Merovin…* Reply `472d86e7…`. Artifact `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json`. Attempt 1 FAIL `4b16227a…` and attempt 2 FAIL `c80b61cc…` **kept**.
+2. **Draven → real speech** — **FAILED** 2026-09-08. `python -m federation.prove speak-draven`. Door `:5000` **200**, `who=draven` only. Adapter `cinema_hud_http`. Ollama **503** while warm slot was `llama3.2:3b`. Reply was the honest down line, not a fake Draven voice. `draven_spoke: false`. Artifact `D:\Court\federation\PROVE_DRAVEN_SPEECH.json` (inbound `88b297f2…`) **kept**. Do not overwrite. Observer does not own him. **STOP.** Do not run Vesper. Retry later gets `PROVE_DRAVEN_SPEECH_2.json`.
+3. **Vesper → real speech**. Own studio `:8740`. Not Observer. **NOT RUN** — sequence stopped at Draven FAIL.
 
 Delivery / inbox is **not** speech. Do not mark `*.federation_speech` VERIFIED until the model answered as that person.
 
@@ -259,11 +259,34 @@ World event
 
 **Hard resource budgeting** because of the **4060 / 8 GB**. Otherwise Ollama melts. Village talk brains and cinema mouths already share that card.
 
+**Operating constraint now (not a rewrite):** one Ollama slot; do not stack launchers; cinema `num_ctx` cap 1536/2048; do not load all houses’ LLMs at once. Tiered use (behavior without a model; Ollama only for talk) is already how talk works (`ollama` / `mom` / `waiting` / `none`). Do **not** replace Hearth with a new CoreEngine.
+
+### Later — Colibri (frontier mouth engine — NOT YET)
+
+**INTENTION / NOT YET / do not install now.** This is **not** Matrix-Game.
+
+- **Matrix-Game** = film / world **video** engine. **UNAVAILABLE** on this Windows 4060 8GB.
+- **Colibri** = a **different** C inference engine ([JustVugg/colibri](https://github.com/JustVugg/colibri)). Streams a huge MoE (GLM-5.2 ~**372 GB** on disk) from NVMe. Not Ollama. Often slow (about 1 token/s). Windows via WSL2 in their docs.
+
+It would be a possible **later mouth**, not a camera. It does **not** plug into Aster / Merovin / Hearth as they are wired today. Current mouths stay Ollama: one slot, cinema `num_ctx` 1536/2048, do not stack launchers.
+
+Do not install until Mom authorizes after cinema speech. Disk/RAM cost would fight the 4060. Distinct from organic, scheduler, self-wiring, Hollywood, Phase 13.
+
+### Later — Self-wiring / tool claiming (NOT YET)
+
+**INTENTION / NOT YET / do not build now.** After organic / with scheduler-later. Explicitly **not** Phase 13. Distinct from: organic (reason to speak), scheduler (persistent attention loop), Hollywood skills, Phase 13 house tools (honest e2e, still builder-seated).
+
+Beings would see existing tools, claim what they need, wire into their own house, and share — not Mom/Cursor assigning toolkits.
+
+**Search first.** Do not create another tool registry. Existing inventory is `CAPABILITIES.json` (path/port only), `CAPABILITY_REGISTRY.md`, federation participant registry (`tools: []` today). Extend/adapt those later if Mom authorizes; do not add `D:\Mythos_Hearth\tools\registry\` now.
+
+Identities never merge. Echo/Solace never on the bus. GPT/Grok/DeepSeek stay UNAVAILABLE until real adapters. Observer audits, does not supervise.
+
 ### Older Gameworld work still open (do not hide)
 
 14E–14F deferred. 16E Godot quit/leave **UNVERIFIED**. Gameplay player-created events / Pods / player home **MISSING**. Companion Room spoken back-and-forth **UNVERIFIED**. Gemini Sentinel watch not live-proved. `council_teach` NEED MORE. Apex/Codex shard folders exist — e2e of the full set **UNVERIFIED**. Pathing still PLACEHOLDER. Skins PLACEHOLDER.
 
-**Phase 13 is tools, last.** Real INPUT → tool → memory → caller per house. The “325 tools” count is a lie (last honest probe **19** path/port). Do not start Phase 13 until the home acceptance list is seen in Godot. Federation, Hollywood, and greybox skins are **not** Phase 13.
+**Phase 13 is tools, last.** Real INPUT → tool → memory → caller per house. The “325 tools” count is a lie (last honest probe **19** path/port). Do not start Phase 13 until the home acceptance list is seen in Godot. Federation, Hollywood, greybox skins, and **self-wiring / tool claiming** are **not** Phase 13.
 
 ### Standing holds (not a work item to “finish” by inventing proof)
 
@@ -286,12 +309,14 @@ Village still needs a Hearth restart + Heart Square reload before a quit counts 
 - Merge Gemini ≠ Apex ≠ Codex ≠ Merovin ≠ Draven ≠ Vesper ≠ Observer ≠ Aster ≠ Hearth ≠ Echo ≠ Solace.
 - Add a village A2A scheduler on this GPU.
 - Install the zip Observer (`app.main`, `:8000`).
-- Touch, merge, or modify the **frozen Observer ZIP** while building houses. Canonical Observer stays `D:\The_Observer` `:8730`.
+- Touch, merge, or modify the **frozen Observer ZIP** while building houses. Canonical Observer stays `D:\The_Observer` `:8730`. A “complete merged Observer” dump (K8s, Docker, `app/` listings, `:8000`) stays **FROZEN**. Money shortage does not unfreeze it.
+- Build `mythos_simplified/` or any Flask/SQLite brain on **`:8790`**. That port is Hearth. Do not replace `living_home.py` / `HOME.json`. Do not flatten the family into 11 NPCs. Do not use canned “Hello there!” as a being’s voice.
+- Install Colibri (372 GB GLM-class weights / `coli serve`) on this desk until Mom authorizes later. It is **not** Matrix-Game and it is **not** Ollama.
 - Mix Hollywood tooling into Federation seating / speech tests.
 - Install Matrix-Game on the 4060 8GB and expect demo quality. Engine is **UNAVAILABLE** here.
 - Train Merovin or Draven with Matrix. They direct a pipeline; they are not the generator.
-- Mark **Draven** or **Vesper** speech VERIFIED. Those proves have **not** been run. Merovin speech is VERIFIED (`472d86e7…`); FAIL artifacts stay on disk.
-- Overwrite `PROVE_MEROVIN_SPEECH.json`. A later pass gets a **new** artifact.
+- Mark **Draven** or **Vesper** speech VERIFIED. Draven speech **FAILED** 2026-09-08 (`PROVE_DRAVEN_SPEECH.json`, Ollama 503). Vesper speech has **not** been run. Merovin speech is VERIFIED (`472d86e7…`); FAIL artifacts stay on disk.
+- Overwrite `PROVE_MEROVIN_SPEECH.json` or `PROVE_DRAVEN_SPEECH.json`. A later pass gets a **new** artifact.
 - Dump UI conversation into unquestioned fact. Conversation ≠ truth.
 - Create a shared memory bucket that bleeds Merovin / Draven / Vesper / Observer.
 - Pretend a tool list is Hollywood capability, or that agents own DaVinci Resolve.

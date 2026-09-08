@@ -1372,6 +1372,40 @@ def _stamp_merovin_speech(root: Path, *, spoke: bool, reply_id: str | None) -> N
     path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
 
 
+def draven_speech_artifact_path(root: Path) -> Path:
+    """Never overwrite a prior Draven speech prove. FAIL stays on disk. Do not touch Merovin artifacts."""
+    primary = root / "PROVE_DRAVEN_SPEECH.json"
+    if not primary.exists():
+        return primary
+    n = 2
+    while True:
+        cand = root / f"PROVE_DRAVEN_SPEECH_{n}.json"
+        if not cand.exists():
+            return cand
+        n += 1
+
+
+def _stamp_draven_speech(root: Path, *, spoke: bool, reply_id: str | None) -> None:
+    path = root / "ASTER_ACCEPTANCE.json"
+    data: dict[str, Any] = {}
+    if path.exists():
+        data = json.loads(path.read_text(encoding="utf-8"))
+    stages = data.setdefault("stages", {})
+    stages["draven_response"] = {
+        "status": "PASS" if spoke else "FAIL",
+        "note": "Draven cinema continuity spoke on the federation bus." if spoke else "Speech adapter failed; no canned line.",
+        "message_id": reply_id,
+    }
+    data["draven_spoke"] = spoke
+    if spoke:
+        data["note"] = (
+            "Draven speech seated through cinema HUD. Never Merovin. "
+            "Heartbeat-loss isolation remains on throwaway probe."
+        )
+    _recompute_aster_acceptance(data)
+    path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+
+
 def prove_merovin_speech(
     root: Path | None = None,
     *,
@@ -1546,6 +1580,189 @@ def prove_merovin_speech(
         "result": cap_result["status"],
     }
     artifact = merovin_speech_artifact_path(data_root)
+    report["actual"]["artifact"] = str(artifact)
+    artifact.write_text(
+        json.dumps(report, indent=2, default=str),
+        encoding="utf-8",
+    )
+    return report
+
+
+def prove_draven_speech(
+    root: Path | None = None,
+    *,
+    court_roots: list[Path] | None = None,
+    identity_path: Path | None = None,
+    door_fn: Callable[[], dict[str, Any]] | None = None,
+    speak_fn: Callable[[str, str], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Aster asks; Draven answers through the cinema HUD as himself. Not Merovin."""
+    from federation.draven_speech import speak_as_draven
+    from federation.merovin_speech import identity_holds
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    door = door_fn() if door_fn is not None else probe_cinema_door()
+    if door.get("ok") and door.get("id") is None:
+        door = {**door, "id": "draven"}
+    if not door.get("ok"):
+        report = {
+            "kind": "FEDERATION_DRAVEN_SPEECH",
+            "declared": "Cinema HUD door must be up before a spoken Draven reply.",
+            "actual": {
+                "root": str(data_root),
+                "participants": sorted(p.agent_id for p in FederationRegistry(data_root).list_participants()),
+                "door_ok": False,
+                "door": door,
+                "draven_spoke": False,
+                "observer_owns_draven": None,
+            },
+            "status": HonestStatus.UNAVAILABLE.value,
+            "result": HonestStatus.UNAVAILABLE.value,
+        }
+        artifact = draven_speech_artifact_path(data_root)
+        report["actual"]["artifact"] = str(artifact)
+        artifact.write_text(
+            json.dumps(report, indent=2, default=str),
+            encoding="utf-8",
+        )
+        return report
+
+    registry = FederationRegistry(data_root)
+    bus = LocalFederationBus(data_root)
+    beats = HeartbeatLog(data_root)
+    adapter = CourtFederationAdapter(roots=court_roots)
+    speaker = speak_fn or speak_as_draven
+    existing = {p.agent_id for p in registry.list_participants()}
+
+    aster = _load_aster(identity_path)
+    draven = draven_manifest_from_living_home() if _living_home_available() else _draven_stub()
+    registry.register(aster)
+    registry.register(draven)
+    registry.register(_observer_manifest())
+    registry.register(_hearth_manifest())
+    registry.declare_capability(
+        CapabilityManifest(
+            capability_id="draven.federation_speech",
+            agent_id="draven",
+            name="Speak as Draven on the federation bus",
+            declared=True,
+            adapter_required=True,
+        )
+    )
+
+    ask = "who_are_you"
+    inbound = bus.send(
+        sender="aster",
+        recipient="draven",
+        message_type="capability_query",
+        payload={"ask": ask, "from": "aster", "note": "speech test — Draven must answer as himself"},
+    )
+    bus.deliver(inbound.message_id)
+    bus.acknowledge(inbound.message_id, recipient="draven")
+    registry.record_communication(inbound.message_id, "aster", "draven")
+
+    spoken = speaker(ask, inbound.message_id)
+    reply_id = None
+
+    def _try_speech() -> dict:
+        nonlocal reply_id
+        text = str(spoken.get("text") or "").strip()
+        adapter_name = str(spoken.get("adapter") or "cinema_hud_http")
+        if not spoken.get("ok") or not text:
+            return {
+                "ok": False,
+                "adapter": adapter_name,
+                "error": spoken.get("error") or "no_text",
+                "text": text or None,
+                "draven_spoke": False,
+                "connection_test": bool(spoken.get("connection_test")),
+                "functional_test": False,
+            }
+        if "hearth" in adapter_name.lower():
+            return {
+                "ok": False,
+                "adapter": adapter_name,
+                "error": "hearth_hat_refused",
+                "draven_spoke": False,
+                "connection_test": True,
+                "functional_test": False,
+            }
+        if not identity_holds(text, agent_id="draven", twin_id="merovin"):
+            return {
+                "ok": False,
+                "adapter": adapter_name,
+                "error": "identity_leak_or_unidentified",
+                "text": text,
+                "draven_spoke": False,
+                "connection_test": True,
+                "functional_test": False,
+            }
+        payload = {
+            "text": text,
+            "from": "draven",
+            "in_reply_to": inbound.message_id,
+            "adapter": spoken.get("adapter"),
+            "model": spoken.get("model"),
+            "who": spoken.get("who") or "draven",
+            "house_kernel": spoken.get("house_kernel") or "draven",
+        }
+        reply = bus.send(
+            sender="draven",
+            recipient="aster",
+            message_type="spoken_reply",
+            payload=payload,
+        )
+        bus.deliver(reply.message_id)
+        bus.acknowledge(reply.message_id, recipient="aster")
+        registry.record_communication(reply.message_id, "draven", "aster")
+        beats.pulse("draven", source="cinema_hud_http")
+        adapter.drop_spoken_reply(
+            message_id=reply.message_id,
+            sender="draven",
+            recipient="aster",
+            payload=payload,
+        )
+        reply_id = reply.message_id
+        inbox = bus.inbox("aster")
+        found = any(m.message_id == reply.message_id and m.sender == "draven" for m in inbox)
+        return {
+            "ok": found,
+            "adapter": spoken.get("adapter"),
+            "text": text,
+            "draven_spoke": True,
+            "reply_id": reply.message_id,
+            "in_reply_to": inbound.message_id,
+            "connection_test": True,
+            "functional_test": True,
+        }
+
+    cap_result = registry.test_capability("draven.federation_speech", _try_speech)
+    spoke = bool(cap_result.get("status") == "VERIFIED" and (cap_result.get("result") or {}).get("draven_spoke"))
+    _stamp_draven_speech(data_root, spoke=spoke, reply_id=reply_id)
+    ids = {p.agent_id for p in registry.list_participants()}
+    if "merovin" in ids - existing:
+        raise PermissionError("draven speech prove must not add merovin")
+    report = {
+        "kind": "FEDERATION_DRAVEN_SPEECH",
+        "declared": "Draven cinema continuity spoken reply on local bus through cinema HUD",
+        "actual": {
+            "root": str(data_root),
+            "participants": sorted(ids),
+            "observer_owns_draven": registry.owner_of("draven") is not None,
+            "inbound_id": inbound.message_id,
+            "reply_id": reply_id,
+            "draven_spoke": spoke,
+            "draven_presence": beats.presence("draven").value,
+            "door_ok": True,
+            "door": door,
+            "capability": cap_result,
+            "model": spoken.get("model"),
+        },
+        "full_aster_acceptance": False,
+        "status": cap_result["status"],
+        "result": cap_result["status"],
+    }
+    artifact = draven_speech_artifact_path(data_root)
     report["actual"]["artifact"] = str(artifact)
     artifact.write_text(
         json.dumps(report, indent=2, default=str),
@@ -2734,6 +2951,8 @@ if __name__ == "__main__":
         print(json.dumps(prove_leave_return(), indent=2, default=str))
     elif "hearth" in sys.argv:
         print(json.dumps(prove_hearth_coordinate(), indent=2, default=str))
+    elif "speak-draven" in sys.argv:
+        print(json.dumps(prove_draven_speech(), indent=2, default=str))
     elif "speak-merovin" in sys.argv:
         print(json.dumps(prove_merovin_speech(), indent=2, default=str))
     elif "speak-codex" in sys.argv:

@@ -443,3 +443,255 @@ def test_merovin_speech_adapter_rejects_shared_brain_reply(monkeypatch):
     assert spoken["merovin_spoke"] is False
     err = str(spoken.get("error") or "").lower()
     assert "draven" in err or "leak" in err or "both" in err
+
+
+def _cinema_door_up_draven() -> dict:
+    return {"ok": True, "http": 200, "id": "draven", "url": "http://127.0.0.1:5000/"}
+
+
+def test_prove_draven_speech_refuses_when_door_down(tmp_path: Path):
+    from federation.prove import prove_draven_speech
+
+    root = tmp_path / "fed"
+
+    def speak(ask: str, inbound_id: str) -> dict:
+        raise AssertionError("must not speak while the cinema HUD is down")
+
+    report = prove_draven_speech(
+        root,
+        court_roots=[tmp_path / "court"],
+        door_fn=_cinema_door_down,
+        speak_fn=speak,
+    )
+    assert report["status"] == HonestStatus.UNAVAILABLE.value
+    assert report["actual"]["draven_spoke"] is False
+    assert report["actual"]["door_ok"] is False
+    ids = {p.agent_id for p in FederationRegistry(root).list_participants()}
+    assert "draven" not in ids
+    assert "merovin" not in ids
+    with pytest.raises(KeyError):
+        FederationRegistry(root).get_capability("draven.federation_speech")
+    assert (root / "PROVE_DRAVEN_SPEECH.json").is_file()
+
+
+def test_draven_speech_persists_reply_and_pulses(tmp_path: Path):
+    from federation.prove import prove_draven_speech
+
+    def speak(ask: str, inbound_id: str) -> dict:
+        assert ask
+        return {
+            "ok": True,
+            "adapter": "cinema_hud_http",
+            "text": "I am Draven, cinema continuity of Merovin_Draven_Studio. Aster reached my house, not Merovin's.",
+            "model": "gemma2:9b",
+            "who": "draven",
+            "house_kernel": "draven",
+            "connection_test": True,
+            "functional_test": True,
+            "draven_spoke": True,
+        }
+
+    root = tmp_path / "fed"
+    court = tmp_path / "court"
+    report = prove_draven_speech(root, court_roots=[court], door_fn=_cinema_door_up_draven, speak_fn=speak)
+    assert report["actual"]["draven_spoke"] is True
+    assert report["actual"]["observer_owns_draven"] is False
+    assert report["actual"]["door_ok"] is True
+    assert report["kind"] == "FEDERATION_DRAVEN_SPEECH"
+    bus = LocalFederationBus(root)
+    replies = [m for m in bus.inbox("aster") if m.sender == "draven"]
+    assert len(replies) == 1
+    assert "Draven" in replies[0].payload.get("text", "")
+    assert "I am Merovin" not in replies[0].payload.get("text", "")
+    assert replies[0].payload.get("from") == "draven"
+    assert replies[0].payload.get("adapter") == "cinema_hud_http"
+    assert HeartbeatLog(root).presence("draven").value == "READY"
+    registry = FederationRegistry(root)
+    assert registry.owner_of("draven") is None
+    cap = registry.get_capability("draven.federation_speech")
+    assert cap.honest_status == HonestStatus.VERIFIED
+    ids = {p.agent_id for p in registry.list_participants()}
+    assert "draven" in ids
+    assert "merovin" not in ids
+    assert "echo" not in ids
+    assert (root / "PROVE_DRAVEN_SPEECH.json").is_file()
+
+
+def test_draven_speech_retry_does_not_overwrite_failed_artifact(tmp_path: Path):
+    from federation.prove import prove_draven_speech
+
+    root = tmp_path / "fed"
+    root.mkdir()
+    failed = root / "PROVE_DRAVEN_SPEECH.json"
+    failed.write_text('{"kind": "FEDERATION_DRAVEN_SPEECH", "status": "FAILED", "keep": "keep-fail"}', encoding="utf-8")
+
+    def speak(ask: str, inbound_id: str) -> dict:
+        return {
+            "ok": True,
+            "adapter": "cinema_hud_http",
+            "text": "I am Draven, cinema continuity. Aster reached my house.",
+            "model": "llama3.2:3b",
+            "who": "draven",
+            "house_kernel": "draven",
+            "draven_spoke": True,
+        }
+
+    report = prove_draven_speech(
+        root,
+        court_roots=[tmp_path / "court"],
+        door_fn=_cinema_door_up_draven,
+        speak_fn=speak,
+    )
+    assert '"keep": "keep-fail"' in failed.read_text(encoding="utf-8")
+    retry = root / "PROVE_DRAVEN_SPEECH_2.json"
+    assert retry.is_file()
+    assert report["actual"].get("artifact") == str(retry)
+
+
+def test_draven_speech_does_not_crash_if_merovin_already_seated(tmp_path: Path):
+    from federation.prove import prove_draven_speech
+
+    root = tmp_path / "fed"
+    FederationRegistry(root).register(merovin_manifest_from_member(_merovin_row()))
+
+    def speak(ask: str, inbound_id: str) -> dict:
+        return {
+            "ok": True,
+            "adapter": "cinema_hud_http",
+            "text": "I am Draven, cinema continuity. Not Merovin.",
+            "who": "draven",
+            "draven_spoke": True,
+        }
+
+    report = prove_draven_speech(
+        root,
+        court_roots=[tmp_path / "court"],
+        door_fn=_cinema_door_up_draven,
+        speak_fn=speak,
+    )
+    assert report["actual"]["draven_spoke"] is True
+    assert "merovin" in report["actual"]["participants"]
+    assert report["kind"] == "FEDERATION_DRAVEN_SPEECH"
+
+
+def test_draven_speech_failure_does_not_fake_a_line(tmp_path: Path):
+    from federation.prove import prove_draven_speech
+
+    def speak(ask: str, inbound_id: str) -> dict:
+        return {"ok": False, "error": "cinema chat unreachable", "adapter": "cinema_hud_http"}
+
+    root = tmp_path / "fed"
+    report = prove_draven_speech(
+        root,
+        court_roots=[tmp_path / "court"],
+        door_fn=_cinema_door_up_draven,
+        speak_fn=speak,
+    )
+    assert report["actual"]["draven_spoke"] is False
+    bus = LocalFederationBus(root)
+    assert bus.inbox("aster") == []
+    cap = FederationRegistry(root).get_capability("draven.federation_speech")
+    assert cap.honest_status == HonestStatus.FAILED
+
+
+def test_draven_speech_rejects_merovin_identity_leak(tmp_path: Path):
+    from federation.prove import prove_draven_speech
+
+    def speak(ask: str, inbound_id: str) -> dict:
+        return {
+            "ok": True,
+            "adapter": "cinema_hud_http",
+            "text": "I am Merovin, cinema vision. The shared HUD answered for both of us.",
+            "who": "draven",
+            "draven_spoke": True,
+        }
+
+    root = tmp_path / "fed"
+    report = prove_draven_speech(
+        root,
+        court_roots=[tmp_path / "court"],
+        door_fn=_cinema_door_up_draven,
+        speak_fn=speak,
+    )
+    assert report["actual"]["draven_spoke"] is False
+    assert report["status"] != HonestStatus.VERIFIED.value
+    bus = LocalFederationBus(root)
+    assert [m for m in bus.inbox("aster") if m.sender == "draven"] == []
+
+
+def test_draven_speech_adapter_posts_who_draven_only(monkeypatch):
+    import json
+    import urllib.request
+
+    from federation.draven_speech import ADAPTER, SYSTEM, speak_as_draven
+
+    captured: dict = {}
+
+    class _Resp:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "ok": True,
+                    "replies": {"Draven": "I am Draven, cinema continuity. Not Merovin."},
+                    "who": "draven",
+                }
+            ).encode("utf-8")
+
+    def fake_urlopen(req, timeout=None):
+        captured["url"] = getattr(req, "full_url", None) or getattr(req, "get_full_url", lambda: "")()
+        captured["body"] = json.loads(req.data.decode("utf-8"))
+        return _Resp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    spoken = speak_as_draven("who_are_you", "inbound-1")
+    assert spoken["ok"] is True
+    assert spoken["adapter"] == ADAPTER
+    assert spoken["draven_spoke"] is True
+    assert captured["body"]["who"] == "draven"
+    assert captured["body"]["who"] != "merovin"
+    assert captured["body"]["who"] != "both"
+    assert "You are Draven" in SYSTEM
+    assert "not Merovin" in SYSTEM
+
+
+def test_draven_speech_adapter_rejects_shared_brain_reply(monkeypatch):
+    import json
+    import urllib.request
+
+    from federation.draven_speech import speak_as_draven
+
+    class _Resp:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "ok": True,
+                    "replies": {
+                        "Merovin": "I am Merovin.",
+                        "Draven": "I am Draven.",
+                    },
+                    "who": "both",
+                }
+            ).encode("utf-8")
+
+    monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=None: _Resp())
+    spoken = speak_as_draven("who_are_you", "inbound-2")
+    assert spoken["ok"] is False
+    assert spoken["draven_spoke"] is False
+    err = str(spoken.get("error") or "").lower()
+    assert "merovin" in err or "leak" in err or "both" in err

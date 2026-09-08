@@ -6,7 +6,7 @@ Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **feder
 
 **2026-09-06 evening desk (HTTP now):** Hearth `:8790` DOWN. Observer `:8730` DOWN. Vesper `:8740` DOWN. Apex `:8770` DOWN. Cinema `:5000` DOWN. Aster `:8791` UP. Codex `:8780` UP (Apex peer offline). Dated proves in this file still stand. Operator: `NEXT.md`.
 
-**2026-09-04 roadmap (Mom accepted):** Federation seating → cinema speech (three independent proves; Merovin **VERIFIED** 2026-09-05 `472d86e7…`; Draven/Vesper **not run**) → Hollywood skills (**NOT STARTED**) → Matrix skins (**WAITING**, separate) → Matrix-Game adapter research (**UNAVAILABLE** on 4060) → cinematic production proof (EVENTUALLY). Federation integrity after speech: optional Vesper Gameworld door → Identity/Isolation Matrix → shutdown/restart integrity → **THEN** organic layer. Scheduler later. No new houses. Item 10 **UNAVAILABLE**. Observer ZIP **FROZEN**. Spec: `CINEMA_PRODUCTION.md`.
+**2026-09-04 roadmap (Mom accepted):** Federation seating → cinema speech (three independent proves; Merovin **VERIFIED** 2026-09-05 `472d86e7…`; Draven/Vesper **not run**) → Hollywood skills (**NOT STARTED**) → Matrix skins (**WAITING**, separate) → Matrix-Game adapter research (**UNAVAILABLE** on 4060) → cinematic production proof (EVENTUALLY). Federation integrity after speech: optional Vesper Gameworld door → Identity/Isolation Matrix → shutdown/restart integrity → **THEN** organic layer. Scheduler later. Self-wiring / tool claiming later (after organic / with scheduler; **not** Phase 13; **NOT YET / do not build now**). Colibri later (**not** Matrix-Game; separate mouth engine; **NOT YET**). No `mythos_simplified/` on `:8790`. No new houses. Item 10 **UNAVAILABLE**. Observer ZIP **FROZEN** (complete-merged `:8000` dumps stay frozen). Spec: `CINEMA_PRODUCTION.md`.
 
 ### 2026-08-31 late e2e (Hearth restarted)
 
@@ -182,6 +182,13 @@ World name: **The Axiom Codex**. `consume` is the prove action (authorized notic
 |-------|--------|
 | `python -m federation.prove speak-merovin` | **VERIFIED**. Door `GET :5000/` **200**. Adapter `cinema_hud_http` `POST /api/chat` `who=merovin` `speak=false`. Model **`gemma2:9b`**. Cinema `_chat_ollama` now sends `num_ctx` 1536 (cap 2048) — unbounded ctx OOMed 3B and 503'd 9B. Reply *I'm Merovin. Part of the Merovin-Draven Studio team…* `merovin_spoke: true`. Observer does not own him. Presence **READY**. Draven / Vesper speech **not run**. |
 | Evidence | `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json` (reply `472d86e7…`). FAIL files `PROVE_MEROVIN_SPEECH.json` `4b16227a…` and `PROVE_MEROVIN_SPEECH_2.json` `c80b61cc…` **kept**. |
+
+### 2026-09-08 Draven speech (FAIL)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove speak-draven` | **FAILED**. Door `GET :5000/` **200**. Adapter `cinema_hud_http` `POST /api/chat` `who=draven` `speak=false`. Cinema kernel: `[Draven] I cannot reach Ollama (HTTP Error 503: Service Unavailable)`. Warm Ollama slot was `llama3.2:3b`. `draven_spoke: false`. Observer does not own him. Presence **UNKNOWN**. Not Merovin. Vesper speech **not run**. |
+| Evidence | `D:\Court\federation\PROVE_DRAVEN_SPEECH.json` (inbound `88b297f2…`) **kept**. Retry later writes `_2`. |
 
 ### 2026-09-04 Vesper door
 

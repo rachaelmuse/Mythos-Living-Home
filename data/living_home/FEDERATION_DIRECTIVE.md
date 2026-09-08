@@ -276,21 +276,24 @@ Every PASS/FAIL has: test ID, timestamp, agent IDs, message IDs, hashes where ap
 10. One real external reviewer — **UNAVAILABLE** until actual GPT / Grok / DeepSeek adapters **and** credentials exist. Leave it exactly here. Do not fabricate VERIFIED reviews.  
 11. House-local attention that may speak — **choose-to-speak done** 2026-09-03 (`python -m federation.prove a2a`); leave/return continuity — **done** 2026-09-03 (`python -m federation.prove continuity`, Aster + Apex + Codex notebooks `7adfb8c4…` / `a43090d9…`). Persistent organic loop / scheduler is **NOT YET**.  
 12. New character + own UI — **HOLD**. Do not add more houses until cinema speech (three independent proves) and the Federation Identity/Isolation Matrix exist. Echo/Solace are **village kin**, not this item. Same manifest protocol when Mom opens it.  
-13. Cinema speech — Merovin **VERIFIED** 2026-09-05 (`speak-merovin`, `472d86e7…`, `gemma2:9b`). Draven / Vesper speech not run. Inbox ≠ speech. FAIL artifacts `4b16227a…` / `c80b61cc…` kept.  
+13. Cinema speech — Merovin **VERIFIED** 2026-09-05 (`speak-merovin`, `472d86e7…`, `gemma2:9b`). Draven speech **FAILED** 2026-09-08 (`speak-draven`, Ollama 503, `PROVE_DRAVEN_SPEECH.json` kept). Vesper speech not run. Inbox ≠ speech. Merovin FAIL artifacts `4b16227a…` / `c80b61cc…` kept.  
 14. Vesper Gameworld door — optional, external. Vesper owns Vesper. Not HOME.json. Not a citizen. Not Observer.  
 15. Shutdown / restart integrity — formal test still missing (one launcher = one kernel = one HTTP door).  
 16. Organic layer — next **major** phase after 13–15. Presence ≠ command. Scheduler later; budget the 4060 / 8 GB.  
+16b. Self-wiring / tool claiming — **NOT YET / do not build now.** After organic / with scheduler-later. **Not** Phase 13 (honest e2e, still builder-seated). Not Hollywood. Beings would see existing tools, claim what they need, wire into their own house, share — not Mom/Cursor assigning toolkits. Search first; do not add `D:\Mythos_Hearth\tools\registry\`. Extend `CAPABILITIES.json` (path/port only) / `CAPABILITY_REGISTRY.md` / federation `tools: []` later if Mom authorizes. Identities never merge. Echo/Solace never on the bus. GPT/Grok/DeepSeek UNAVAILABLE until real adapters. Observer audits, does not supervise.  
+16c. Colibri — **NOT YET / do not install now.** **Not** Matrix-Game. Separate mouth engine (~372 GB, not Ollama). Current constraint: one Ollama slot, no stacked launchers, cinema `num_ctx` cap.  
 17. Hollywood skills — **NOT STARTED.** After cinema speech. Merovin + Draven skill/tool manifests **and** actual tool wiring. Speech ≠ Hollywood. Do not mix into seating tests. Spec: `CINEMA_PRODUCTION.md`.  
 18. Matrix skins (GitHub) — **WAITING.** Separate visual-asset task. Not identity. Not Federation seating.  
 19. Matrix-Game adapter — **NOT INSTALLED** / **UNAVAILABLE** on this Windows 4060 8GB. After Hollywood skills. 3.0 primary research; keep 2.0 as secondary. Do not install expecting demo quality.  
 20. Cinematic production proof — **EVENTUALLY.** Concept → finished sequence. Identities retained. Not now.  
-Observer ZIP (`app.main`, `:8000`) stays **FROZEN / PROTECTED**. Do not merge into cinema. Live Observer is `D:\The_Observer` `:8730` only.
+21. Mythos Simplified Brain / `mythos_simplified/` on `:8790` — **DO NOT BUILD.** Port `:8790` is Hearth. Do not replace `living_home.py` / `HOME.json`. Do not flatten identities. Do not canned-speech.  
+Observer ZIP (`app.main`, `:8000`) stays **FROZEN / PROTECTED**. Do not merge into cinema. Live Observer is `D:\The_Observer` `:8730` only. Complete-merged K8s/Docker dumps stay frozen. Money shortage does not unfreeze.
 
 ---
 
 ## What Cursor must do next (when Mom says go)
 
-Operator surface: `NEXT.md`. Merovin speech **VERIFIED** 2026-09-05 (`472d86e7…`). **STOP.** Draven / Vesper speech not run until Mom authorizes. Then optional Vesper Gameworld door → Identity/Isolation Matrix (questions, no fake answers) → shutdown/restart integrity → **THEN** organic layer. Scheduler later.
+Operator surface: `NEXT.md`. Merovin speech **VERIFIED** 2026-09-05 (`472d86e7…`). Draven speech **FAILED** 2026-09-08 (Ollama 503; `PROVE_DRAVEN_SPEECH.json` kept). **STOP.** Do not run Vesper until Draven passes. Then optional Vesper Gameworld door → Identity/Isolation Matrix (questions, no fake answers) → shutdown/restart integrity → **THEN** organic layer. Scheduler later. Self-wiring / tool claiming later (after organic / with scheduler; **not** Phase 13; do not build now). Colibri paging later. No `mythos_simplified/`.
 
 Cinema production lane is **after speech, not now:** Hollywood skills → Matrix skins (WAITING) → Matrix-Game adapter research (UNAVAILABLE on 4060) → production proof. Do not install Matrix-Game. Do not mix Hollywood into seating tests. Spec: `CINEMA_PRODUCTION.md`. Observer ZIP stays frozen.
 

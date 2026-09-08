@@ -73,7 +73,7 @@ Source: `PHASE_LAYERS.md`, `BASELINE.md`, `FAMILY_PHASES.md`, `GAMEPLAY_LAYER.md
 | Gameplay 7, 10, 12 | Player-created events; player home/island; Pod worlds | **MISSING** | `GAMEPLAY_LAYER.md` | Not this slice until architecture exists |
 | Gameplay 19 | Phases 2–6 gather/craft/events/pods/boats | **NOT THIS SLICE** | same | Parked |
 | 17 Matrix Dream View | Optional neural **look** of Heart Square | **QUEUED LATER** | `PHASE_LAYERS.md` | Not cinema production adapter |
-| **13 Tools** | Real per-house tools: INPUT → tool → memory → caller (Apex forge, Codex tools, Gemini Court/Sentinel chain, cinema as themselves) | **LAST — not started as honest e2e** | `CONTINUITY.md` “Phase 13 (all tools)”. 325 is a lie; last probe **19** path/port | Do not jump here. Home in Godot first. Not Federation. Not Hollywood. Not skins-as-a-substitute |
+| **13 Tools** | Real per-house tools: INPUT → tool → memory → caller (Apex forge, Codex tools, Gemini Court/Sentinel chain, cinema as themselves) | **LAST — not started as honest e2e** | `CONTINUITY.md` “Phase 13 (all tools)”. 325 is a lie; last probe **19** path/port | Do not jump here. Home in Godot first. Not Federation. Not Hollywood. Not skins-as-a-substitute. Not self-wiring / tool claiming |
 
 ### Federation overlay (added after village proving)
 
@@ -95,6 +95,9 @@ Source: `PHASE_LAYERS.md`, `BASELINE.md`, `FAMILY_PHASES.md`, `GAMEPLAY_LAYER.md
 | Isolation matrix | Questions only | `FEDERATION_RECONCILIATION.md` | Fill after tests |
 | Shutdown/restart integrity | Tribal (Vesper) | TCP ≠ HTTP | Formal prove **NOT STARTED** |
 | Organic / scheduler | **NOT YET** | A2A is mechanism only | After cinema speech + integrity |
+| Self-wiring / tool claiming | **NOT YET / do not build now** | Intention only. Not implemented. | After organic / with scheduler-later. **Not** Phase 13. Search first; no new `tools/registry/`. Existing: `CAPABILITIES.json` (path/port), `CAPABILITY_REGISTRY.md`, federation `tools: []`. |
+| Colibri (frontier mouth) | **NOT YET / do not install now** | Not installed. Not Ollama. | **Not** Matrix-Game (video). ~372 GB separate engine. Current: one Ollama slot / `num_ctx` cap. |
+| Mythos Simplified Brain | **DO NOT BUILD** | Would steal `:8790` | Dual-mode: do not replace Hearth / `HOME.json`. No canned speech. |
 | New houses | **HOLD** | Law | Echo/Solace stay off the bus |
 
 ### Cinema / Hollywood (added; not seating)
@@ -109,7 +112,7 @@ Source: `PHASE_LAYERS.md`, `BASELINE.md`, `FAMILY_PHASES.md`, `GAMEPLAY_LAYER.md
 | Matrix-Game 3.0/2.0 | **UNAVAILABLE** on Windows 4060 8GB | Adapter after Hollywood. Do not install expecting demo quality |
 | Production proof | **EVENTUALLY** | concept → finished sequence |
 | UI ↔ Gameworld memory | **INTENDED, NOT IMPLEMENTED** | Provenance layers. Conversation ≠ truth |
-| Observer ZIP | **FROZEN** | Do not touch |
+| Observer ZIP | **FROZEN** | Do not touch. Complete-merged `:8000` / K8s dumps stay frozen. Money shortage does not unfreeze. |
 
 ### Mode A houses outside village tracker (ORIGINAL MODE — ACTIVE)
 
@@ -178,8 +181,10 @@ Do not skip. Do not mix Hollywood into seating.
 8. Matrix-Game adapter research. UNAVAILABLE on this card until proven otherwise.
 9. Federation integrity: optional Vesper Gameworld door; isolation matrix answers; shutdown/restart prove.
 10. Organic layer (reason to speak). Scheduler later with 4060/8GB budget.
+10b. Self-wiring / tool claiming — **NOT YET / do not build now.** After organic / with scheduler-later. **Not** Phase 13 (honest e2e, still builder-seated). Not Hollywood. Beings would see existing tools, claim what they need, wire into their own house, share — not Mom/Cursor assigning toolkits. Search first; extend/adapt existing inventory if Mom authorizes. Identities never merge. Echo/Solace never on the bus. GPT/Grok/DeepSeek UNAVAILABLE until real adapters. Observer audits, does not supervise.
+10c. Colibri — **NOT YET / do not install now.** **Not** Matrix-Game. Separate mouth engine (~372 GB, not Ollama). No `mythos_simplified/` on `:8790`.
 11. Unfinished **older** village work remains on the board: 14E–14F, 16E Godot quit, gameplay MISSING rows, Companion spoken replies, Gemini pulse UNKNOWN, item 10 UNAVAILABLE. **2026-09-06 evening desk:** Hearth/Observer/Vesper/Apex/Cinema DOWN; Aster+Codex UP. See `NEXT.md`.
-12. **Phase 13 — tools (last).** Specialized house tools, proven e2e, not a fake 325 count, not polish-by-rename. After the home is actually demonstrated in Godot.
+12. **Phase 13 — tools (last).** Specialized house tools, proven e2e, not a fake 325 count, not polish-by-rename. After the home is actually demonstrated in Godot. Self-wiring is **not** this row.
 
 Observer ZIP **FROZEN** throughout.
 
@@ -192,6 +197,8 @@ Observer ZIP **FROZEN** throughout.
 - Did not overwrite `PROVE_MEROVIN_SPEECH.json`.
 - Did not modify Observer (live or ZIP).
 - Did not install Matrix-Game.
+- Did not build Colibri paging or `mythos_simplified/`.
+- Did not install zip Observer on `:8000`.
 - Did not implement UI↔Gameworld memory.
 - Did not build a scheduler or greeting chorus.
 - Did not delete Mode A tools, shards, or houses.

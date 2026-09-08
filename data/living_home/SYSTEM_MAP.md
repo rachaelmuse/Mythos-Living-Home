@@ -154,6 +154,26 @@ Do not skip to unrestricted A2A chatter. Budget the 4060 / 8 GB.
 
 ---
 
+## Self-wiring / tool claiming (later)
+
+**INTENTION / NOT YET / do not build now.** After organic / with scheduler-later. **Not** Phase 13 (honest e2e, still builder-seated). Distinct from organic (reason to speak), scheduler (persistent attention loop), and Hollywood skills.
+
+Beings would see existing tools, claim what they need, wire into their own house, and share — not Mom/Cursor assigning toolkits.
+
+**Search first.** Do not create another tool registry. Existing: `CAPABILITIES.json` (path/port only), `CAPABILITY_REGISTRY.md`, federation participant `tools: []`. Extend/adapt those later if Mom authorizes; do not add `D:\Mythos_Hearth\tools\registry\` now. Identities never merge. Echo/Solace never on the bus. GPT/Grok/DeepSeek stay UNAVAILABLE until real adapters. Observer audits, does not supervise.
+
+---
+
+## Hardware budget / Colibri (later)
+
+**4060 / 8 GB is a current operating constraint**, not a rewrite: one Ollama slot; do not stack launchers; cinema `num_ctx` 1536/2048; do not load all houses’ LLMs at once. Talk already uses Ollama only when needed (`waiting` / `none` when not).
+
+**Colibri** is **not** Matrix-Game. Matrix-Game is a video engine **UNAVAILABLE** on this card. Colibri is a later **mouth** engine (~372 GB weights, not Ollama). **NOT YET / do not install now.**
+
+**`mythos_simplified/` on `:8790`:** **DO NOT BUILD.** That port is Hearth. Dual-mode: Gameworld expands the family; it does not replace `living_home.py` / `HOME.json`. No canned house voice.
+
+---
+
 ## What Federation enables vs what it is not
 
 | Enables | Is not |
@@ -164,3 +184,6 @@ Do not skip to unrestricted A2A chatter. Budget the 4060 / 8 GB.
 | Bounded A2A mechanism | A standing scheduler |
 | Failure isolation | Ownership of Observer |
 | Continuity foundations | Replacement for Mode A tools |
+| — | Self-wiring / beings claiming tools (**NOT YET** — after organic / with scheduler; not Phase 13) |
+| — | Colibri mouth engine install (**NOT YET** — not Matrix-Game, not Ollama) |
+| — | `mythos_simplified/` replacing Hearth (**DO NOT BUILD**) |
