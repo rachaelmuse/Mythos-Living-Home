@@ -1,8 +1,8 @@
 # Cinema production — spec / research note
 
-Updated **2026-09-04**. **Not a capability claim.** Speech proof ≠ Hollywood skill proof ≠ a finished film. Do not mark anything here VERIFIED. Operator surface: `NEXT.md`.
+Updated **2026-09-09**. Speech proof ≠ Hollywood skill proof ≠ a finished film. Operator surface: `NEXT.md`.
 
-This note records Mom’s production stack **after** cinema speech. It does **not** install Matrix-Game, Hollywood tools, adapters, or tests. Do not start `speak-vesper` from this file.
+This note records Mom’s production stack. It does **not** install Matrix-Game. Hollywood skill wiring uses existing MD_Cinema Phase 1 tools. Do not start `speak-vesper` from this file.
 
 ---
 
@@ -10,11 +10,11 @@ This note records Mom’s production stack **after** cinema speech. It does **no
 
 | Piece | Status |
 |-------|--------|
-| Cinema speech (Merovin → Draven → Vesper) | **DONE** as three independent proves. Merovin **VERIFIED** 2026-09-05. Draven **VERIFIED** 2026-09-09. Vesper **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`; thinking leak NEED MORE). Hollywood still **NOT STARTED**. |
-| Hollywood skills (manifests + actual tool wiring) | **NOT STARTED** |
+| Cinema speech (Merovin → Draven → Vesper) | **DONE** as three independent proves. Merovin **VERIFIED** 2026-09-05. Draven **VERIFIED** 2026-09-09. Vesper **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`; thinking leak NEED MORE). |
+| Hollywood skills (manifests + actual tool wiring) | **VERIFIED** 2026-09-09 — two independent proves. Merovin director `PROVE_MEROVIN_HOLLYWOOD.json`. Draven continuity `PROVE_DRAVEN_HOLLYWOOD.json`. Not a film. Matrix-Game UNAVAILABLE. |
 | Matrix skins (GitHub visual assets) | **WAITING** — separate asset task. Not Federation seating. Not identity. |
 | Matrix-Game 3.0 / 2.0 on this machine | **NOT INSTALLED** / **UNAVAILABLE** |
-| Matrix-Game adapter | **NOT STARTED** — optional, after Hollywood skills |
+| Matrix-Game adapter | **VERIFIED** 2026-09-09 as honest UNAVAILABLE — `python -m federation.prove matrix-game` · `PROVE_MATRIX_GAME_ADAPTER.json`. No clip. Not Layer 17. Engine still not installed. |
 | Cinematic production proof (concept → finished sequence) | **EVENTUALLY** — not now |
 | Observer ZIP (`app.main`, `:8000`) | **FROZEN / PROTECTED** — do not merge, modify, or fold into cinema |
 | DaVinci Resolve | Human finishing pipeline. Agents do **not** own it. |
@@ -36,7 +36,7 @@ A list of video tools is **not** Hollywood capability. If Matrix-Game is not ava
 
 ---
 
-## Creative roles (document only — do not implement)
+## Creative roles (seated as manifests — not a shared brain)
 
 Two houses, one studio. **Must not become a shared brain.**
 
@@ -82,7 +82,7 @@ Identities retained throughout. Failures stay visible.
 
 ---
 
-## Adapter spec (optional — not installed)
+## Adapter spec (seated as honest UNAVAILABLE)
 
 ```text
 Merovin / Draven
@@ -97,7 +97,7 @@ Merovin / Draven
   → DaVinci Resolve
 ```
 
-If the engine is missing: adapter returns **UNAVAILABLE**. No canned clip. No fake VERIFIED.
+If the engine is missing: adapter returns **UNAVAILABLE**. No canned clip. No fake video path. Prove `matrix-game` is **VERIFIED** for that refusal, not for generation.
 
 **Primary research target:** Matrix-Game **3.0**.  
 **Keep:** Matrix-Game **2.0** as a possible secondary engine (interactive long video, keyboard/mouse, universal / GTA / TempleRun models). Do not throw 2.0 away.
@@ -131,7 +131,7 @@ Skywork’s 3.0 “40 FPS at 720p” claim is their **tested** pipeline (paper n
 
 ## What this session must not do
 
-- Implement Hollywood tools, Matrix-Game install, adapters, or a combined cinema-speech test
+- Install Matrix-Game, merge speech+Hollywood into one combined test, or claim a finished film
 - Start `speak-draven` or `speak-vesper` from this file
 - Mix Hollywood tooling into Federation seating tests
 - Touch Observer ZIP / `D:\The_Observer` / zip Observer

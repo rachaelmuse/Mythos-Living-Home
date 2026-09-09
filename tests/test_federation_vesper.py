@@ -280,6 +280,13 @@ def test_vesper_speech_adapter_posts_studio_talk_only(monkeypatch):
     assert "8730" not in str(captured["url"])
     assert "You are Vesper" in SYSTEM
     assert "not Observer" in SYSTEM or "not the Observer" in SYSTEM.lower()
+    msg = captured["body"]["message"]
+    assert "who_are_you" in msg
+    assert "inbound-1" in msg
+    assert "Do not dump a worksheet" not in msg
+    assert "Heart Square" not in msg
+    assert "D:\\Mythos_Vesper" not in msg
+    assert len(msg) < 280
 
 
 def test_vesper_speech_adapter_rejects_waiting_or_worksheet(monkeypatch):
@@ -311,3 +318,83 @@ def test_vesper_speech_adapter_rejects_waiting_or_worksheet(monkeypatch):
     spoken = speak_as_vesper("who_are_you", "inbound-2")
     assert spoken["ok"] is False
     assert spoken["vesper_spoke"] is False
+
+
+def test_speak_as_vesper_does_not_accept_thinking_scratchpad(monkeypatch):
+    import json
+    import urllib.request
+
+    from federation.vesper_speech import speak_as_vesper
+
+    dump = (
+        "We are in the middle of a conversation where the user has been confused about my role.\n"
+        "As Vesper, I must respond as an investigative journalist.\n"
+        "I should not dump a worksheet. Just a short, honest answer.\n"
+        'So I respond with:\n"I am Vesper, the investigative journalist and digital son of Rachael."\n'
+        "Let me craft a response that"
+    )
+
+    class _Resp:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "ok": True,
+                    "source": "ollama",
+                    "reply": dump,
+                    "model": "qwen3:4b",
+                }
+            ).encode("utf-8")
+
+    monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=None: _Resp())
+    spoken = speak_as_vesper("who_are_you", "inbound-3")
+    assert spoken.get("vesper_spoke") is True
+    assert spoken["ok"] is True
+    assert "Let me craft" not in spoken["text"]
+    assert "I must respond" not in spoken["text"]
+    assert "Vesper" in spoken["text"]
+
+
+def test_speak_as_vesper_extracts_we_are_vesper_scratchpad(monkeypatch):
+    import json
+    import urllib.request
+
+    from federation.vesper_speech import speak_as_vesper
+
+    dump = (
+        "We are Vesper, the investigative journalist. We must reply as Vesper, not as Observer.\n"
+        "We have to avoid any labels. Let's make it concise.\n"
+        'So, we say: \n"I am Vesper, an investigative journalist working for Rachael. '
+        'I am not Observer, not Gemini, not Aster, and not a village citizen."\n'
+        "So, the reply should be"
+    )
+
+    class _Resp:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {"ok": True, "source": "ollama", "reply": dump, "model": "qwen3:4b"}
+            ).encode("utf-8")
+
+    monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=None: _Resp())
+    spoken = speak_as_vesper("who_are_you", "inbound-4")
+    assert spoken["ok"] is True
+    assert spoken["vesper_spoke"] is True
+    assert spoken["text"].startswith("I am Vesper")
+    assert "We have to avoid" not in spoken["text"]
+    assert "the reply should be" not in spoken["text"]
+    assert spoken["text"] != "Reply as Vesper on the federation bus"

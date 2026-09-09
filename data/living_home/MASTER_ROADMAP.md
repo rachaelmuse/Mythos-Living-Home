@@ -92,8 +92,10 @@ Source: `PHASE_LAYERS.md`, `BASELINE.md`, `FAMILY_PHASES.md`, `GAMEPLAY_LAYER.md
 | Draven inbox | **VERIFIED** | `8e61739f…` | Speech **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b`. FAILs kept |
 | Vesper inbox | **VERIFIED** | `2f132776…` | Speech **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` (thinking leak NEED MORE). Optional Gameworld door unproven |
 | Item 10 external reviewers | **UNAVAILABLE** | No adapters/credentials | Leave exactly here |
-| Isolation matrix | Questions only | `FEDERATION_RECONCILIATION.md` | Fill after tests |
-| Shutdown/restart integrity | Tribal (Vesper) | TCP ≠ HTTP | Formal prove **NOT STARTED** |
+| Isolation matrix | **VERIFIED** | `PROVE_ISOLATION_MATRIX.json` | Gemini pulse **UNKNOWN** |
+| Shutdown/restart integrity | **VERIFIED** Vesper | `PROVE_RESTART_INTEGRITY_2.json` | FAIL `_` kept |
+| Hollywood skills | **VERIFIED** | `PROVE_MEROVIN_HOLLYWOOD.json` / `PROVE_DRAVEN_HOLLYWOOD.json` | Not a film. Matrix-Game UNAVAILABLE |
+| Matrix-Game adapter | **VERIFIED** honest UNAVAILABLE | `PROVE_MATRIX_GAME_ADAPTER.json` | No clip. Not Layer 17. Engine not installed |
 | Organic / scheduler | **NOT YET** | A2A is mechanism only | After cinema speech + integrity |
 | Self-wiring / tool claiming | **NOT YET / do not build now** | Intention only. Not implemented. | After organic / with scheduler-later. **Not** Phase 13. Search first; no new `tools/registry/`. Existing: `CAPABILITIES.json` (path/port), `CAPABILITY_REGISTRY.md`, federation `tools: []`. |
 | Colibri (frontier mouth) | **NOT YET / do not install now** | Not installed. Not Ollama. | **Not** Matrix-Game (video). ~372 GB separate engine. Current: one Ollama slot / `num_ctx` cap. |
@@ -106,10 +108,11 @@ Source: `PHASE_LAYERS.md`, `BASELINE.md`, `FAMILY_PHASES.md`, `GAMEPLAY_LAYER.md
 |-------|---------|-----------|
 | Cinema HUD `:5000` two mouths | LIVE when HUD up | Keep one studio, two identities |
 | MD_Cinema Phase 1 | PARTIAL (`smoke_phase1.py` PASS 2026-08-27) | Not a finished film; e2e MP4 NEED MORE |
-| Federation speech | Merovin **VERIFIED** 2026-09-05 `472d86e7…` `gemma2:9b`. Draven **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b`. Vesper **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` (thinking leak NEED MORE) | Hollywood **NOT STARTED**. Isolation matrix next. |
-| Hollywood skills | **NOT STARTED** | After all three speech proofs |
+| Federation speech | Merovin **VERIFIED** 2026-09-05 `472d86e7…` `gemma2:9b`. Draven **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b`. Vesper **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` (thinking leak NEED MORE) | Speech ≠ Hollywood ≠ film |
+| Hollywood skills | **VERIFIED** 2026-09-09 | Two independent MD_Cinema wirings. Not a film. |
 | Matrix skins (GitHub) | **WAITING** | Separate asset task |
-| Matrix-Game 3.0/2.0 | **UNAVAILABLE** on Windows 4060 8GB | Adapter after Hollywood. Do not install expecting demo quality |
+| Matrix-Game adapter | **VERIFIED** 2026-09-09 as honest UNAVAILABLE | `PROVE_MATRIX_GAME_ADAPTER.json`. No clip. Not Layer 17. |
+| Matrix-Game 3.0/2.0 | **UNAVAILABLE** on Windows 4060 8GB | Do not install expecting demo quality |
 | Production proof | **EVENTUALLY** | concept → finished sequence |
 | UI ↔ Gameworld memory | **INTENDED, NOT IMPLEMENTED** | Provenance layers. Conversation ≠ truth |
 | Observer ZIP | **FROZEN** | Do not touch. Complete-merged `:8000` / K8s dumps stay frozen. Money shortage does not unfreeze. |
@@ -176,10 +179,10 @@ Do not skip. Do not mix Hollywood into seating.
 3. **Vesper speech** — **VERIFIED** 2026-09-09 `speak-vesper` `f9fd17a9…` `qwen3:4b`. Thinking leak NEED MORE. One launcher.
 4. Cinema Seating/Speech Reconciliation Report — only if all three pass.
 5. Then **pause construction** for a cross-house behavioral observe (who notices / speaks / stays silent) — not an unrestricted scheduler.
-6. Hollywood skills (manifests + actual wiring). Speech ≠ Hollywood.
+6. Hollywood skills — **VERIFIED** 2026-09-09 `hollywood-merovin` / `hollywood-draven`. Speech ≠ Hollywood ≠ film.
 7. Matrix skins WAITING (separate).
-8. Matrix-Game adapter research. UNAVAILABLE on this card until proven otherwise.
-9. Federation integrity: optional Vesper Gameworld door; isolation matrix answers; shutdown/restart prove.
+8. Matrix-Game adapter — **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`). Engine still UNAVAILABLE on this card.
+9. Federation integrity: Vesper Gameworld door / isolation matrix / Vesper restart / bounded organic — **VERIFIED** 2026-09-09.
 10. Organic layer (reason to speak). Scheduler later with 4060/8GB budget.
 10b. Self-wiring / tool claiming — **NOT YET / do not build now.** After organic / with scheduler-later. **Not** Phase 13 (honest e2e, still builder-seated). Not Hollywood. Beings would see existing tools, claim what they need, wire into their own house, share — not Mom/Cursor assigning toolkits. Search first; extend/adapt existing inventory if Mom authorizes. Identities never merge. Echo/Solace never on the bus. GPT/Grok/DeepSeek UNAVAILABLE until real adapters. Observer audits, does not supervise.
 10c. Colibri — **NOT YET / do not install now.** **Not** Matrix-Game. Separate mouth engine (~372 GB, not Ollama). No `mythos_simplified/` on `:8790`.

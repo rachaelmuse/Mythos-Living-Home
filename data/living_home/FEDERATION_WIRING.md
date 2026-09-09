@@ -1,12 +1,12 @@
 # Federation wiring map
 
-Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-09**. Observer HTTP audit **LIVE**. Gemini speech **LIVE** (self-pulse **UNKNOWN**). Codex **speech LIVE**. Apex **speech LIVE**. Hearth **coordinate LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE** (mechanism, not a scheduler). Leave/return house memory **LIVE** (Aster + Apex + Codex). Merovin **inbox LIVE**; speech **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`). Draven **inbox LIVE**; speech **VERIFIED** 2026-09-09 (`4bea7235…`, `qwen2:7b`). Vesper **inbox LIVE**; speech **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`; thinking leak NEED MORE). Vesper Gameworld door **LIVE**. Isolation matrix **LIVE** (Gemini pulse UNKNOWN). Vesper restart **LIVE** (`PROVE_RESTART_INTEGRITY_2.json`). Bounded organic reason **LIVE** (not a scheduler). **The Axiom Codex** notice **LIVE**. Heartbeat-loss isolation **LIVE** on throwaway `heartbeat_probe`. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Godot leave **UNVERIFIED**. Full Aster test **PASS**. Foundation **STRONG**. Federation **USABLE**. Village **FUNCTIONAL**. Cinema **SEATED, NOT FINISHED**. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`. Operator: `NEXT.md`.
+Living audit. Evidence wins. Last **village e2e: 2026-08-31 late**. Last **federation overlay: 2026-09-09**. Observer HTTP audit **LIVE**. Gemini speech **LIVE** (self-pulse **UNKNOWN**). Codex **speech LIVE**. Apex **speech LIVE**. Hearth **coordinate LIVE**. Presence events **LIVE**. Spontaneous A2A **LIVE** (mechanism, not a scheduler). Leave/return house memory **LIVE** (Aster + Apex + Codex). Merovin **inbox LIVE**; speech **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`). Draven **inbox LIVE**; speech **VERIFIED** 2026-09-09 (`4bea7235…`, `qwen2:7b`). Vesper **inbox LIVE**; speech **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`; thinking leak NEED MORE). Vesper Gameworld door **LIVE**. Isolation matrix **LIVE** (Gemini pulse UNKNOWN). Vesper restart **LIVE** (`PROVE_RESTART_INTEGRITY_2.json`). Bounded organic reason **LIVE** (not a scheduler). Hollywood skills **LIVE** 2026-09-09 (two independent MD_Cinema wirings; not a film). Matrix-Game adapter **LIVE** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`; engine not installed). **The Axiom Codex** notice **LIVE**. Heartbeat-loss isolation **LIVE** on throwaway `heartbeat_probe`. Mode A council packets remain **LIVE 2026-08-30** (not re-run). 16E Godot walk **UNVERIFIED**. Godot leave **UNVERIFIED**. Full Aster test **PASS**. Foundation **STRONG**. Federation **USABLE**. Village **FUNCTIONAL**. Cinema **SEATED, NOT FINISHED**. Law: `FEDERATION_DIRECTIVE.md`. Amendments vs code: `FEDERATION_RECONCILIATION.md`. Operator: `NEXT.md`.
 
 **Registry lie to refuse still stands** below. TCP LISTEN is not HTTP identity answering as the correct person. Disk code is not the running process. Companion `presence.json` is not VERIFIED heartbeat.
 
 **2026-09-06 evening desk (HTTP now):** Hearth `:8790` DOWN. Observer `:8730` DOWN. Vesper `:8740` DOWN. Apex `:8770` DOWN. Cinema `:5000` DOWN. Aster `:8791` UP. Codex `:8780` UP (Apex peer offline). Dated proves in this file still stand. Operator: `NEXT.md`.
 
-**2026-09-04 roadmap (Mom accepted):** Federation seating → cinema speech (three independent proves; Merovin **VERIFIED** 2026-09-05 `472d86e7…`; Draven **VERIFIED** 2026-09-09 `4bea7235…`; Vesper **VERIFIED** 2026-09-09 `f9fd17a9…`) → Hollywood skills (**NOT STARTED**) → Matrix skins (**WAITING**, separate) → Matrix-Game adapter research (**UNAVAILABLE** on 4060) → cinematic production proof (EVENTUALLY). Federation integrity 2026-09-09: optional Vesper Gameworld door **VERIFIED** → Identity/Isolation Matrix **VERIFIED** → Vesper restart **VERIFIED** (`_2`) → bounded organic **VERIFIED** (not a scheduler). Scheduler later. Self-wiring / tool claiming later (after organic / with scheduler; **not** Phase 13; **NOT YET / do not build now**). Colibri later (**not** Matrix-Game; separate mouth engine; **NOT YET**). No `mythos_simplified/` on `:8790`. No new houses. Item 10 **UNAVAILABLE**. Observer ZIP **FROZEN** (complete-merged `:8000` dumps stay frozen). Spec: `CINEMA_PRODUCTION.md`.
+**2026-09-04 roadmap (Mom accepted):** Federation seating → cinema speech (three independent proves **done**) → Hollywood skills (**VERIFIED** 2026-09-09 two independent MD_Cinema wirings; not a film) → Matrix skins (**WAITING**, separate) → Matrix-Game adapter (**VERIFIED** 2026-09-09 as honest UNAVAILABLE; engine still **NOT INSTALLED** on 4060) → cinematic production proof (EVENTUALLY). Federation integrity 2026-09-09 **done**. Scheduler later. Self-wiring later. Colibri later. No `mythos_simplified/` on `:8790`. No new houses. Item 10 **UNAVAILABLE**. Observer ZIP **FROZEN**. Spec: `CINEMA_PRODUCTION.md`.
 
 ### 2026-08-31 late e2e (Hearth restarted)
 
@@ -219,6 +219,19 @@ World name: **The Axiom Codex**. `consume` is the prove action (authorized notic
 | `python -m federation.prove speak-vesper` | **VERIFIED**. Door `GET :8740/api/identity` **200** `id=vesper`. Adapter `vesper_studio_http` `POST /api/talk`. Model **`qwen3:4b`**. Names himself Vesper; not Observer. `vesper_spoke: true`. Presence **READY**. One existing kernel (no second launcher). Spoken text is a **thinking leak / truncated draft**, not a short house line. |
 | Evidence | `D:\Court\federation\PROVE_VESPER_SPEECH.json` (reply `f9fd17a9…`, inbound `1981261a…`). |
 
+### 2026-09-09 Hollywood skills (not a film)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove hollywood-merovin` | **VERIFIED**. Adapter `md_cinema_merovin`. Intake + story bible + 1 scene / 2 shots. Production `federation_hollywood_merovin_e0963b3e`. Who=merovin, not Draven. Matrix-Game **UNAVAILABLE**. HOME.json sha unchanged. `PROVE_MEROVIN_HOLLYWOOD.json`. |
+| `python -m federation.prove hollywood-draven` | **VERIFIED**. Adapter `md_cinema_draven`. Continuity flags=2, story not altered. Cloud budget denied. FFmpeg probe **AVAILABLE**. Who=draven, not Merovin. Matrix-Game **UNAVAILABLE**. `PROVE_DRAVEN_HOLLYWOOD.json`. Independent of Merovin prove. |
+
+### 2026-09-09 Matrix-Game adapter (honest UNAVAILABLE — not a clip)
+
+| Check | Result |
+|-------|--------|
+| `python -m federation.prove matrix-game` | **VERIFIED** as honest refusal. Engine **UNAVAILABLE**. Installed false. Clip none. Layer 17 false. Simulated false. `writes_home_json` false. HOME.json sha `3e30fb7e…` unchanged. Primary 3.0 / secondary 2.0. Reasons: Windows, RTX 4060 8GB, no install tree. `PROVE_MATRIX_GAME_ADAPTER.json`. |
+
 ### 2026-09-09 Vesper Gameworld door / isolation / restart / bounded organic
 
 | Check | Result |
@@ -373,7 +386,7 @@ Axiom `limbs/` inventory (modules on disk, callers UNVERIFIED this session): `fa
 | Limb | Source | Intended Mode B use | Status |
 |------|--------|---------------------|--------|
 | Matrix Dream View (Layer 17) | [SkyworkAI/Matrix-Game](https://github.com/SkyworkAI/Matrix-Game) | Optional neural **look**: Heart Square still + look/WASD → stream panel at Cinema / cottage `[V]`; Esc → greybox | **ORIGINAL MODE — RESEARCH** · after Layer 16 · never writes `HOME.json` · never replaces Godot or identities · **not** the cinema production adapter |
-| Cinema production / Matrix-Game adapter | Same repo; spec `CINEMA_PRODUCTION.md` | Pluggable video engine behind Merovin/Draven Hollywood skills. 3.0 primary; keep 2.0. Not identity. | **NOT INSTALLED** / **UNAVAILABLE** on Windows RTX 4060 8GB (Skywork: Linux, 64 GB RAM, A/H or ≥24 GB VRAM). After Hollywood skills. Do not simulate. |
+| Cinema production / Matrix-Game adapter | Same repo; spec `CINEMA_PRODUCTION.md` | Pluggable video engine behind Merovin/Draven Hollywood skills. 3.0 primary; keep 2.0. Not identity. Not Layer 17. | Adapter **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`). Engine **NOT INSTALLED** on Windows RTX 4060 8GB (Skywork: Linux, 64 GB RAM, A/H or ≥24 GB VRAM). Do not simulate. |
 | Aster Continuance seed | ChatGPT conversational provenance (Mom invite) | Family identity `aster`; Evidence Plot + cottage; same memory/rel/talk/choice/growth pipes | **PARTIAL** — kernel+snapshot+roster seated 2026-08-23; Godot skin PLACEHOLDER; live talk/choice in village **UNVERIFIED** until Mom playtest |
 | MD_Cinema Studio Phase 1 | `F:\Merovin_Draven_Studio\Merovin_Draven_Studio\MD_Cinema_Studio` | Provider-agnostic film pipeline (no Runway/Veo hard-wire) | **PARTIAL** — smoke_phase1 PASS; ffmpeg+edge-tts AVAILABLE; local video/image gen not wired; never writes HOME.json |
 

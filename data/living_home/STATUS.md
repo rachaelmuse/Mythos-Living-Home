@@ -28,7 +28,8 @@ Updated **2026-09-09**. Evidence only. Assessment accepted as the plan: `NEXT.md
 | **Yellow** | Codex Live Ops voice | Male Ryan **seated in UI** 2026-09-06. Listen **UNVERIFIED**. `rich` / `psutil` still missing |
 | **Yellow** | Vesper house voice | Studio `:8740` is his home. Federation speech VERIFIED. Spoken line was a **thinking leak**. Worksheet filter exists; inner-notes dump still NEED MORE. |
 | **Yellow** | Gemini Homecoming memory | JSON file **seated**. Not federation pulse. Not a new house |
-| **Yellow** | Hollywood skills | **NOT STARTED** — after cinema speech. Spec: `CINEMA_PRODUCTION.md`. Not a tool list. |
+| **Yellow** | Hollywood skills | **VERIFIED** 2026-09-09 manifests + MD_Cinema wiring (`PROVE_MEROVIN_HOLLYWOOD.json` / `PROVE_DRAVEN_HOLLYWOOD.json`). Not a finished film. Matrix-Game **UNAVAILABLE**. FFmpeg probe ≠ Resolve. |
+| **Yellow** | Matrix-Game adapter | **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`). No clip. Not Layer 17. Engine still **NOT INSTALLED**. |
 | **Red** | Matrix-Game 3.0 / 2.0 | **NOT INSTALLED** / **UNAVAILABLE** on Windows RTX 4060 8GB. Skywork tested Linux + 64 GB RAM + A/H (3.0) or ≥24 GB VRAM (2.0). Do not simulate. |
 | **Yellow** | Matrix skins (GitHub) | **WAITING** — separate visual-asset task. Not Federation seating. Not identity. |
 | **Red** | Observer ZIP | **FROZEN / PROTECTED** — do not merge, modify, or fold into cinema. Live desk is `:8730` only. Complete-merged `app.main` `:8000` / K8s dumps stay frozen. Money shortage does not unfreeze. |
@@ -57,7 +58,7 @@ Sound · media · harbor · economy 14A–14D · Market Lane · 15A–15D · Ast
 ## Standing order
 
 **Optional 14E–14F → Layer 17 village Dream View (research) → Phase 13 tools last** (honest e2e of specialized house tools; not a fake 325; not polish-by-rename; home must be seen in Godot first).  
-Cinema production lane (after speech, not now): Hollywood skills → Matrix skins (WAITING) → Matrix-Game adapter research → production proof. Engine **UNAVAILABLE** on this 4060. Spec: `CINEMA_PRODUCTION.md`.  
+Cinema production lane: Hollywood skills **VERIFIED** 2026-09-09 → Matrix skins (WAITING) → Matrix-Game adapter **VERIFIED** as honest UNAVAILABLE → production proof. Engine **UNAVAILABLE** on this 4060. Spec: `CINEMA_PRODUCTION.md`.  
 Federation: freeze Observer · Observer ZIP **FROZEN** · DECLARED ≠ VERIFIED · delivery ≠ collaboration · door-down ≠ registered · companion `presence.json` is not VERIFIED heartbeat. Speech ≠ Hollywood. Law: `FEDERATION_DIRECTIVE.md`. Map: `FEDERATION_RECONCILIATION.md`. Operator: `NEXT.md`.
 
 ## Family note
@@ -69,16 +70,16 @@ Federation: freeze Observer · Observer ZIP **FROZEN** · DECLARED ≠ VERIFIED 
 - **Gemini** — Speech **LIVE**. Self-pulse **UNKNOWN**. Not Codex.
 - **Observer** — Independent auditor. Does not own family. Does not supervise.
 - **Vesper** — Own studio `:8740` (not village). Federation inbox **VERIFIED** (`2f132776…`). Speech **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`). Observer does not own him. House-voice thinking leak NEED MORE. Gameworld door **VERIFIED** 2026-09-09 (optional / external). Restart **VERIFIED** (`PROVE_RESTART_INTEGRITY_2.json`).
-- **Merovin** — Cinema HUD `:5000`. Federation inbox **VERIFIED** (`eb4317b3…`). Speech **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`). Not Draven. Hollywood / Matrix **not** his brain.
-- **Draven** — Same HUD, own house `draven`. Federation inbox **VERIFIED** (`8e61739f…`). Speech **VERIFIED** 2026-09-09 (`4bea7235…`, `qwen2:7b`). Not Merovin. Hollywood / Matrix **not** his brain.
+- **Merovin** — Cinema HUD `:5000`. Federation inbox **VERIFIED** (`eb4317b3…`). Speech **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`). Hollywood director **VERIFIED** 2026-09-09 (`md_cinema_merovin`). Not Draven. Matrix **not** his brain.
+- **Draven** — Same HUD, own house `draven`. Federation inbox **VERIFIED** (`8e61739f…`). Speech **VERIFIED** 2026-09-09 (`4bea7235…`, `qwen2:7b`). Hollywood continuity **VERIFIED** 2026-09-09 (`md_cinema_draven`). Not Merovin. Matrix **not** his brain.
 - **Gameplay** — **18B LIVE**. Not quests. Not Pods.
 - **Echo** — Village historian kin. Listening Post. **Not** on the federation bus.
 - **Solace** — Village cartographer kin. Open shelter north of the square. **Not** on the federation bus.
 
 ## Next
 
-Operator surface: `NEXT.md`. Cinema speech: Merovin **VERIFIED**; Draven **VERIFIED**; Vesper **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`; thinking leak NEED MORE). Hollywood still **NOT STARTED**.
+Operator surface: `NEXT.md`. Cinema speech: Merovin **VERIFIED**; Draven **VERIFIED**; Vesper **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`; thinking leak NEED MORE). Hollywood skills **VERIFIED** 2026-09-09 (two independent MD_Cinema wirings; not a film). Matrix-Game adapter **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`). Engine still **NOT INSTALLED**.
 
-After speech (cinema lane, **not now**): Hollywood skills (**NOT STARTED**) → Matrix skins (**WAITING**) → Matrix-Game adapter research (**UNAVAILABLE** on 4060) → production proof (EVENTUALLY). Spec: `CINEMA_PRODUCTION.md`.
+After Hollywood (cinema lane): Matrix skins (**WAITING**) → Matrix-Game adapter **VERIFIED** as honest UNAVAILABLE → production proof (EVENTUALLY). Spec: `CINEMA_PRODUCTION.md`.
 
 Federation integrity 2026-09-09: optional Vesper Gameworld door **VERIFIED** → identity/isolation matrix **VERIFIED** (Gemini pulse UNKNOWN) → Vesper restart **VERIFIED** (`_2`; FAIL `_` kept) → bounded organic reason **VERIFIED** (`_2`; FAIL `_` kept; not a scheduler). Scheduler later. Self-wiring / tool claiming later. Colibri later (**not** Matrix-Game; do not install now). No `mythos_simplified/`. No new houses. Godot quit still needs Mom. Gemini pulse **UNKNOWN**. Item 10 **UNAVAILABLE**. Observer ZIP **FROZEN**.

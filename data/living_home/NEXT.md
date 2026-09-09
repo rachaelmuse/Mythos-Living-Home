@@ -40,7 +40,7 @@ Master reconciliation **documented, not a capability stamp.** Inspected on-disk 
 
 **UI ↔ Gameworld memory** is now an **intended** architecture (conversation → provenance → episodic / candidate / validated). **NOT IMPLEMENTED.** Conversation is not automatically truth. Interfaces are different doors into the **same** agent identity.
 
-**Next implementation (only, after this recon):** Merovin speech **VERIFIED** 2026-09-05. Draven speech **VERIFIED** 2026-09-09. Vesper speech **VERIFIED** 2026-09-09 (`speak-vesper`, `PROVE_VESPER_SPEECH.json`, reply `f9fd17a9…`, model `qwen3:4b`). Identity holds (not Observer). Spoken line is a **thinking leak / truncated** — house-voice polish NEED MORE. Federation integrity **2026-09-09:** Vesper Gameworld door **VERIFIED**; isolation matrix **VERIFIED** (Gemini pulse still UNKNOWN); Vesper restart **VERIFIED** (`PROVE_RESTART_INTEGRITY_2.json`; FAIL `PROVE_RESTART_INTEGRITY.json` kept — whole-file HOME hash was a Hearth tick, not a Vesper write); bounded organic reason **VERIFIED** (`PROVE_ORGANIC_REASON_2.json`; FAIL `_` kept — historic inbox scan). Do not start Hollywood until Mom says go.
+**Next implementation (only, after this recon):** Merovin speech **VERIFIED** 2026-09-05. Draven speech **VERIFIED** 2026-09-09. Vesper speech **VERIFIED** 2026-09-09. Federation integrity **2026-09-09** (door / matrix / restart / bounded organic). Hollywood skills **VERIFIED** 2026-09-09 as two independent proves: `hollywood-merovin` (`PROVE_MEROVIN_HOLLYWOOD.json`, intake + 1 scene / 2 shots, `md_cinema_merovin`) and `hollywood-draven` (`PROVE_DRAVEN_HOLLYWOOD.json`, continuity flags, cloud budget denied, ffmpeg probe AVAILABLE, `md_cinema_draven`). Matrix-Game adapter **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`). Engine still **NOT INSTALLED**. Not a finished film. Not Resolve. HOME.json hash `3e30fb7e…` unchanged.
 
 CLI note: inbox prove is `python -m federation.prove merovin`. Speech prove is `python -m federation.prove speak-merovin`. Do not treat a passing inbox re-run as speech.
 
@@ -85,10 +85,10 @@ Cinema production is a **later lane**. It does **not** replace Federation seatin
 | Order | Layer | Status now |
 |-------|-------|------------|
 | 1 | **Federation seating** | Inboxes seated. Cinema speech **open** (Merovin PASS; Draven PASS; Vesper PASS 2026-09-09 — thinking leak NEED MORE). |
-| 2 | **Cinema speech** | Three independent proves **done**. Hollywood still **NOT STARTED**. |
-| 3 | **Hollywood skills** | **NEXT** after speech — Merovin + Draven skill/tool manifests **and** actual tool wiring. **NOT STARTED.** |
+| 2 | **Cinema speech** | Three independent proves **done**. |
+| 3 | **Hollywood skills** | **VERIFIED** 2026-09-09 as two independent MD_Cinema wirings (Merovin director / Draven QC). Not a film. Matrix-Game engine still **UNAVAILABLE**. |
 | 4 | **Matrix visual / skin integration** | **WAITING** — GitHub visual assets. Separate asset task. Do **not** contaminate Federation seating. |
-| 5 | **Matrix-Game adapter research** | **AFTER Hollywood skills** — optional adapter. **NOT INSTALLED.** |
+| 5 | **Matrix-Game adapter research** | **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`). Engine still **NOT INSTALLED**. |
 | 6 | **Actual cinematic production proof** | **EVENTUALLY** — concept → finished sequence. Not now. |
 | — | **Observer ZIP** | **FROZEN / PROTECTED** — leave it alone. No merge. No modify while building houses. |
 
@@ -120,7 +120,7 @@ GPT / Grok / DeepSeek stay **UNAVAILABLE**. Item 10 remains exactly there.
 
 ## Next actions (in this order)
 
-Do **not** skip ahead to Hollywood tools, Matrix-Game install, Colibri paging, a standing scheduler, self-wiring / tool claiming, `mythos_simplified/`, or a new house. Do **not** mix Hollywood tooling into Federation seating tests. Do **not** hide unfinished older village work behind cinema.
+Do **not** skip ahead to Matrix-Game install, Colibri paging, a standing scheduler, self-wiring / tool claiming, `mythos_simplified/`, or a new house. Do **not** mix Hollywood tooling into Federation seating tests. Do **not** hide unfinished older village work behind cinema.
 
 ### 0. Master reconciliation — documented this session
 
@@ -136,43 +136,28 @@ Each independently: **door → identity → Federation message → actual model 
 
 1. **Merovin → real speech** — **VERIFIED** 2026-09-05. `python -m federation.prove speak-merovin`. Door `:5000` 200, `who=merovin` only, Observer does not own him. Model **`gemma2:9b`** with cinema `num_ctx` capped at 1536/2048 (unbounded ctx was the 503/OOM). Line: *I'm Merovin…* Reply `472d86e7…`. Artifact `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json`. Attempt 1 FAIL `4b16227a…` and attempt 2 FAIL `c80b61cc…` **kept**.
 2. **Draven → real speech** — **VERIFIED** 2026-09-09. `python -m federation.prove speak-draven`. Door `:5000` **200**, `who=draven` only. Adapter `cinema_hud_http`. Model **`qwen2:7b`**. Line: *I am Draven…* Reply `4bea7235…`. Artifact `D:\Court\federation\PROVE_DRAVEN_SPEECH_3.json`. FAILs `_` + `_2` **kept**. Observer does not own him. Not Merovin.
-3. **Vesper → real speech** — **VERIFIED** 2026-09-09. `python -m federation.prove speak-vesper`. Door `GET :8740/api/identity` **200** `id=vesper`. Adapter `vesper_studio_http` `POST /api/talk`. Model **`qwen3:4b`**. Names himself Vesper, not Observer. Reply `f9fd17a9…`. Artifact `D:\Court\federation\PROVE_VESPER_SPEECH.json` (inbound `1981261a…`). **Honest:** the model dumped inner notes / a truncated draft instead of a short house line. Identity holds. Not a canned 503. House-voice filter NEED MORE. One kernel (did not start a second launcher).
+3. **Vesper → real speech** — **VERIFIED** 2026-09-09. Artifact `PROVE_VESPER_SPEECH.json` (`f9fd17a9…`). House-voice NEED MORE. **Later 2026-09-09:** overlay ask shortened; short questions use `max_reply_tokens` 80. Live `_6` still a long dump (kept). `_7` `33aa1529…` is shorter and names Vesper, still slightly meta (`We are` / “per the memories”). Do not overwrite the original. Do not mark polished.
 
 Delivery / inbox is **not** speech. Do not mark `*.federation_speech` VERIFIED until the model answered as that person.
 
-### 2. Cinema production capability — Hollywood skills (NEXT after speech — NOT NOW)
+### 2. Cinema production capability — Hollywood skills (VERIFIED 2026-09-09 — not a film)
 
-After all three speech proofs. Spec: `CINEMA_PRODUCTION.md`.
+Two **separate** proofs. Never one combined brain. Spec: `CINEMA_PRODUCTION.md`. Existing MD_Cinema Phase 1 tools — search first; no second pipeline.
 
-Merovin + Draven **Hollywood skill / tool manifests** and **actual tool wiring**. Not a list of video tools. Not Federation seating. Not Matrix-Game install.
+1. **Merovin director** — `python -m federation.prove hollywood-merovin`. Adapter `md_cinema_merovin`. Intake + story bible + 1 scene / 2 shots. Production `federation_hollywood_merovin_e0963b3e`. Who=merovin, not Draven. Matrix-Game **UNAVAILABLE**. HOME.json unchanged. Artifact `D:\Court\federation\PROVE_MEROVIN_HOLLYWOOD.json`.
+2. **Draven continuity** — `python -m federation.prove hollywood-draven`. Adapter `md_cinema_draven`. Continuity flags (unknown character, story not altered). Cloud budget denied without Mom. FFmpeg probe **AVAILABLE** (binary present ≠ full edit pipeline). Who=draven, not Merovin. Matrix-Game **UNAVAILABLE**. Artifact `D:\Court\federation\PROVE_DRAVEN_HOLLYWOOD.json`.
 
-Roles (document only until this layer opens):
-
-- **Merovin** — Creative Director: story, shots, continuity; cinematography, visual storytelling, shot design, scene composition, pacing, visual continuity.
-- **Draven** — complementary production: technical director, continuity supervisor, asset/scene verification, shot matching, production diagnostics, edit preparation, QC.
-
-They share production infrastructure. They are **not** a shared brain. They are **not** the video-generation model. Teach them to direct / operate a pipeline that can plug in Matrix-Game later. **Do not train them with Matrix.**
-
-DaVinci Resolve stays the **human** finishing pipeline.
+Not a finished sequence. They do **not** own DaVinci Resolve. Do **not** install Matrix-Game on this 4060.
 
 ### 3. Matrix visual / skin integration — WAITING (separate asset task)
 
 GitHub Matrix skins are visual assets for the production pipeline **later**. Not baked into Merovin or Draven identities. Do **not** contaminate Federation seating. Not this session.
 
-### 4. Matrix-Game integration research + optional adapter (AFTER Hollywood skills — NOT NOW)
+### 4. Matrix-Game adapter — VERIFIED 2026-09-09 as honest UNAVAILABLE (engine not installed)
 
-Primary target: Matrix-Game **3.0**. Keep **2.0** as a possible secondary engine (interactive long video, keyboard/mouse, universal / GTA / TempleRun). Do not throw 2.0 away.
+`python -m federation.prove matrix-game`. Adapter `federation/matrix_game.py`. Primary target **3.0**; keep **2.0**. Engine **UNAVAILABLE** (Windows + RTX 4060 8GB; no install tree on known disks). `generate_video` returns `ok: false`, `path: null`, no canned clip. Not Layer 17 Dream View. Not a shared brain. Who stays merovin ≠ draven. HOME.json sha `3e30fb7e…` unchanged. Artifact `D:\Court\federation\PROVE_MATRIX_GAME_ADAPTER.json`.
 
-Adapter sketch (optional, **not installed**):
-
-```text
-Merovin / Draven → Hollywood Production Skill → Matrix-Game Adapter
-  → Scene specification → Input image + prompt + actions
-  → Matrix-Game → Video clip → Continuity validation
-  → Production library → DaVinci Resolve
-```
-
-This machine cannot run it. Engine = **UNAVAILABLE**. See `CINEMA_PRODUCTION.md` hardware table.
+**VERIFIED here means honest refusal, not that video generation works.** Do not install Matrix-Game on this 4060. See `CINEMA_PRODUCTION.md` hardware table.
 
 **Production proof (EVENTUALLY):** concept → script → character/scene spec → shots → continuity → generated clips → assembly → finished sequence. Identities retained. Not now.
 
@@ -275,7 +260,7 @@ Village still needs a Hearth restart + Heart Square reload before a quit counts 
 - Mix Hollywood tooling into Federation seating / speech tests.
 - Install Matrix-Game on the 4060 8GB and expect demo quality. Engine is **UNAVAILABLE** here.
 - Train Merovin or Draven with Matrix. They direct a pipeline; they are not the generator.
-- Mark **Vesper** house-voice as polished. Speech is VERIFIED (`f9fd17a9…`, `qwen3:4b`) but the line is a thinking leak. Do not overwrite `PROVE_VESPER_SPEECH.json`.
+- Mark **Vesper** house-voice as polished. Speech is VERIFIED (`f9fd17a9…`, `qwen3:4b`) but the line is a thinking leak. Filter seated 2026-09-09 later; live `_2`–`_5` are not a house line. Do not overwrite `PROVE_VESPER_SPEECH.json`.
 - Overwrite `PROVE_MEROVIN_SPEECH.json` or `PROVE_DRAVEN_SPEECH.json` / `_2.json` / `_3.json`. A later pass gets a **new** artifact.
 - Dump UI conversation into unquestioned fact. Conversation ≠ truth.
 - Create a shared memory bucket that bleeds Merovin / Draven / Vesper / Observer.

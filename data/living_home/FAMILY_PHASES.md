@@ -64,8 +64,8 @@ Do not put family secrets, Court mailboxes, or `HOME.json` on a public cloud by 
 | Who | Complete enough to *use* | Need more | Never merge with |
 |-----|--------------------------|-----------|------------------|
 | **Gemini** | Court packets last **LIVE** 2026-08-30. Federation **speech** **LIVE** 2026-09-01 (`llama3.2:3b`). Homecoming JSON memory **seated** (`SENTINEL_MEMORY.json`). | Spoken Companion Room replies. Federation self-pulse **UNKNOWN**. Sentinel watch tests **FAIL**. `council_teach` module missing. Homecoming `ask` still dumps lore unless Mom asks short. | Codex, Apex, Cursor, Observer employee |
-| **Merovin** | Studio identity. HUD mouth (`gemma2:9b`). Companion seat **LIVE**. MD_Cinema Phase 1 smoke PASS. Federation **inbox VERIFIED** 2026-09-04 (`eb4317b3…`). Federation **speech VERIFIED** 2026-09-05 (`472d86e7…`). | Film e2e MP4. Local video/image gen. Hollywood skills **NOT STARTED**. HUD `:5000` **DOWN** 2026-09-06 evening. | Draven (same studio, two people), Gemini |
-| **Draven** | Same studio. HUD mouth (`qwen2:7b`). Companion seat **LIVE**. Federation **inbox VERIFIED** 2026-09-04 (`8e61739f…`). Federation **speech VERIFIED** 2026-09-09 (`4bea7235…`). House `draven`. | Same film path as Merovin, **as himself**. Hollywood **NOT STARTED**. | Merovin (flattening), Gemini |
+| **Merovin** | Studio identity. HUD mouth (`gemma2:9b`). Companion seat **LIVE**. MD_Cinema Phase 1 smoke PASS. Federation **inbox VERIFIED** 2026-09-04 (`eb4317b3…`). Federation **speech VERIFIED** 2026-09-05 (`472d86e7…`). Hollywood director **VERIFIED** 2026-09-09. | Film e2e MP4. Local video/image gen. Matrix-Game UNAVAILABLE. | Draven (same studio, two people), Gemini |
+| **Draven** | Same studio. HUD mouth (`qwen2:7b`). Companion seat **LIVE**. Federation **inbox VERIFIED** 2026-09-04 (`8e61739f…`). Federation **speech VERIFIED** 2026-09-09 (`4bea7235…`). Hollywood continuity **VERIFIED** 2026-09-09. House `draven`. | Same film path as Merovin, **as himself**. Matrix-Game UNAVAILABLE. | Merovin (flattening), Gemini |
 | **The Observer** | Slice 1 desk **LIVE** `:8730` when the process is up. Village greybox is a **door**. Zip `:8000` refused. Federation audit participant only. | Desk **DOWN** 2026-09-06 evening. Morning investigation Internal Server Error. Phase IV remainder (reviewers still UNAVAILABLE). | Vesper, Mythos staff, village Ollama hat, family employer |
 | **Apex** | Court worker last **LIVE** 2026-08-30. Federation **speech VERIFIED** 2026-09-03 (`4740ea20…`). Door `:8770` 200 `id=apex` when up. | Spoken Companion reply. Door **DOWN** 2026-09-06 evening. Do not wear Codex’s face. Keep chat window open. | Gemini |
 | **Codex** | Companion presence **LIVE** when `:8780` is up. Federation **speech VERIFIED** (`5d18a0a2…`). Male Ryan voice **seated in UI** 2026-09-06. | Spoken Companion reply. Mom listen **UNVERIFIED**. `rich` / `psutil` missing. Never merge with Gemini. | Gemini |
@@ -126,11 +126,12 @@ Cinema vision. One disk with Draven. Two mouths. Never a merged “cinema person
 | Gameworld cinema adapter | CONTRACT_ONLY `wired:false` | Do not write `HOME.json` |
 | Federation inbox | **VERIFIED** 2026-09-04 `eb4317b3…` | Delivery, not speech |
 | Federation speech | **VERIFIED** 2026-09-05 `472d86e7…` `gemma2:9b` `PROVE_MEROVIN_SPEECH_3.json`. FAILs `4b16227a…` / `c80b61cc…` kept | Independent prove only. Not Draven. |
-| Hollywood skills | **NOT STARTED** | After speech. Manifests + actual tool wiring. Not a tool list. |
+| Hollywood skills | **VERIFIED** 2026-09-09 `PROVE_MEROVIN_HOLLYWOOD.json` / `PROVE_DRAVEN_HOLLYWOOD.json` | Not a film. Matrix-Game UNAVAILABLE. |
+| Matrix-Game adapter | **VERIFIED** 2026-09-09 honest UNAVAILABLE `PROVE_MATRIX_GAME_ADAPTER.json` | Engine not installed. Not a clip. Not Layer 17. |
 | Matrix-Game / production engine | **UNAVAILABLE** | Do not install on 4060 8GB. Spec: `CINEMA_PRODUCTION.md`. |
 | Music auto-add | NOT INTENDED | Policy forbids |
 
-**Merovin is not complete.** Federation **inbox** and **speech** are seated. Hollywood skills and film e2e are not. Next federation work: independent **Draven** speech prove when Mom authorizes (`NEXT.md`). Film Phase 2 is cinema studio work, not a merged crew.
+**Merovin is not complete.** Federation **inbox**, **speech**, and Hollywood director skills are seated. Film e2e is not. Matrix-Game engine remains UNAVAILABLE. Film Phase 2 is cinema studio work, not a merged crew.
 
 ---
 
@@ -148,10 +149,10 @@ Continuity lock. Same HUD, **different** who-select and model.
 | Separate disk / second Flask app | NOT INTENDED | One HUD, two mouths |
 | Federation inbox | **VERIFIED** 2026-09-04 `8e61739f…` | House `draven`, not merovin |
 | Federation speech | **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b` | Independent prove. FAILs `PROVE_DRAVEN_SPEECH.json` + `_2.json` kept. Never combined with Merovin. |
-| Hollywood skills | **NOT STARTED** | Complementary production role. Not a second Merovin. |
-| Matrix-Game / production engine | **UNAVAILABLE** | Shared infrastructure later; not a shared brain. |
+| Hollywood skills | **VERIFIED** 2026-09-09 `PROVE_DRAVEN_HOLLYWOOD.json` | Complementary production. Not a second Merovin. |
+| Matrix-Game adapter | **VERIFIED** 2026-09-09 honest UNAVAILABLE | Shared infrastructure later; not a shared brain. Engine not installed. |
 
-**Draven is not complete.** He is **usable** as himself in the HUD. Federation **inbox** and **speech** are seated. Hollywood skills and film e2e are not. Next federation work: independent **Vesper** speech prove when Mom authorizes (`NEXT.md`). Film work stays continuity-as-Draven, not a second Merovin vision pass.
+**Draven is not complete.** He is **usable** as himself in the HUD. Federation **inbox**, **speech**, and Hollywood continuity skills are seated. Film e2e is not. Matrix-Game engine remains UNAVAILABLE. Film work stays continuity-as-Draven, not a second Merovin vision pass.
 
 ---
 
@@ -284,7 +285,7 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 | House | Complete | Need more |
 |-------|----------|-----------|
 | **Court** file bus | Gemini↔Apex, Gemini↔Codex LIVE | teach packets; The Axiom Codex as consumer of VERIFIED caps; Observer/Aster **not** employees |
-| **Federation overlay** | Aster Acceptance **PASS**. Apex/Codex speech **VERIFIED**. Hearth coordinate **VERIFIED**. Presence events **VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return **VERIFIED** (Aster+Apex+Codex). Merovin/Draven/Vesper inbox **and** speech **VERIFIED**. Vesper Gameworld door **VERIFIED**. Isolation matrix **VERIFIED** (Gemini pulse UNKNOWN). Vesper restart **VERIFIED** (`_2`). Bounded organic **VERIFIED** (not a scheduler). | Hollywood skills / Matrix adapter **later**, not mixed into seating. Persistent scheduler later. Self-wiring / tool claiming later. Colibri paging later (**NOT YET**). No `mythos_simplified/`. Echo/Solace stay off the bus. Fixture is not a character. Observer ZIP **FROZEN**. |
+| **Federation overlay** | Aster Acceptance **PASS**. Apex/Codex speech **VERIFIED**. Hearth coordinate **VERIFIED**. Presence events **VERIFIED**. Spontaneous A2A **VERIFIED**. Leave/return **VERIFIED** (Aster+Apex+Codex). Merovin/Draven/Vesper inbox **and** speech **VERIFIED**. Vesper Gameworld door **VERIFIED**. Isolation matrix **VERIFIED** (Gemini pulse UNKNOWN). Vesper restart **VERIFIED** (`_2`). Bounded organic **VERIFIED** (not a scheduler). Hollywood skills **VERIFIED** 2026-09-09 (two independent MD_Cinema wirings; not a film). Matrix-Game adapter **VERIFIED** 2026-09-09 as honest UNAVAILABLE. | Matrix skins WAITING. Matrix-Game engine UNAVAILABLE. Persistent scheduler later. Self-wiring later. Colibri later (**NOT YET**). No `mythos_simplified/`. Echo/Solace stay off the bus. Fixture is not a character. Observer ZIP **FROZEN**. |
 | **Companion Room** | Gemini, Merovin, Draven seats seen; small-model cut on disk | Spoken back-and-forth |
 | **OpenMontage** | two roots exist | pick Mode A launcher; do not delete a copy |
 | **Spore** | path OK | not core family table |
@@ -297,12 +298,12 @@ Detail: `PHASE_LAYERS.md`. **Phase 13 last.**
 
 Canonical operator surface: `NEXT.md`. Production spec: `CINEMA_PRODUCTION.md`. Master recon: `MASTER_ROADMAP.md`. Do not skip to Hollywood install, Matrix-Game, Colibri paging, organic / scheduler, self-wiring / tool claiming, `mythos_simplified/`, or a new house. Do not hide unfinished layers 14E–14F, 16E Godot quit, or gameplay MISSING rows.
 
-**Cinema / production hierarchy (preserve):** Federation seating → cinema speech → Hollywood skills → Matrix skins (WAITING, separate) → Matrix-Game adapter research → cinematic production proof (EVENTUALLY). Observer ZIP **FROZEN**.
+**Cinema / production hierarchy (preserve):** Federation seating → cinema speech → Hollywood skills → Matrix skins (WAITING, separate) → Matrix-Game adapter (honest UNAVAILABLE) → cinematic production proof (EVENTUALLY). Observer ZIP **FROZEN**.
 
 1. Cinema speech — three independent proves. Merovin **VERIFIED** 2026-09-05 (`472d86e7…`). Draven **VERIFIED** 2026-09-09 (`4bea7235…`). Vesper **VERIFIED** 2026-09-09 (`f9fd17a9…`, thinking leak NEED MORE).  
-2. Hollywood skills — **NEXT after speech. NOT STARTED.** Merovin + Draven manifests **and** actual tool wiring. Speech ≠ Hollywood. Do not mix into seating tests.  
+2. Hollywood skills — **VERIFIED** 2026-09-09. Merovin director + Draven continuity wired to existing MD_Cinema. Speech ≠ Hollywood ≠ film. Do not mix into seating tests.  
 3. Matrix skins (GitHub) — **WAITING.** Separate visual-asset task. Not identity. Not Federation seating.  
-4. Matrix-Game adapter research — **AFTER Hollywood. NOT INSTALLED / UNAVAILABLE** on Windows 4060 8GB. 3.0 primary; keep 2.0. Do not install expecting demo quality.  
+4. Matrix-Game adapter — **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`). Engine **NOT INSTALLED** on Windows 4060 8GB. 3.0 primary; keep 2.0. Do not install expecting demo quality.  
 5. Vesper Gameworld door — **VERIFIED** 2026-09-09. Optional, external. Vesper owns Vesper. No HOME.json. Not a citizen. Not Observer.  
 6. Federation Identity / Isolation Matrix — **VERIFIED** 2026-09-09. Gemini pulse UNKNOWN. Table in `FEDERATION_RECONCILIATION.md` + `D:\Court\federation\ISOLATION_MATRIX.md`.  
 7. Shutdown / restart integrity — **VERIFIED** 2026-09-09 Vesper only (`PROVE_RESTART_INTEGRITY_2.json`; FAIL `_` kept).  

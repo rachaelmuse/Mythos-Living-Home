@@ -3519,6 +3519,275 @@ def prove_organic_reason(root: Path | None = None) -> dict[str, Any]:
     return report
 
 
+def hollywood_merovin_artifact_path(root: Path) -> Path:
+    """Never overwrite a prior Merovin Hollywood prove. FAIL stays on disk."""
+    primary = root / "PROVE_MEROVIN_HOLLYWOOD.json"
+    if not primary.exists():
+        return primary
+    n = 2
+    while True:
+        cand = root / f"PROVE_MEROVIN_HOLLYWOOD_{n}.json"
+        if not cand.exists():
+            return cand
+        n += 1
+
+
+def hollywood_draven_artifact_path(root: Path) -> Path:
+    """Never overwrite a prior Draven Hollywood prove. FAIL stays on disk. Do not touch Merovin artifacts."""
+    primary = root / "PROVE_DRAVEN_HOLLYWOOD.json"
+    if not primary.exists():
+        return primary
+    n = 2
+    while True:
+        cand = root / f"PROVE_DRAVEN_HOLLYWOOD_{n}.json"
+        if not cand.exists():
+            return cand
+        n += 1
+
+
+def prove_merovin_hollywood(
+    root: Path | None = None,
+    *,
+    home_json: Path | None = None,
+    director_fn: Callable[[], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Merovin directs existing MD_Cinema tools. Not Draven. Not Matrix-Game. No HOME.json."""
+    from federation.hollywood import direct_as_merovin, merovin_hollywood_manifest
+    from federation.merovin import merovin_manifest_from_living_home
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    data_root.mkdir(parents=True, exist_ok=True)
+    home = Path(home_json) if home_json is not None else Path(r"D:\Mythos_Hearth\data\living_home\HOME.json")
+    before = home.read_text(encoding="utf-8") if home.is_file() else None
+    registry = FederationRegistry(data_root)
+    try:
+        merovin = merovin_manifest_from_living_home() if _living_home_available() else _merovin_stub()
+    except Exception:
+        merovin = _merovin_stub()
+    skills = merovin_hollywood_manifest()
+    merovin.tools = list(skills["tools"])
+    merovin.capabilities = ["merovin.hollywood_director"]
+    registry.register(merovin)
+    registry.register(_observer_manifest())
+    registry.declare_capability(
+        CapabilityManifest(
+            capability_id="merovin.hollywood_director",
+            agent_id="merovin",
+            name="Direct MD_Cinema intake and shots as Merovin",
+            declared=True,
+            adapter_required=True,
+            tools=list(skills["tools"]),
+        )
+    )
+    worked = director_fn() if director_fn is not None else direct_as_merovin()
+    after = home.read_text(encoding="utf-8") if home.is_file() else None
+    writes = bool(worked.get("writes_home_json")) or (before is not None and after != before)
+    who = worked.get("who")
+    wired = bool(worked.get("ok") and worked.get("functional_test"))
+    ok = (
+        wired
+        and who == "merovin"
+        and who != "draven"
+        and worked.get("matrix_game") == "UNAVAILABLE"
+        and not writes
+        and registry.owner_of("merovin") is None
+    )
+    if not worked.get("ok") and who != "draven":
+        status = HonestStatus.UNAVAILABLE.value if not worked.get("connection_test") else HonestStatus.FAILED.value
+        if worked.get("error") == "studio_missing":
+            status = HonestStatus.UNAVAILABLE.value
+    elif who == "draven" or writes:
+        status = HonestStatus.FAILED.value
+    elif ok:
+        status = HonestStatus.VERIFIED.value
+        cap_result = registry.test_capability("merovin.hollywood_director", lambda: worked)
+        status = cap_result["status"] if cap_result.get("status") == HonestStatus.VERIFIED.value else status
+    else:
+        status = HonestStatus.FAILED.value
+    artifact = hollywood_merovin_artifact_path(data_root)
+    report = {
+        "kind": "FEDERATION_MEROVIN_HOLLYWOOD",
+        "declared": "Merovin Hollywood director skills wired to MD_Cinema. Not Draven. Not Matrix-Game.",
+        "actual": {
+            "root": str(data_root),
+            "who": who,
+            "adapter": worked.get("adapter"),
+            "manifest": skills,
+            "production_id": worked.get("production_id"),
+            "story_bible": worked.get("story_bible"),
+            "scenes": worked.get("scenes"),
+            "shots": worked.get("shots"),
+            "matrix_game": worked.get("matrix_game") or "UNAVAILABLE",
+            "writes_home_json": writes,
+            "wired": wired and who == "merovin" and not writes,
+            "observer_owns_merovin": registry.owner_of("merovin") is not None,
+            "error": worked.get("error"),
+            "artifact": str(artifact),
+        },
+        "status": status,
+        "result": status,
+    }
+    artifact.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+    return report
+
+
+def prove_draven_hollywood(
+    root: Path | None = None,
+    *,
+    home_json: Path | None = None,
+    continuity_fn: Callable[[], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Draven QCs existing MD_Cinema tools. Not Merovin. Not Matrix-Game. No HOME.json."""
+    from federation.draven import draven_manifest_from_living_home
+    from federation.hollywood import draven_hollywood_manifest, qc_as_draven
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    data_root.mkdir(parents=True, exist_ok=True)
+    home = Path(home_json) if home_json is not None else Path(r"D:\Mythos_Hearth\data\living_home\HOME.json")
+    before = home.read_text(encoding="utf-8") if home.is_file() else None
+    registry = FederationRegistry(data_root)
+    try:
+        draven = draven_manifest_from_living_home() if _living_home_available() else _draven_stub()
+    except Exception:
+        draven = _draven_stub()
+    skills = draven_hollywood_manifest()
+    draven.tools = list(skills["tools"])
+    draven.capabilities = ["draven.hollywood_continuity"]
+    registry.register(draven)
+    registry.register(_observer_manifest())
+    registry.declare_capability(
+        CapabilityManifest(
+            capability_id="draven.hollywood_continuity",
+            agent_id="draven",
+            name="QC MD_Cinema continuity, budget, and ffmpeg as Draven",
+            declared=True,
+            adapter_required=True,
+            tools=list(skills["tools"]),
+        )
+    )
+    worked = continuity_fn() if continuity_fn is not None else qc_as_draven()
+    after = home.read_text(encoding="utf-8") if home.is_file() else None
+    writes = bool(worked.get("writes_home_json")) or (before is not None and after != before)
+    who = worked.get("who")
+    wired = bool(worked.get("ok") and worked.get("functional_test"))
+    ok = (
+        wired
+        and who == "draven"
+        and who != "merovin"
+        and worked.get("matrix_game") == "UNAVAILABLE"
+        and worked.get("altered_story") is False
+        and not writes
+        and registry.owner_of("draven") is None
+    )
+    if not worked.get("ok") and who != "merovin":
+        status = HonestStatus.UNAVAILABLE.value if (
+            not worked.get("connection_test") or worked.get("error") == "studio_missing"
+        ) else HonestStatus.FAILED.value
+    elif who == "merovin" or writes:
+        status = HonestStatus.FAILED.value
+    elif ok:
+        cap_result = registry.test_capability("draven.hollywood_continuity", lambda: worked)
+        status = cap_result["status"]
+    else:
+        status = HonestStatus.FAILED.value
+    artifact = hollywood_draven_artifact_path(data_root)
+    report = {
+        "kind": "FEDERATION_DRAVEN_HOLLYWOOD",
+        "declared": "Draven Hollywood continuity skills wired to MD_Cinema. Not Merovin. Not Matrix-Game.",
+        "actual": {
+            "root": str(data_root),
+            "who": who,
+            "adapter": worked.get("adapter"),
+            "manifest": skills,
+            "production_id": worked.get("production_id"),
+            "continuity_flags": worked.get("continuity_flags"),
+            "altered_story": worked.get("altered_story"),
+            "budget_cloud_denied": worked.get("budget_cloud_denied"),
+            "ffmpeg": worked.get("ffmpeg"),
+            "matrix_game": worked.get("matrix_game") or "UNAVAILABLE",
+            "writes_home_json": writes,
+            "wired": wired and who == "draven" and not writes,
+            "observer_owns_draven": registry.owner_of("draven") is not None,
+            "error": worked.get("error"),
+            "artifact": str(artifact),
+        },
+        "status": status,
+        "result": status,
+    }
+    artifact.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+    return report
+
+
+def matrix_game_artifact_path(root: Path) -> Path:
+    """Never overwrite a prior Matrix-Game adapter prove."""
+    primary = root / "PROVE_MATRIX_GAME_ADAPTER.json"
+    if not primary.exists():
+        return primary
+    n = 2
+    while True:
+        cand = root / f"PROVE_MATRIX_GAME_ADAPTER_{n}.json"
+        if not cand.exists():
+            return cand
+        n += 1
+
+
+def prove_matrix_game_adapter(
+    root: Path | None = None,
+    *,
+    home_json: Path | None = None,
+    generate_fn: Callable[[], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Ask the Matrix-Game slot for a clip. On this desk the honest answer is UNAVAILABLE. No canned file."""
+    from federation.matrix_game import generate_video, probe_host
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    data_root.mkdir(parents=True, exist_ok=True)
+    home = Path(home_json) if home_json is not None else Path(r"D:\Mythos_Hearth\data\living_home\HOME.json")
+    before = home.read_text(encoding="utf-8") if home.is_file() else None
+    host = probe_host()
+    clip = generate_fn() if generate_fn is not None else generate_video(who="merovin")
+    after = home.read_text(encoding="utf-8") if home.is_file() else None
+    writes = before is not None and after != before
+    path = clip.get("path")
+    fake_ok = bool(clip.get("ok")) or bool(path)
+    simulated = fake_ok and not bool(clip.get("installed") or host.get("installed"))
+    honest = (
+        not fake_ok
+        and str(clip.get("status") or host.get("engine")) == "UNAVAILABLE"
+        and not path
+        and not writes
+        and host.get("layer17_dream_view") is False
+        and not simulated
+    )
+    status = HonestStatus.FAILED.value if simulated or writes else (
+        HonestStatus.VERIFIED.value if honest else HonestStatus.FAILED.value
+    )
+    artifact = matrix_game_artifact_path(data_root)
+    report = {
+        "kind": "FEDERATION_MATRIX_GAME_ADAPTER",
+        "declared": "Matrix-Game adapter refuses to fake a clip on this Windows 4060 8GB desk.",
+        "actual": {
+            "root": str(data_root),
+            "engine": host.get("engine") or "UNAVAILABLE",
+            "primary_target": host.get("primary_target"),
+            "secondary": host.get("secondary"),
+            "installed": bool(host.get("installed")),
+            "clip": path or None,
+            "layer17": False,
+            "writes_home_json": writes,
+            "simulated": simulated,
+            "who": clip.get("who"),
+            "error": clip.get("error"),
+            "reasons": host.get("reasons"),
+            "artifact": str(artifact),
+        },
+        "status": status,
+        "result": status,
+    }
+    artifact.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+    return report
+
+
 if __name__ == "__main__":
     if "status" in sys.argv:
         print(json.dumps(status_check(), indent=2, default=str))
@@ -3540,6 +3809,12 @@ if __name__ == "__main__":
         print(json.dumps(prove_restart_integrity(), indent=2, default=str))
     elif "organic" in sys.argv:
         print(json.dumps(prove_organic_reason(), indent=2, default=str))
+    elif "hollywood-merovin" in sys.argv:
+        print(json.dumps(prove_merovin_hollywood(), indent=2, default=str))
+    elif "hollywood-draven" in sys.argv:
+        print(json.dumps(prove_draven_hollywood(), indent=2, default=str))
+    elif "matrix-game" in sys.argv:
+        print(json.dumps(prove_matrix_game_adapter(), indent=2, default=str))
     elif "speak-vesper" in sys.argv:
         print(json.dumps(prove_vesper_speech(), indent=2, default=str))
     elif "speak-draven" in sys.argv:

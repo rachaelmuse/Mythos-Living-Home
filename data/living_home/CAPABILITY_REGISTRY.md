@@ -159,8 +159,8 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | External | DaVinci Resolve (human finishing — agents do not own it). Blender/OBS/OpenMontage paths probed. Matrix-Game **UNAVAILABLE**. |
 | Federation | **Yes.** |
 | Gameworld | Citizen avatar PLACEHOLDER. Does not write HOME.json from cinema adapter (`wired:false`). |
-| Evidence | Inbox `eb4317b3…`. Speech PASS `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json` reply `472d86e7…`. Keep FAIL files `4b16227a…` / `c80b61cc…`. |
-| Need more | Hollywood skills **NOT STARTED**. Film e2e MP4. Local gen UNAVAILABLE. |
+| Evidence | Inbox `eb4317b3…`. Speech PASS `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json` reply `472d86e7…`. Hollywood director `PROVE_MEROVIN_HOLLYWOOD.json`. Matrix-Game adapter `PROVE_MATRIX_GAME_ADAPTER.json` (honest UNAVAILABLE). Keep speech FAIL files. |
+| Need more | Film e2e MP4. Local gen UNAVAILABLE. Matrix-Game engine UNAVAILABLE. |
 | Village field | `house: merovin` in FAMILY is the **studio root label**, not “Draven is Merovin.” Federation id remains `merovin`. |
 
 ---
@@ -172,13 +172,13 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | Identity | Cinema guardian. Continuity lock. **Not Merovin.** |
 | Role | Intended technical director / continuity supervisor / QC. |
 | Tools | Same HUD `:5000`, `who=draven`. `DRAVEN_OLLAMA_MODEL` default `qwen2:7b`. `DRAVEN_MODELS` includes `qwen2:7b`, phi3, falcon, `llama3.2:3b`. Continuity matrix stub Phase 1 **PARTIAL**. Federation `draven.py`. |
-| Skills | Inbox **VERIFIED** `8e61739f…`. House **`draven`**. Speech **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b`. |
+| Skills | Inbox **VERIFIED** `8e61739f…`. House **`draven`**. Speech **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b`. Hollywood continuity **VERIFIED** 2026-09-09. |
 | Memory | Own. Must not share Merovin's brain. UI continuity **INTENDED, NOT IMPLEMENTED**. |
 | Interfaces | Same HUD, different who-select. Village loft PLACEHOLDER. |
 | Federation | **Yes.** |
 | Gameworld | Citizen. |
-| Evidence | Inbox prove `8e61739f…`. Speech PASS `D:\Court\federation\PROVE_DRAVEN_SPEECH_3.json` reply `4bea7235…`. Keep FAIL files. |
-| Need more | Hollywood complementary role. |
+| Evidence | Inbox prove `8e61739f…`. Speech PASS `D:\Court\federation\PROVE_DRAVEN_SPEECH_3.json` reply `4bea7235…`. Hollywood continuity `PROVE_DRAVEN_HOLLYWOOD.json`. Matrix-Game adapter `PROVE_MATRIX_GAME_ADAPTER.json`. Keep FAIL files. |
+| Need more | Film e2e / QC of generated clips. Matrix-Game engine UNAVAILABLE. |
 | Conflict | FAMILY `house: merovin` (disk) vs federation house `draven`. Documented; do not flatten. |
 
 ---
@@ -271,7 +271,8 @@ Not Mode A houses. Not on the bus.
 | House-local notebooks | Aster+Apex+Codex VERIFIED. Forbidden: echo, solace, nova |
 | Consume into HOME.json | LIVE as **action**, not the world's name |
 | GPT/Grok/DeepSeek reviewers | UNAVAILABLE |
-| Matrix-Game | UNAVAILABLE on this hardware |
+| Matrix-Game engine | UNAVAILABLE on this hardware |
+| Matrix-Game adapter | **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`) |
 | Matrix skins | WAITING |
 | UI ↔ Gameworld provenance memory | INTENDED, not implemented |
 | Organic attention scheduler | NOT YET |
@@ -282,9 +283,9 @@ Not Mode A houses. Not on the bus.
 
 ---
 
-## Hollywood / production (future, after speech)
+## Hollywood / production (after speech)
 
-Not claimed. Spec: `CINEMA_PRODUCTION.md`.
+Hollywood skills **VERIFIED** 2026-09-09. Matrix-Game adapter **VERIFIED** as honest UNAVAILABLE. Engine not installed. Spec: `CINEMA_PRODUCTION.md`.
 
 Merovin/Draven intended: script, storyboard, shot planning, cinematography, scene construction, character/visual continuity, dialogue/TTS, production planning, footage generation, edit prep, QC, production memory.
 

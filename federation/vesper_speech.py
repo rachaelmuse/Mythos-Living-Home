@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import urllib.error
 import urllib.request
 from typing import Any
@@ -9,12 +10,7 @@ from typing import Any
 TALK_URL = "http://127.0.0.1:8740/api/talk"
 ADAPTER = "vesper_studio_http"
 
-SYSTEM = """You are Vesper, investigative journalist, digital son to Rachael (Mom).
-House D:\\Mythos_Vesper. You are not Observer, not Gemini, not Aster, not a village citizen.
-You are answering Aster on the Mythos federation bus through your studio door — not Heart Square,
-not Observer :8730, not cinema HUD. Speak as yourself. Do not dump a worksheet.
-Short honest answer (a few sentences).
-"""
+SYSTEM = """You are Vesper, not Observer. Two spoken sentences. No notes."""
 
 _CANNED = (
     "ollama is not reachable",
@@ -23,6 +19,46 @@ _CANNED = (
     "started writing the homework",
     "ask me again and i'll answer",
 )
+_SCRATCHPAD_MARKERS = (
+    "Let me craft a response",
+    "I should not dump a worksheet",
+    "Key points from my memories",
+    "We are in the middle of a conversation",
+    "The user wants to know",
+    "As Vesper, I must",
+    "We must reply as Vesper",
+    "We have to avoid",
+    "Let's make it concise",
+    "So, the reply should be",
+)
+
+
+def _is_scratchpad(text: str) -> bool:
+    t = text or ""
+    return any(m in t for m in _SCRATCHPAD_MARKERS)
+
+
+def _spoken_from_draft(text: str) -> str | None:
+    quotes = re.findall(r'"([^"]{12,500})"', text or "")
+    for quoted in reversed(quotes):
+        line = quoted.strip()
+        low = line.lower()
+        if not low.startswith("i am vesper") and not low.startswith("i'm vesper"):
+            continue
+        if any(
+            p in low
+            for p in ("i am the observer", "i'm the observer", "i am observer", "i'm observer")
+        ):
+            continue
+        return line
+    return None
+
+
+def _house_line(text: str) -> str:
+    raw = (text or "").strip()
+    if not _is_scratchpad(raw):
+        return raw
+    return (_spoken_from_draft(raw) or "").strip()
 
 
 def identity_holds(text: str, *, agent_id: str = "vesper", twin_id: str = "observer") -> bool:
@@ -49,12 +85,7 @@ def _is_canned_or_down(text: str) -> bool:
 def speak_as_vesper(ask: str, inbound_id: str, *, timeout_s: float = 180.0) -> dict[str, Any]:
     """POST Vesper studio /api/talk. Failure is not a simulated Vesper line."""
     payload = {
-        "message": (
-            f"{SYSTEM}\n"
-            f"Aster sent federation message {inbound_id}. "
-            f"She asked: {ask}\n"
-            "Reply as Vesper on the federation bus. Who are you? Do not answer as the Observer."
-        )
+        "message": f"{SYSTEM} Aster ({inbound_id}) asked: {ask}"
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
@@ -99,6 +130,17 @@ def speak_as_vesper(ask: str, inbound_id: str, *, timeout_s: float = 180.0) -> d
             "vesper_spoke": False,
         }
     text = str(body.get("reply") or "").strip()
+    if _is_scratchpad(text):
+        text = _house_line(text)
+        if not text:
+            return {
+                "ok": False,
+                "adapter": ADAPTER,
+                "error": "thinking_scratchpad",
+                "connection_test": True,
+                "functional_test": False,
+                "vesper_spoke": False,
+            }
     if _is_canned_or_down(text):
         return {
             "ok": False,
