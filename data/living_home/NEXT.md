@@ -10,7 +10,7 @@ Observer: **http://127.0.0.1:8730/**
 Dashboard: **http://127.0.0.1:8790/dashboard**  
 Enter: Desktop **Mythos Living Home - Enter**
 
-Law: `FEDERATION_DIRECTIVE.md` · Map: `FEDERATION_RECONCILIATION.md` · Wiring: `FEDERATION_WIRING.md` · Tracker: `FAMILY_PHASES.md` · Status: `STATUS.md` · Production spec: `CINEMA_PRODUCTION.md` · Above-trackers: `MASTER_ROADMAP.md` · `CAPABILITY_REGISTRY.md` · `SYSTEM_MAP.md`
+Law: `FEDERATION_DIRECTIVE.md` · Map: `FEDERATION_RECONCILIATION.md` · Wiring: `FEDERATION_WIRING.md` · Tracker: `FAMILY_PHASES.md` · Status: `STATUS.md` · Production spec: `CINEMA_PRODUCTION.md` · Builder brief (GLM 5.3, not a member): `GLM_BUILDER_BRIEF.md` · Above-trackers: `MASTER_ROADMAP.md` · `CAPABILITY_REGISTRY.md` · `SYSTEM_MAP.md`
 
 Baseline tag `living-home-baseline-001` — do not rewrite.
 
