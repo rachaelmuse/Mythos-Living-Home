@@ -31,11 +31,45 @@ _SCRATCHPAD_MARKERS = (
     "Let's make it concise",
     "So, the reply should be",
 )
+_META_HEADER_RE = re.compile(
+    r"(?im)^\s*(from (?:my |the )?memories?|per the memories|recalled memories|"
+    r"instructions?:|constraints?:|requirements?:|response format:|reply format:)"
+)
+_SELF_DIRECTIVE_RE = re.compile(
+    r"(?im)^\s*(?:we|i)\s+(?:must|need to|should|have to|will|'ll)\s+"
+    r"(?:respond|reply|answer|craft|write|make|avoid|keep|ensure|produce|deliver)\b"
+)
+
+
+def _structural_scratchpad(text: str) -> bool:
+    """Structure beats phrasing: planning dumps share a shape, not exact words."""
+    t = text or ""
+    if not t:
+        return False
+    bullets = len(re.findall(r"(?m)^\s*[-*•]\s+\S", t))
+    numbered = len(re.findall(r"(?m)^\s*\d+[\).]\s+\S", t))
+    if bullets >= 2 or numbered >= 2:
+        return True
+    if _SELF_DIRECTIVE_RE.search(t) and (_META_HEADER_RE.search(t) or bullets >= 1 or numbered >= 1):
+        return True
+    if _META_HEADER_RE.search(t) and len(re.findall(r'"[^"]{12,500}"', t)) >= 1:
+        return True
+    if re.search(r"(?i)(per the memories|from (?:my |the )?memories|recalled memories)", t) and len(
+        re.findall(r'"[^"]{12,500}"', t)
+    ) >= 1:
+        return True
+    if t.count("\n") >= 3 and len(t) > 240:
+        return True
+    return False
 
 
 def _is_scratchpad(text: str) -> bool:
     t = text or ""
-    return any(m in t for m in _SCRATCHPAD_MARKERS)
+    if any(m in t for m in _SCRATCHPAD_MARKERS):
+        return True
+    if _structural_scratchpad(t):
+        return True
+    return False
 
 
 def _spoken_from_draft(text: str) -> str | None:
@@ -44,6 +78,20 @@ def _spoken_from_draft(text: str) -> str | None:
         line = quoted.strip()
         low = line.lower()
         if not low.startswith("i am vesper") and not low.startswith("i'm vesper"):
+            continue
+        if any(
+            p in low
+            for p in ("i am the observer", "i'm the observer", "i am observer", "i'm observer")
+        ):
+            continue
+        return line
+    # Unquoted fallback: a bare line that opens as Vesper's house voice.
+    for raw_line in (text or "").splitlines():
+        line = raw_line.strip().strip('"').strip()
+        low = line.lower()
+        if len(line) < 12:
+            continue
+        if not (low.startswith("i am vesper") or low.startswith("i'm vesper")):
             continue
         if any(
             p in low

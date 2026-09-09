@@ -75,6 +75,8 @@ What was already tried (keep these; do not overwrite `PROVE_VESPER_SPEECH.json`)
 - `_5` VERIFIED wrong quote (“Reply as Vesper on the federation bus”)
 - `_6` still a long dump after a short overlay ask
 - `_7` `33aa1529…` shorter, names Vesper, still meta (`We are` / “per the memories”)
+- `_9` VERIFIED but raw worksheet shipped as speech — phrase-list detector missed the shape. Fix landed Sep 9: structural scratchpad detector (bullets / self-directives / meta-headers) in BOTH `federation/vesper_speech.py` and `D:\Mythos_Vesper\vesper\kernel.py`; kernel retries once then honest canned fallback; overlay refuses canned. 8/8 detector unit checks pass, 176/176 LH tests pass.
+- `_10` FAILED honestly (`canned_or_model_down`): dump blocked, no leak shipped — but qwen3:4b still plans aloud on first pass. Remaining gap is the model's answering style, not the filter. Do not loop; next lever would be her mouth-model choice (identity portable if model changes) — Mom's call.
 
 Code already in:
 
