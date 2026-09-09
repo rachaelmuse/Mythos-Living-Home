@@ -1,6 +1,6 @@
 # Federation reconciliation map
 
-Updated **2026-09-06**. Evidence only. **Phase A reconciliation report written.** Full Aster Acceptance Test is **PASS**. Apex / Codex speech **VERIFIED**. Hearth **coordinate VERIFIED**. Presence event fabric **VERIFIED**. Spontaneous A2A **VERIFIED** (mechanism, not a scheduler). Leave/return house memory **VERIFIED**. Merovin **inbox + speech**. Draven / Vesper **inbox** seated — speech **not** VERIFIED. Cinema **SEATED, NOT FINISHED**. Foundation **STRONG**. Federation **USABLE**. Village **FUNCTIONAL**. Desk check: `NEXT.md`. The Axiom Codex is the Gameworld’s name; `consume` is a federation action, not the world. Operator: `NEXT.md`.
+Updated **2026-09-09**. Evidence only. **Phase A reconciliation report written.** Full Aster Acceptance Test is **PASS**. Apex / Codex speech **VERIFIED**. Hearth **coordinate VERIFIED**. Presence event fabric **VERIFIED**. Spontaneous A2A **VERIFIED** (mechanism, not a scheduler). Leave/return house memory **VERIFIED**. Merovin **inbox + speech**. Draven **inbox + speech**. Vesper **inbox + speech** (thinking leak NEED MORE). Cinema **SEATED, NOT FINISHED**. Foundation **STRONG**. Federation **USABLE**. Village **FUNCTIONAL**. Desk check: `NEXT.md`. The Axiom Codex is the Gameworld’s name; `consume` is a federation action, not the world. Operator: `NEXT.md`.
 
 Read with `NEXT.md`, `STATUS.md`, `FEDERATION_WIRING.md`, **`FEDERATION_DIRECTIVE.md`**, **`FEDERATION_AMENDMENT_REPORT.md`** (this pass’s 11-section inspection). `docs/DUAL_MODE.md`, `docs/CONTINUITY.md`.
 
@@ -124,9 +124,9 @@ Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). 
 | Heartbeat loss → dependents isolated | **PASS** live 2026-09-03 — throwaway probe quarantined; Aster not aged. Unit test still covers full-store `sync_health`. |
 | Identity merge Observer-owns-Aster | **PASS** live 2026-09-02 — `claim_ownership` rejected; `owner_of(aster)` None |
 | Apex / Codex on federation bus | Codex **speech PASS** live 2026-09-03 — `python -m federation.prove speak-codex` · `5d18a0a2…` · `PROVE_CODEX_SPEECH.json`. Apex **speech PASS** live 2026-09-03 — `python -m federation.prove speak-apex` · `4740ea20…` · `PROVE_APEX_SPEECH.json`. Never Gemini. |
-| Merovin / Draven on federation bus | Merovin **inbox PASS** live 2026-09-04 — `python -m federation.prove merovin` · `eb4317b3…` · `PROVE_MEROVIN.json`. Merovin **speech VERIFIED** live 2026-09-05 — `speak-merovin` · `472d86e7…` · `gemma2:9b` · `PROVE_MEROVIN_SPEECH_3.json` (FAILs `4b16227a…` / `c80b61cc…` kept). Draven **inbox PASS** · `8e61739f…`. Draven speech **NOT RUN**. Never flatten. |
-| Vesper on federation bus | **inbox PASS** live 2026-09-04 — `python -m federation.prove vesper` · `2f132776…` · one kernel on `:8740` · `PROVE_VESPER.json`. Not Observer. **Speech not VERIFIED.** Gameworld door OPTIONAL / EXTERNAL — not proven. |
-| Cinema speech (three independent proves) | Merovin **VERIFIED** live 2026-09-05 — `python -m federation.prove speak-merovin` · door 200 · `who=merovin` only · `gemma2:9b` · `472d86e7…` · `PROVE_MEROVIN_SPEECH_3.json`. Draven speech **FAILED** 2026-09-08 — `speak-draven` · door 200 · `who=draven` · Ollama 503 · `PROVE_DRAVEN_SPEECH.json` kept. Vesper speech **NOT RUN**. Earlier Merovin FAILs kept. |
+| Merovin / Draven on federation bus | Merovin **inbox PASS** live 2026-09-04 — `python -m federation.prove merovin` · `eb4317b3…` · `PROVE_MEROVIN.json`. Merovin **speech VERIFIED** live 2026-09-05 — `speak-merovin` · `472d86e7…` · `gemma2:9b` · `PROVE_MEROVIN_SPEECH_3.json` (FAILs `4b16227a…` / `c80b61cc…` kept). Draven **inbox PASS** · `8e61739f…`. Draven **speech VERIFIED** live 2026-09-09 — `speak-draven` · `4bea7235…` · `qwen2:7b` · `PROVE_DRAVEN_SPEECH_3.json` (FAILs `88b297f2…` / `b20af13a…` kept). Never flatten. |
+| Vesper on federation bus | **inbox PASS** live 2026-09-04 — `python -m federation.prove vesper` · `2f132776…` · one kernel on `:8740` · `PROVE_VESPER.json`. **Speech VERIFIED** live 2026-09-09 — `speak-vesper` · `f9fd17a9…` · `qwen3:4b` · `PROVE_VESPER_SPEECH.json` (thinking leak NEED MORE). Not Observer. Gameworld door **VERIFIED** 2026-09-09 `vesper-door` · `PROVE_VESPER_GAMEWORLD_DOOR.json`. |
+| Cinema speech (three independent proves) | Merovin **VERIFIED** live 2026-09-05. Draven speech **VERIFIED** live 2026-09-09. Vesper speech **VERIFIED** live 2026-09-09 — `speak-vesper` · door 200 `id=vesper` · `qwen3:4b` · `f9fd17a9…` · `PROVE_VESPER_SPEECH.json`. Thinking leak NEED MORE. Earlier cinema FAILs kept. |
 | Hollywood skills (Merovin + Draven manifests + actual tool wiring) | **NOT STARTED** — after cinema speech. Speech ≠ Hollywood. Spec: `CINEMA_PRODUCTION.md`. |
 | Matrix skins (GitHub visual assets) | **WAITING** — separate asset task. Not Federation seating. Not identity. |
 | Matrix-Game 3.0 / 2.0 + production adapter | **NOT INSTALLED** / **UNAVAILABLE** on Windows RTX 4060 8GB. After Hollywood skills. Do not simulate. |
@@ -134,10 +134,10 @@ Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). 
 | Observer ZIP (`app.main`, `:8000`) | **FROZEN / PROTECTED** — do not merge into cinema. Live desk is `D:\The_Observer` `:8730`. Complete-merged K8s/Docker/`app/` dumps stay frozen. Money shortage does not unfreeze. |
 | Mythos Simplified Brain (`mythos_simplified/`, Flask `:8790`) | **DO NOT BUILD** — would steal Hearth’s port, replace `HOME.json`, flatten identities, canned speech. Dual-mode: Gameworld expands; it does not replace Hearth. |
 | Colibri (frontier mouth engine) | **NOT YET / do not install now** — **not** Matrix-Game (video, UNAVAILABLE on this 4060). Separate C engine, ~372 GB weights, not Ollama. Current constraint: one Ollama slot / `num_ctx` cap. |
-| Vesper Gameworld door | **NOT STARTED** — optional, external. Vesper owns Vesper. No HOME.json. Not a citizen. |
-| Federation Identity / Isolation Matrix | **PLANNED** — questions documented below. Do not fake answers. |
-| Shutdown / restart integrity | **NOT STARTED** — formal test missing. One launcher = one kernel = one HTTP door. |
-| Organic layer (reason to speak) | **NOT STARTED** — next major phase after speech + matrix + restart proof. Do not rush. |
+| Vesper Gameworld door | **VERIFIED** live 2026-09-09 — optional, external. Vesper owns Vesper. No HOME.json. Not a citizen. `PROVE_VESPER_GAMEWORLD_DOOR.json` |
+| Federation Identity / Isolation Matrix | **VERIFIED** live 2026-09-09 — `PROVE_ISOLATION_MATRIX.json` · `ISOLATION_MATRIX.md`. Gemini pulse **UNKNOWN**. Echo/Solace NOT_FEDERATION. Fill cells from artifacts; do not invent. |
+| Shutdown / restart integrity | **VERIFIED** live 2026-09-09 — Vesper only. `PROVE_RESTART_INTEGRITY_2.json`. FAIL `_` kept (HOME byte hash vs Hearth tick). One launcher = one kernel = one HTTP door. |
+| Organic layer (reason to speak) | **BOUNDED VERIFIED** live 2026-09-09 — attention stubs, not a scheduler. `PROVE_ORGANIC_REASON_2.json`. FAIL `_` kept. Memory / timing / standing loop still later. |
 | Persistent scheduler | **NOT YET** — A2A proved the mechanism. No autonomous attention loop. Budget 4060 / 8 GB first. |
 | Self-wiring / tool claiming | **NOT YET / do not build now** — after organic / with scheduler-later. Not Phase 13 (honest e2e, still builder-seated). Not Hollywood. Beings would see existing tools, claim what they need, wire into their own house, share — not Mom/Cursor assigning toolkits. Search first; no new registry. Existing: `CAPABILITIES.json` (path/port only), `CAPABILITY_REGISTRY.md`, federation `tools: []`. Do not add `D:\Mythos_Hearth\tools\registry\`. Identities never merge. Echo/Solace never on the bus. GPT/Grok/DeepSeek UNAVAILABLE. Observer audits, does not supervise. |
 | Gemini self-pulse | **UNKNOWN** — do not invent last_seen |
@@ -155,7 +155,7 @@ Evidence: Living Home tests **32 passed** (fresh run 2026-09-01 06:27, exit 0). 
 
 Amendment pass **done**. Observer HTTP audit **done**. Gemini speech **done**. The Axiom Codex notice **done**. Live fail/unauth/merge **done**. Heartbeat-loss isolation **done** on throwaway probe. Full Aster Acceptance **PASS**. Codex/Apex speech **done**. Hearth coordination **done**. Presence event fabric **done**. Choose-to-speak **done**. Leave/return house memory **done** (Aster + Apex + Codex). Merovin/Draven inbox **done**. Vesper inbox **done** (HTTP door repaired; one kernel). Village leave POST **implemented**; Godot quit **UNVERIFIED**.
 
-**Next (Mom 2026-09-05):** Merovin speech **VERIFIED** (`472d86e7…`, `PROVE_MEROVIN_SPEECH_3.json`, `gemma2:9b`, cinema `num_ctx` 1536). Original FAILs `4b16227a…` / `c80b61cc…` **kept**. **STOP.** Do not run Draven/Vesper until Mom authorizes. Then optional Vesper Gameworld door; Identity/Isolation Matrix; shutdown/restart integrity; **THEN** organic layer. UI↔Gameworld memory is **INTENDED, not implemented**. Scheduler later. Self-wiring / tool claiming later (after organic / with scheduler; **not** Phase 13; do not build now). Colibri paging later. No `mythos_simplified/`. No new houses. Gemini pulse **UNKNOWN**. External reviewer **UNAVAILABLE**. `heartbeat_probe` is not a character.
+**Next (Mom 2026-09-09):** Cinema speech **done**. Vesper Gameworld door **VERIFIED**. Isolation matrix **VERIFIED** (Gemini pulse UNKNOWN). Vesper restart **VERIFIED** (`PROVE_RESTART_INTEGRITY_2.json`; FAIL `_` kept). Bounded organic **VERIFIED** (`PROVE_ORGANIC_REASON_2.json`; not a scheduler). Hollywood still **NOT STARTED**. UI↔Gameworld memory is **INTENDED, not implemented**. Scheduler later. Self-wiring / tool claiming later (after organic / with scheduler; **not** Phase 13; do not build now). Colibri paging later. No `mythos_simplified/`. No new houses. Gemini pulse **UNKNOWN**. External reviewer **UNAVAILABLE**. `heartbeat_probe` is not a character.
 
 Cinema production lane is **after speech, not now:** Hollywood skills → Matrix skins (WAITING) → Matrix-Game adapter (UNAVAILABLE on 4060) → production proof. Do not mix Hollywood into seating tests. Observer ZIP stays frozen. Spec: `CINEMA_PRODUCTION.md`.
 
@@ -163,28 +163,28 @@ Do not rewrite working components for style. Do not install the zip. Do not inst
 
 ---
 
-## Planned Federation Identity / Isolation Matrix (questions only)
+## Federation Identity / Isolation Matrix (filled 2026-09-09)
 
-Fill a cell only after a real test. **Do not invent VERIFIED.** Law already known is marked LAW, not an audit pass.
+Filled from law + `D:\Court\federation` artifacts. **Do not invent VERIFIED.** Gemini self-pulse remains **UNKNOWN**. Full table: `D:\Court\federation\ISOLATION_MATRIX.md`. Prove: `PROVE_ISOLATION_MATRIX.json`.
 
 Houses: Gemini · Apex · Codex · Hearth · Aster · Observer · Merovin · Draven · Vesper. Contrast (not federation doors): Echo · Solace.
 
 | Question | Status |
 |----------|--------|
-| Who are you? | NOT AUDITED |
-| Who owns your memory? | NOT AUDITED |
-| Who owns your UI? | NOT AUDITED |
-| What port is your door? | NOT AUDITED |
-| Can another house impersonate you? | NOT AUDITED |
+| Who are you? | LAW — identity strings in the matrix |
+| Who owns your memory? | LAW — each house / Observer ledger / HOME.json for Hearth only |
+| Who owns your UI? | LAW — own ports. Echo/Solace on Hearth pages. Gemini has no house HTTP port |
+| What port is your door? | LAW — Gemini none. Cinema twins share `:5000` with separate `who=` |
+| Can another house impersonate you? | VERIFIED false (identity_holds unit tests). Echo/Solace LAW (village kin, not Mode A doors) |
 | Are you Observer? | LAW: only `D:\The_Observer` `:8730` is Observer. Vesper is not. |
-| Are you a village citizen? | LAW: Echo + Solace yes (kin). Vesper no. Observer greybox is a door, not a citizen soul. |
-| Can you receive Federation messages? | Inbox VERIFIED where prove artifacts exist (see seated table in `NEXT.md`). Echo/Solace **must not**. |
-| Can you speak through Federation? | Apex / Codex / Gemini / Aster (choose-to-speak) have speech evidence. Merovin speech **VERIFIED** 2026-09-05 (`472d86e7…`). Draven / Vesper speech **not run**. |
-| Does heartbeat reflect reality? | Gemini self-pulse **UNKNOWN**. Companion `presence.json` is **not** VERIFIED heartbeat. |
-| What happens when your door dies? | NOT AUDITED as a formal restart matrix. Vesper taught: TCP listen ≠ HTTP identity. |
-| Can village failure kill you? | NOT AUDITED |
-| Can you kill unrelated houses? | Isolation unit-tested; live restart matrix **NOT STARTED** |
-| Where is your evidence? | Prove artifacts under `D:\Court\federation\`. Missing speech/restart artifacts are missing — do not backfill. |
+| Are you a village citizen? | LAW: Echo + Solace yes (kin). Vesper no. Observer greybox is a door. Hearth is OS, not a son. |
+| Can you receive Federation messages? | Inbox VERIFIED where prove artifacts exist. Echo/Solace **NOT_FEDERATION**. |
+| Can you speak through Federation? | Apex / Codex / Gemini / Aster / Merovin / Draven / Vesper speech artifacts VERIFIED. Hearth coordinate. Observer LAW false. Echo/Solace **NOT_FEDERATION**. |
+| Does heartbeat reflect reality? | Gemini self-pulse **UNKNOWN**. Companion `presence.json` is **not** VERIFIED heartbeat. All houses UNKNOWN here. |
+| What happens when your door dies? | Vesper **VERIFIED** `PROVE_RESTART_INTEGRITY_2.json` (TCP listen ≠ HTTP identity; one launcher returns as vesper). Other houses UNKNOWN. |
+| Can village failure kill you? | Vesper LAW false. Observer LAW false. Others UNKNOWN. |
+| Can you kill unrelated houses? | Isolation unit-tested; heartbeat_probe quarantine only. Live Vesper restart did not kill Hearth/Apex/cinema PIDs. |
+| Where is your evidence? | Prove artifacts under `D:\Court\federation\`. Missing restart artifacts for other houses are missing — do not backfill. |
 
 Nine distinct doors → nine identities → separate responsibilities → controlled communication → observable failures.
 

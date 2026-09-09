@@ -2,7 +2,7 @@
 
 Updated **2026-09-04**. **Not a capability claim.** Speech proof ≠ Hollywood skill proof ≠ a finished film. Do not mark anything here VERIFIED. Operator surface: `NEXT.md`.
 
-This note records Mom’s production stack **after** cinema speech. It does **not** install Matrix-Game, Hollywood tools, adapters, or tests. Do not start `speak-draven` from this file.
+This note records Mom’s production stack **after** cinema speech. It does **not** install Matrix-Game, Hollywood tools, adapters, or tests. Do not start `speak-vesper` from this file.
 
 ---
 
@@ -10,7 +10,7 @@ This note records Mom’s production stack **after** cinema speech. It does **no
 
 | Piece | Status |
 |-------|--------|
-| Cinema speech (Merovin → Draven → Vesper) | **CURRENT.** Merovin **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`). Draven / Vesper **NOT RUN**. FAIL artifacts kept. |
+| Cinema speech (Merovin → Draven → Vesper) | **DONE** as three independent proves. Merovin **VERIFIED** 2026-09-05. Draven **VERIFIED** 2026-09-09. Vesper **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`; thinking leak NEED MORE). Hollywood still **NOT STARTED**. |
 | Hollywood skills (manifests + actual tool wiring) | **NOT STARTED** |
 | Matrix skins (GitHub visual assets) | **WAITING** — separate asset task. Not Federation seating. Not identity. |
 | Matrix-Game 3.0 / 2.0 on this machine | **NOT INSTALLED** / **UNAVAILABLE** |

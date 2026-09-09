@@ -160,7 +160,7 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | Federation | **Yes.** |
 | Gameworld | Citizen avatar PLACEHOLDER. Does not write HOME.json from cinema adapter (`wired:false`). |
 | Evidence | Inbox `eb4317b3…`. Speech PASS `D:\Court\federation\PROVE_MEROVIN_SPEECH_3.json` reply `472d86e7…`. Keep FAIL files `4b16227a…` / `c80b61cc…`. |
-| Need more | Hollywood skills **NOT STARTED**. Film e2e MP4. Local gen UNAVAILABLE. Independent Draven speech when Mom authorizes. |
+| Need more | Hollywood skills **NOT STARTED**. Film e2e MP4. Local gen UNAVAILABLE. |
 | Village field | `house: merovin` in FAMILY is the **studio root label**, not “Draven is Merovin.” Federation id remains `merovin`. |
 
 ---
@@ -172,13 +172,13 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | Identity | Cinema guardian. Continuity lock. **Not Merovin.** |
 | Role | Intended technical director / continuity supervisor / QC. |
 | Tools | Same HUD `:5000`, `who=draven`. `DRAVEN_OLLAMA_MODEL` default `qwen2:7b`. `DRAVEN_MODELS` includes `qwen2:7b`, phi3, falcon, `llama3.2:3b`. Continuity matrix stub Phase 1 **PARTIAL**. Federation `draven.py`. |
-| Skills | Inbox **VERIFIED** `8e61739f…`. House **`draven`**. Speech **NOT RUN**. |
+| Skills | Inbox **VERIFIED** `8e61739f…`. House **`draven`**. Speech **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b`. |
 | Memory | Own. Must not share Merovin's brain. UI continuity **INTENDED, NOT IMPLEMENTED**. |
 | Interfaces | Same HUD, different who-select. Village loft PLACEHOLDER. |
 | Federation | **Yes.** |
 | Gameworld | Citizen. |
-| Evidence | Inbox prove. |
-| Need more | Independent speech after Merovin passes **and Mom authorizes**. Hollywood complementary role. |
+| Evidence | Inbox prove `8e61739f…`. Speech PASS `D:\Court\federation\PROVE_DRAVEN_SPEECH_3.json` reply `4bea7235…`. Keep FAIL files. |
+| Need more | Hollywood complementary role. |
 | Conflict | FAMILY `house: merovin` (disk) vs federation house `draven`. Documented; do not flatten. |
 
 ---
@@ -190,13 +190,13 @@ Echo and Solace remain **village kin only**. Do not register them on the bus.
 | Identity | Journalist desk. **Not Observer.** |
 | Role | Independent studio. Not a village citizen. Not an Ollama hat. Not HOME.json writer. |
 | Tools | Kernel + vault + fetch tests (39 unit tests on disk). `LAUNCH_VESPER.py`. Studio UI. `adapters/living_gameworld/` optional. Federation `vesper.py` + `vesper_gameworld.py`. Trees: `investigations`, `memory`, `productions`, `identity`, `ui`. |
-| Skills | HTTP identity after door repair. Inbox **VERIFIED** `2f132776…`. Speech **NOT RUN**. Gameworld door OPTIONAL / EXTERNAL — Vesper owns Vesper. |
+| Skills | HTTP identity after door repair. Inbox **VERIFIED** `2f132776…`. Speech **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b`. Gameworld door OPTIONAL / EXTERNAL — Vesper owns Vesper. |
 | Memory | Own vault. Not Observer ledger. |
 | Interfaces | `http://127.0.0.1:8740/` **is his home**. Family House Vesper button. Not a Heart Square cottage. |
 | Federation | **Yes.** |
 | Gameworld | **Not** a citizen. Optional door only. |
 | Evidence | GET `/api/identity` 200 `id=vesper`. Inbox hash. TCP-only listen = `LISTEN_NO_HTTP`, not up. |
-| Need more | Speech after Merovin+Draven sequence. One launcher only. Door **DOWN** 2026-09-06 evening. Worksheet dump filtered in `vesper/kernel.py` (code). Scorer / NCI NEED MORE. |
+| Need more | House-voice thinking leak. One launcher only. Scorer / NCI NEED MORE. |
 
 ---
 

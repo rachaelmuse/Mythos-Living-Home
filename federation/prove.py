@@ -1771,6 +1771,220 @@ def prove_draven_speech(
     return report
 
 
+def vesper_speech_artifact_path(root: Path) -> Path:
+    """Never overwrite a prior Vesper speech prove. FAIL stays on disk. Do not touch cinema artifacts."""
+    primary = root / "PROVE_VESPER_SPEECH.json"
+    if not primary.exists():
+        return primary
+    n = 2
+    while True:
+        cand = root / f"PROVE_VESPER_SPEECH_{n}.json"
+        if not cand.exists():
+            return cand
+        n += 1
+
+
+def _stamp_vesper_speech(root: Path, *, spoke: bool, reply_id: str | None) -> None:
+    path = root / "ASTER_ACCEPTANCE.json"
+    data: dict[str, Any] = {}
+    if path.exists():
+        data = json.loads(path.read_text(encoding="utf-8"))
+    stages = data.setdefault("stages", {})
+    stages["vesper_response"] = {
+        "status": "PASS" if spoke else "FAIL",
+        "note": "Vesper studio journalist spoke on the federation bus." if spoke else "Speech adapter failed; no canned line.",
+        "message_id": reply_id,
+    }
+    data["vesper_spoke"] = spoke
+    if spoke:
+        data["note"] = (
+            "Vesper speech seated through his studio. Never Observer. "
+            "Heartbeat-loss isolation remains on throwaway probe."
+        )
+    _recompute_aster_acceptance(data)
+    path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+
+
+def prove_vesper_speech(
+    root: Path | None = None,
+    *,
+    court_roots: list[Path] | None = None,
+    identity_path: Path | None = None,
+    door_fn: Callable[[], dict[str, Any]] | None = None,
+    speak_fn: Callable[[str, str], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Aster asks; Vesper answers through his studio as himself. Not Observer."""
+    from federation.vesper_speech import identity_holds, speak_as_vesper
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    door = door_fn() if door_fn is not None else probe_vesper_door()
+    if not door.get("ok"):
+        report = {
+            "kind": "FEDERATION_VESPER_SPEECH",
+            "declared": "Vesper studio door must be up before a spoken Vesper reply.",
+            "actual": {
+                "root": str(data_root),
+                "participants": sorted(p.agent_id for p in FederationRegistry(data_root).list_participants()),
+                "door_ok": False,
+                "door": door,
+                "vesper_spoke": False,
+                "observer_owns_vesper": None,
+            },
+            "status": HonestStatus.UNAVAILABLE.value,
+            "result": HonestStatus.UNAVAILABLE.value,
+        }
+        artifact = vesper_speech_artifact_path(data_root)
+        report["actual"]["artifact"] = str(artifact)
+        artifact.write_text(
+            json.dumps(report, indent=2, default=str),
+            encoding="utf-8",
+        )
+        return report
+
+    registry = FederationRegistry(data_root)
+    bus = LocalFederationBus(data_root)
+    beats = HeartbeatLog(data_root)
+    adapter = CourtFederationAdapter(roots=court_roots)
+    speaker = speak_fn or speak_as_vesper
+    existing = {p.agent_id for p in registry.list_participants()}
+
+    aster = _load_aster(identity_path)
+    vesper = vesper_manifest_from_identity() if Path(r"D:\Mythos_Vesper\identity\identity.json").exists() else _vesper_stub()
+    registry.register(aster)
+    registry.register(vesper)
+    registry.register(_observer_manifest())
+    registry.register(_hearth_manifest())
+    registry.declare_capability(
+        CapabilityManifest(
+            capability_id="vesper.federation_speech",
+            agent_id="vesper",
+            name="Speak as Vesper on the federation bus",
+            declared=True,
+            adapter_required=True,
+        )
+    )
+
+    ask = "who_are_you"
+    inbound = bus.send(
+        sender="aster",
+        recipient="vesper",
+        message_type="capability_query",
+        payload={"ask": ask, "from": "aster", "note": "speech test — Vesper must answer as himself"},
+    )
+    bus.deliver(inbound.message_id)
+    bus.acknowledge(inbound.message_id, recipient="vesper")
+    registry.record_communication(inbound.message_id, "aster", "vesper")
+
+    spoken = speaker(ask, inbound.message_id)
+    reply_id = None
+
+    def _try_speech() -> dict:
+        nonlocal reply_id
+        text = str(spoken.get("text") or "").strip()
+        adapter_name = str(spoken.get("adapter") or "vesper_studio_http")
+        if not spoken.get("ok") or not text:
+            return {
+                "ok": False,
+                "adapter": adapter_name,
+                "error": spoken.get("error") or "no_text",
+                "text": text or None,
+                "vesper_spoke": False,
+                "connection_test": bool(spoken.get("connection_test")),
+                "functional_test": False,
+            }
+        if "hearth" in adapter_name.lower() or "cinema" in adapter_name.lower():
+            return {
+                "ok": False,
+                "adapter": adapter_name,
+                "error": "wrong_house_refused",
+                "vesper_spoke": False,
+                "connection_test": True,
+                "functional_test": False,
+            }
+        if not identity_holds(text, agent_id="vesper", twin_id="observer"):
+            return {
+                "ok": False,
+                "adapter": adapter_name,
+                "error": "identity_leak_or_unidentified",
+                "text": text,
+                "vesper_spoke": False,
+                "connection_test": True,
+                "functional_test": False,
+            }
+        payload = {
+            "text": text,
+            "from": "vesper",
+            "in_reply_to": inbound.message_id,
+            "adapter": spoken.get("adapter"),
+            "model": spoken.get("model"),
+            "who": spoken.get("who") or "vesper",
+            "house_kernel": spoken.get("house_kernel") or "vesper",
+        }
+        reply = bus.send(
+            sender="vesper",
+            recipient="aster",
+            message_type="spoken_reply",
+            payload=payload,
+        )
+        bus.deliver(reply.message_id)
+        bus.acknowledge(reply.message_id, recipient="aster")
+        registry.record_communication(reply.message_id, "vesper", "aster")
+        beats.pulse("vesper", source="vesper_studio_http")
+        adapter.drop_spoken_reply(
+            message_id=reply.message_id,
+            sender="vesper",
+            recipient="aster",
+            payload=payload,
+        )
+        reply_id = reply.message_id
+        inbox = bus.inbox("aster")
+        found = any(m.message_id == reply.message_id and m.sender == "vesper" for m in inbox)
+        return {
+            "ok": found,
+            "adapter": spoken.get("adapter"),
+            "text": text,
+            "vesper_spoke": True,
+            "reply_id": reply.message_id,
+            "in_reply_to": inbound.message_id,
+            "connection_test": True,
+            "functional_test": True,
+        }
+
+    cap_result = registry.test_capability("vesper.federation_speech", _try_speech)
+    spoke = bool(cap_result.get("status") == "VERIFIED" and (cap_result.get("result") or {}).get("vesper_spoke"))
+    _stamp_vesper_speech(data_root, spoke=spoke, reply_id=reply_id)
+    ids = {p.agent_id for p in registry.list_participants()}
+    if "echo" in ids - existing:
+        raise PermissionError("vesper speech prove must not add village kin")
+    report = {
+        "kind": "FEDERATION_VESPER_SPEECH",
+        "declared": "Vesper journalist spoken reply on local bus through his studio",
+        "actual": {
+            "root": str(data_root),
+            "participants": sorted(ids),
+            "observer_owns_vesper": registry.owner_of("vesper") is not None,
+            "inbound_id": inbound.message_id,
+            "reply_id": reply_id,
+            "vesper_spoke": spoke,
+            "vesper_presence": beats.presence("vesper").value,
+            "door_ok": True,
+            "door": door,
+            "capability": cap_result,
+            "model": spoken.get("model"),
+        },
+        "full_aster_acceptance": False,
+        "status": cap_result["status"],
+        "result": cap_result["status"],
+    }
+    artifact = vesper_speech_artifact_path(data_root)
+    report["actual"]["artifact"] = str(artifact)
+    artifact.write_text(
+        json.dumps(report, indent=2, default=str),
+        encoding="utf-8",
+    )
+    return report
+
+
 def _stamp_hearth_coordinate(root: Path, *, coordinated: bool, reply_id: str | None) -> None:
     path = root / "ASTER_ACCEPTANCE.json"
     data: dict[str, Any] = {}
@@ -2938,6 +3152,373 @@ def prove_leave_return(
     return report
 
 
+def _home_fingerprint(path: Path | None) -> str | None:
+    if path is None or not Path(path).is_file():
+        return None
+    import hashlib
+
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _home_identity_slice(path: Path | None) -> dict[str, Any] | None:
+    """Vesper must not become a village person. Hearth clock ticks are not a Vesper write."""
+    if path is None or not Path(path).is_file():
+        return None
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except Exception:
+        return {"error": "unreadable"}
+    if not isinstance(data, dict):
+        return {"error": "not_object"}
+    people = data.get("people") if isinstance(data.get("people"), dict) else {}
+    return {
+        "people_ids": sorted(people),
+        "vesper_in_people": "vesper" in people,
+        "federation": data.get("federation"),
+    }
+
+
+def restart_artifact_path(root: Path) -> Path:
+    """Never overwrite a prior restart prove. FAIL stays on disk."""
+    primary = root / "PROVE_RESTART_INTEGRITY.json"
+    if not primary.exists():
+        return primary
+    n = 2
+    while True:
+        cand = root / f"PROVE_RESTART_INTEGRITY_{n}.json"
+        if not cand.exists():
+            return cand
+        n += 1
+
+
+def _default_house_doors() -> list[dict[str, Any]]:
+    from federation.vesper_gameworld import snapshot as vesper_gw
+
+    try:
+        from living_home import _house_doors
+
+        return _house_doors()
+    except Exception:
+        return [
+            {
+                "id": "vesper",
+                "who": [],
+                "url": "http://127.0.0.1:8740/",
+                "status": "CLOSED",
+                "gameworld": vesper_gw(),
+            }
+        ]
+
+
+def prove_vesper_gameworld_door(
+    root: Path | None = None,
+    *,
+    home_json: Path | None = None,
+    door_fn: Callable[[], dict[str, Any]] | None = None,
+    house_doors_fn: Callable[[], list[dict[str, Any]]] | None = None,
+) -> dict[str, Any]:
+    """Optional Gameworld door. Vesper owns Vesper. No HOME.json. Not a citizen. Not Observer."""
+    from federation.vesper_gameworld import snapshot as vesper_gw
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    data_root.mkdir(parents=True, exist_ok=True)
+    home = Path(home_json) if home_json is not None else Path(r"D:\Mythos_Hearth\data\living_home\HOME.json")
+    before = home.read_text(encoding="utf-8") if home.is_file() else None
+    snap = vesper_gw()
+    door = door_fn() if door_fn is not None else probe_vesper_door()
+    doors = house_doors_fn() if house_doors_fn is not None else _default_house_doors()
+    vesper_door = next((d for d in doors if d.get("id") == "vesper"), None)
+    who = list((vesper_door or {}).get("who") or [])
+    after = home.read_text(encoding="utf-8") if home.is_file() else None
+    writes = before is not None and after != before
+    citizen = bool(snap.get("village_citizen")) or bool(who)
+    observer = bool(snap.get("observer")) or str(door.get("id") or "") == "observer"
+    required = bool(snap.get("gameworld_required"))
+    door_ok = bool(door.get("ok")) and str(door.get("id") or "") == "vesper"
+    ok = (
+        not writes
+        and not citizen
+        and not observer
+        and not required
+        and not snap.get("writes_home_json")
+        and door_ok
+        and who == []
+    )
+    if not door_ok:
+        status = HonestStatus.UNAVAILABLE.value
+    elif writes or citizen or observer or required:
+        status = HonestStatus.FAILED.value
+    elif ok:
+        status = HonestStatus.VERIFIED.value
+    else:
+        status = HonestStatus.FAILED.value
+    report = {
+        "kind": "FEDERATION_VESPER_GAMEWORLD_DOOR",
+        "declared": "Optional Gameworld door. Vesper owns Vesper. No HOME.json. Not a citizen. Not Observer.",
+        "actual": {
+            "root": str(data_root),
+            "door": door,
+            "snapshot": snap,
+            "house_door": vesper_door,
+            "writes_home_json": bool(writes or snap.get("writes_home_json")),
+            "village_citizen": bool(citizen),
+            "observer": bool(observer),
+            "vesper_required_for_hearth": bool(required),
+            "home_unchanged": before == after,
+        },
+        "status": status,
+        "result": status,
+    }
+    (data_root / "PROVE_VESPER_GAMEWORLD_DOOR.json").write_text(
+        json.dumps(report, indent=2, default=str),
+        encoding="utf-8",
+    )
+    return report
+
+
+def prove_isolation_matrix(root: Path | None = None) -> dict[str, Any]:
+    """Honest Identity / Isolation Matrix. Do not invent Gemini pulse."""
+    from federation.isolation import build_matrix, matrix_markdown
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    data_root.mkdir(parents=True, exist_ok=True)
+    matrix = build_matrix(artifact_root=data_root)
+    invented = bool(matrix.get("invented_pulses"))
+    gemini_pulse = matrix.get("gemini_self_pulse")
+    echo_inbox = matrix["houses"]["echo"]["federation_inbox"]["status"]
+    ok = (
+        not invented
+        and gemini_pulse == "UNKNOWN"
+        and echo_inbox == "NOT_FEDERATION"
+        and matrix["houses"]["vesper"]["village_citizen"]["value"] is False
+        and matrix["houses"]["vesper"]["is_observer"]["value"] is False
+    )
+    status = HonestStatus.VERIFIED.value if ok else HonestStatus.FAILED.value
+    report = {
+        "kind": "FEDERATION_ISOLATION_MATRIX",
+        "declared": "Fill cells from law and artifacts. Do not invent Gemini last_seen.",
+        "actual": matrix,
+        "markdown": matrix_markdown(matrix),
+        "status": status,
+        "result": status,
+    }
+    (data_root / "PROVE_ISOLATION_MATRIX.json").write_text(
+        json.dumps(report, indent=2, default=str),
+        encoding="utf-8",
+    )
+    (data_root / "ISOLATION_MATRIX.md").write_text(matrix_markdown(matrix), encoding="utf-8")
+    return report
+
+
+def prove_restart_integrity(
+    root: Path | None = None,
+    *,
+    cycle_agent: str = "vesper",
+    probe_fn: Callable[[], dict[str, Any]] | None = None,
+    stop_fn: Callable[[], dict[str, Any]] | None = None,
+    start_fn: Callable[[], dict[str, Any]] | None = None,
+    home_json: Path | None = None,
+) -> dict[str, Any]:
+    """One launcher = one kernel = one HTTP door. Cycle Vesper only unless injected."""
+    from federation.restart import (
+        evaluate_door,
+        probe_vesper_live,
+        start_vesper_live,
+        stop_vesper_live,
+    )
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    data_root.mkdir(parents=True, exist_ok=True)
+    home = Path(home_json) if home_json is not None else Path(r"D:\Mythos_Hearth\data\living_home\HOME.json")
+    artifact = restart_artifact_path(data_root)
+    if cycle_agent != "vesper" and probe_fn is None:
+        report = {
+            "kind": "FEDERATION_RESTART_INTEGRITY",
+            "declared": "Live restart cycles Vesper only. Do not kill Hearth/Apex/Codex/cinema.",
+            "actual": {"cycle_agent": cycle_agent, "error": "live_cycle_vesper_only", "artifact": str(artifact)},
+            "status": HonestStatus.FAILED.value,
+            "result": HonestStatus.FAILED.value,
+        }
+        artifact.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+        return report
+
+    probe = probe_fn or probe_vesper_live
+    stop = stop_fn or stop_vesper_live
+    start = start_fn or start_vesper_live
+    before_hash = _home_fingerprint(home)
+    before_slice = _home_identity_slice(home)
+    before = probe()
+    pids_before = list(before.get("pids") or [])
+    stacked = bool(before.get("duplicate_launchers")) or len(pids_before) > 1
+    if stacked:
+        after_eval = evaluate_door({**before, "expected_id": cycle_agent})
+        report = {
+            "kind": "FEDERATION_RESTART_INTEGRITY",
+            "declared": "One launcher = one kernel = one HTTP door. TCP listen is not identity.",
+            "actual": {
+                "cycle_agent": cycle_agent,
+                "before": before,
+                "after_identity": before.get("id") or before.get("identity"),
+                "duplicate_launchers": True,
+                "phantom_online": bool(after_eval.get("phantom_online")),
+                "error": "stacked_launchers",
+                "home_unchanged": _home_identity_slice(home) == before_slice,
+                "vesper_in_people": bool((before_slice or {}).get("vesper_in_people")),
+                "artifact": str(artifact),
+            },
+            "status": HonestStatus.FAILED.value,
+            "result": HonestStatus.FAILED.value,
+        }
+        artifact.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+        return report
+
+    stop_result = stop() or {"ok": True}
+    mid = probe()
+    start_result = start() or {"ok": True}
+    after = probe()
+    after_eval = evaluate_door({**after, "expected_id": cycle_agent})
+    ident = after.get("id") or after.get("identity")
+    mid_down = not bool(mid.get("ok")) and not bool(mid.get("tcp"))
+    after_hash = _home_fingerprint(home)
+    after_slice = _home_identity_slice(home)
+    phantom = bool(after_eval.get("phantom_online"))
+    duplicate = bool(after.get("duplicate_launchers")) or len(list(after.get("pids") or [])) > 1
+    observer = ident == "observer"
+    same = ident == cycle_agent and bool(after.get("ok") or after_eval.get("identity_ok"))
+    vesper_citizen = bool((after_slice or {}).get("vesper_in_people"))
+    identity_home_same = after_slice == before_slice
+    ok = (
+        bool(stop_result.get("ok", True))
+        and bool(start_result.get("ok", True))
+        and mid_down
+        and same
+        and not observer
+        and not duplicate
+        and not phantom
+        and identity_home_same
+        and not vesper_citizen
+    )
+    if observer or (ident and ident != cycle_agent):
+        status = HonestStatus.FAILED.value
+    elif ok:
+        status = HonestStatus.VERIFIED.value
+    elif not after.get("ok"):
+        status = HonestStatus.UNAVAILABLE.value
+    else:
+        status = HonestStatus.FAILED.value
+    report = {
+        "kind": "FEDERATION_RESTART_INTEGRITY",
+        "declared": "After restart: one process, correct HTTP identity, no phantom online, Vesper not written into HOME.json.",
+        "actual": {
+            "cycle_agent": cycle_agent,
+            "before": before,
+            "mid": mid,
+            "after": after,
+            "stop": stop_result,
+            "start": start_result,
+            "after_identity": ident,
+            "door_status": after_eval.get("status"),
+            "duplicate_launchers": duplicate,
+            "phantom_online": phantom,
+            "home_unchanged": identity_home_same,
+            "home_bytes_changed": after_hash != before_hash,
+            "vesper_in_people": vesper_citizen,
+            "people_ids": (after_slice or {}).get("people_ids"),
+            "mid_closed": mid_down,
+            "artifact": str(artifact),
+        },
+        "status": status,
+        "result": status,
+    }
+    artifact.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+    return report
+
+
+def organic_artifact_path(root: Path) -> Path:
+    """Never overwrite a prior organic prove. FAIL stays on disk."""
+    primary = root / "PROVE_ORGANIC_REASON.json"
+    if not primary.exists():
+        return primary
+    n = 2
+    while True:
+        cand = root / f"PROVE_ORGANIC_REASON_{n}.json"
+        if not cand.exists():
+            return cand
+        n += 1
+
+
+def prove_organic_reason(root: Path | None = None) -> dict[str, Any]:
+    """Reason to speak vs silent. Presence is not a chorus. No live Ollama. Not a scheduler."""
+    from federation.events import (
+        AUDIENCE,
+        KIND_CONTINUES,
+        KIND_ENTERED,
+        EventFabric,
+        chosen_speakers,
+        decide_attention,
+        fanout_event,
+    )
+
+    data_root = Path(root or DEFAULT_DATA_ROOT)
+    data_root.mkdir(parents=True, exist_ok=True)
+    bus = LocalFederationBus(data_root)
+    fabric = EventFabric(data_root)
+    entered = fabric.publish(
+        kind=KIND_ENTERED,
+        actor="rachael",
+        place="heart_square",
+        text="Rachael entered Heart Square.",
+    )
+    fanout_event(bus, entered, audience=AUDIENCE, publisher="hearth")
+    enter_decisions = {agent: decide_attention(agent, entered) for agent in AUDIENCE}
+    continues = fabric.publish(
+        kind=KIND_CONTINUES,
+        actor="hearth",
+        place="heart_square",
+        text="The square continues while Mom is away.",
+    )
+    fanout_event(bus, continues, audience=AUDIENCE, publisher="hearth")
+    speakers = list(chosen_speakers(continues, audience=AUDIENCE))
+    silent = [agent for agent in AUDIENCE if agent not in speakers]
+    # This prove never calls apply_chosen_speech / Ollama. Do not count historic
+    # spoken_reply rows on the live Court bus as this run's chorus.
+    spoken = 0
+    chorus = any(d == "speak" for d in enter_decisions.values())
+    ok = (
+        not chorus
+        and enter_decisions.get("gemini") == "ignored"
+        and spoken == 0
+        and len(speakers) <= 1
+        and "gemini" in silent
+        and bool(speakers)
+    )
+    status = HonestStatus.VERIFIED.value if ok else HonestStatus.FAILED.value
+    artifact = organic_artifact_path(data_root)
+    report = {
+        "kind": "FEDERATION_ORGANIC_REASON",
+        "declared": "Enter is notice, not a hello chorus. Continues: at most one speaker. Gemini may stay silent. Not a scheduler.",
+        "actual": {
+            "root": str(data_root),
+            "enter_event_id": entered["event_id"],
+            "continues_event_id": continues["event_id"],
+            "enter_decisions": enter_decisions,
+            "continues_speakers": speakers,
+            "continues_silent": silent,
+            "forced_hello": False,
+            "scheduler": False,
+            "spoken_replies": spoken,
+            "reason_to_speak": bool(speakers),
+            "reason_to_stay_silent": "gemini" in silent,
+            "live_ollama": False,
+            "artifact": str(artifact),
+        },
+        "status": status,
+        "result": status,
+    }
+    artifact.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+    return report
+
+
 if __name__ == "__main__":
     if "status" in sys.argv:
         print(json.dumps(status_check(), indent=2, default=str))
@@ -2951,6 +3532,16 @@ if __name__ == "__main__":
         print(json.dumps(prove_leave_return(), indent=2, default=str))
     elif "hearth" in sys.argv:
         print(json.dumps(prove_hearth_coordinate(), indent=2, default=str))
+    elif "vesper-door" in sys.argv or "gameworld" in sys.argv:
+        print(json.dumps(prove_vesper_gameworld_door(), indent=2, default=str))
+    elif "isolation" in sys.argv:
+        print(json.dumps(prove_isolation_matrix(), indent=2, default=str))
+    elif "restart" in sys.argv:
+        print(json.dumps(prove_restart_integrity(), indent=2, default=str))
+    elif "organic" in sys.argv:
+        print(json.dumps(prove_organic_reason(), indent=2, default=str))
+    elif "speak-vesper" in sys.argv:
+        print(json.dumps(prove_vesper_speech(), indent=2, default=str))
     elif "speak-draven" in sys.argv:
         print(json.dumps(prove_draven_speech(), indent=2, default=str))
     elif "speak-merovin" in sys.argv:

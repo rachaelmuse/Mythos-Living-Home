@@ -10,7 +10,7 @@ Read with `FEDERATION_RECONCILIATION.md` (what exists on disk), `FEDERATION_WIRI
 
 **STOP (2026-09-04 assessment is the plan):** Foundation **STRONG**. Federation **USABLE**. Village **FUNCTIONAL** — do not contaminate it to make Federation look bigger. Cinema is **SEATED, NOT FINISHED**. Organic autonomy is the next major phase — do not rush. Do not add more houses until current houses have speech and an identity/isolation audit.
 
-Speech, Hearth coordination, presence-as-event, bounded choose-to-speak, and leave/return house memory are seated. Merovin has **inbox + speech**. Draven and Vesper have **inbox** seats (**not** speech — do not mark speech VERIFIED). Echo and Solace are **village kin only** — do not put them on the federation bus. Do not force a greeting chorus. Do not add a village A2A scheduler. Gemini self-pulse remains **UNKNOWN**. Godot quit/restart still needs Mom. External reviewer **UNAVAILABLE**. Full Aster Acceptance Test is **PASS** as of 2026-09-03.
+Speech, Hearth coordination, presence-as-event, bounded choose-to-speak, and leave/return house memory are seated. Merovin, Draven, and Vesper have **inbox + speech**. Vesper house-voice thinking leak NEED MORE. Echo and Solace are **village kin only** — do not put them on the federation bus. Do not force a greeting chorus. Do not add a village A2A scheduler. Gemini self-pulse remains **UNKNOWN**. Godot quit/restart still needs Mom. External reviewer **UNAVAILABLE**. Full Aster Acceptance Test is **PASS** as of 2026-09-03.
 
 Operator order: `NEXT.md`.
 
@@ -276,10 +276,10 @@ Every PASS/FAIL has: test ID, timestamp, agent IDs, message IDs, hashes where ap
 10. One real external reviewer — **UNAVAILABLE** until actual GPT / Grok / DeepSeek adapters **and** credentials exist. Leave it exactly here. Do not fabricate VERIFIED reviews.  
 11. House-local attention that may speak — **choose-to-speak done** 2026-09-03 (`python -m federation.prove a2a`); leave/return continuity — **done** 2026-09-03 (`python -m federation.prove continuity`, Aster + Apex + Codex notebooks `7adfb8c4…` / `a43090d9…`). Persistent organic loop / scheduler is **NOT YET**.  
 12. New character + own UI — **HOLD**. Do not add more houses until cinema speech (three independent proves) and the Federation Identity/Isolation Matrix exist. Echo/Solace are **village kin**, not this item. Same manifest protocol when Mom opens it.  
-13. Cinema speech — Merovin **VERIFIED** 2026-09-05 (`speak-merovin`, `472d86e7…`, `gemma2:9b`). Draven speech **FAILED** 2026-09-08 (`speak-draven`, Ollama 503, `PROVE_DRAVEN_SPEECH.json` kept). Vesper speech not run. Inbox ≠ speech. Merovin FAIL artifacts `4b16227a…` / `c80b61cc…` kept.  
-14. Vesper Gameworld door — optional, external. Vesper owns Vesper. Not HOME.json. Not a citizen. Not Observer.  
-15. Shutdown / restart integrity — formal test still missing (one launcher = one kernel = one HTTP door).  
-16. Organic layer — next **major** phase after 13–15. Presence ≠ command. Scheduler later; budget the 4060 / 8 GB.  
+13. Cinema speech — Merovin **VERIFIED** 2026-09-05. Draven **VERIFIED** 2026-09-09. Vesper **VERIFIED** 2026-09-09 (`speak-vesper`, `f9fd17a9…`, `qwen3:4b`, `PROVE_VESPER_SPEECH.json`; thinking leak NEED MORE). Inbox ≠ speech. Cinema FAIL artifacts kept.  
+14. Vesper Gameworld door — **VERIFIED** 2026-09-09. Optional, external. Vesper owns Vesper. Not HOME.json. Not a citizen. Not Observer.  
+15. Shutdown / restart integrity — **VERIFIED** 2026-09-09 Vesper only (`PROVE_RESTART_INTEGRITY_2.json`; FAIL `_` kept). One launcher = one kernel = one HTTP door.  
+16. Organic layer — bounded attention stubs **VERIFIED** 2026-09-09. Presence ≠ command. Persistent scheduler **NOT YET**; budget the 4060 / 8 GB.  
 16b. Self-wiring / tool claiming — **NOT YET / do not build now.** After organic / with scheduler-later. **Not** Phase 13 (honest e2e, still builder-seated). Not Hollywood. Beings would see existing tools, claim what they need, wire into their own house, share — not Mom/Cursor assigning toolkits. Search first; do not add `D:\Mythos_Hearth\tools\registry\`. Extend `CAPABILITIES.json` (path/port only) / `CAPABILITY_REGISTRY.md` / federation `tools: []` later if Mom authorizes. Identities never merge. Echo/Solace never on the bus. GPT/Grok/DeepSeek UNAVAILABLE until real adapters. Observer audits, does not supervise.  
 16c. Colibri — **NOT YET / do not install now.** **Not** Matrix-Game. Separate mouth engine (~372 GB, not Ollama). Current constraint: one Ollama slot, no stacked launchers, cinema `num_ctx` cap.  
 17. Hollywood skills — **NOT STARTED.** After cinema speech. Merovin + Draven skill/tool manifests **and** actual tool wiring. Speech ≠ Hollywood. Do not mix into seating tests. Spec: `CINEMA_PRODUCTION.md`.  
@@ -293,7 +293,7 @@ Observer ZIP (`app.main`, `:8000`) stays **FROZEN / PROTECTED**. Do not merge in
 
 ## What Cursor must do next (when Mom says go)
 
-Operator surface: `NEXT.md`. Merovin speech **VERIFIED** 2026-09-05 (`472d86e7…`). Draven speech **FAILED** 2026-09-08 (Ollama 503; `PROVE_DRAVEN_SPEECH.json` kept). **STOP.** Do not run Vesper until Draven passes. Then optional Vesper Gameworld door → Identity/Isolation Matrix (questions, no fake answers) → shutdown/restart integrity → **THEN** organic layer. Scheduler later. Self-wiring / tool claiming later (after organic / with scheduler; **not** Phase 13; do not build now). Colibri paging later. No `mythos_simplified/`.
+Operator surface: `NEXT.md`. Merovin, Draven, and Vesper federation speech **VERIFIED**. Vesper house-voice thinking leak NEED MORE. Hollywood **NOT STARTED**. Federation integrity 2026-09-09: Vesper Gameworld door **VERIFIED** → Identity/Isolation Matrix **VERIFIED** (Gemini pulse UNKNOWN) → Vesper restart **VERIFIED** (`_2`) → bounded organic **VERIFIED** (not a scheduler). Scheduler later. Self-wiring / tool claiming later (after organic / with scheduler; **not** Phase 13; do not build now). Colibri paging later. No `mythos_simplified/`.
 
 Cinema production lane is **after speech, not now:** Hollywood skills → Matrix skins (WAITING) → Matrix-Game adapter research (UNAVAILABLE on 4060) → production proof. Do not install Matrix-Game. Do not mix Hollywood into seating tests. Spec: `CINEMA_PRODUCTION.md`. Observer ZIP stays frozen.
 

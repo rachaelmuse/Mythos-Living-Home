@@ -89,8 +89,8 @@ Source: `PHASE_LAYERS.md`, `BASELINE.md`, `FAMILY_PHASES.md`, `GAMEPLAY_LAYER.md
 | Leave/return notebooks | **VERIFIED** | `7adfb8c4…` / `a43090d9…` Aster+Apex+Codex | Echo/Solace **forbidden** |
 | Consume notice | **LIVE** | CLI `consume` | Gameworld consuming packets still NEED MORE |
 | Merovin inbox | **VERIFIED** | `eb4317b3…` | Speech **VERIFIED** 2026-09-05 |
-| Draven inbox | **VERIFIED** | `8e61739f…` | Speech **NOT RUN** |
-| Vesper inbox | **VERIFIED** | `2f132776…` | Speech **NOT RUN**. Optional Gameworld door unproven |
+| Draven inbox | **VERIFIED** | `8e61739f…` | Speech **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b`. FAILs kept |
+| Vesper inbox | **VERIFIED** | `2f132776…` | Speech **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` (thinking leak NEED MORE). Optional Gameworld door unproven |
 | Item 10 external reviewers | **UNAVAILABLE** | No adapters/credentials | Leave exactly here |
 | Isolation matrix | Questions only | `FEDERATION_RECONCILIATION.md` | Fill after tests |
 | Shutdown/restart integrity | Tribal (Vesper) | TCP ≠ HTTP | Formal prove **NOT STARTED** |
@@ -106,7 +106,7 @@ Source: `PHASE_LAYERS.md`, `BASELINE.md`, `FAMILY_PHASES.md`, `GAMEPLAY_LAYER.md
 |-------|---------|-----------|
 | Cinema HUD `:5000` two mouths | LIVE when HUD up | Keep one studio, two identities |
 | MD_Cinema Phase 1 | PARTIAL (`smoke_phase1.py` PASS 2026-08-27) | Not a finished film; e2e MP4 NEED MORE |
-| Federation speech | Merovin **VERIFIED** 2026-09-05 `472d86e7…` `gemma2:9b`. Draven/Vesper **NOT RUN** | Independent Draven prove when Mom authorizes. FAIL artifacts kept |
+| Federation speech | Merovin **VERIFIED** 2026-09-05 `472d86e7…` `gemma2:9b`. Draven **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b`. Vesper **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` (thinking leak NEED MORE) | Hollywood **NOT STARTED**. Isolation matrix next. |
 | Hollywood skills | **NOT STARTED** | After all three speech proofs |
 | Matrix skins (GitHub) | **WAITING** | Separate asset task |
 | Matrix-Game 3.0/2.0 | **UNAVAILABLE** on Windows 4060 8GB | Adapter after Hollywood. Do not install expecting demo quality |
@@ -172,8 +172,8 @@ Inspected 2026-09-04 (`ollama list`): `gemma2:9b` (5.4 GB), `llama3.1:8b` (4.9 G
 Do not skip. Do not mix Hollywood into seating.
 
 1. **Merovin speech** — **VERIFIED** 2026-09-05 `speak-merovin` `472d86e7…` `gemma2:9b` after cinema `num_ctx` cap. Preserve FAIL `PROVE_MEROVIN_SPEECH.json` `4b16227a…` and `_2.json` `c80b61cc…`.
-2. **Draven speech** — only after Mom authorizes after reviewing Merovin.
-3. **Vesper speech** — after Draven. One launcher. `GET :8740/api/identity` first.
+2. **Draven speech** — **VERIFIED** 2026-09-09 `speak-draven` `4bea7235…` `qwen2:7b`. Preserve FAIL `PROVE_DRAVEN_SPEECH.json` `88b297f2…` and `_2.json` `b20af13a…`.
+3. **Vesper speech** — **VERIFIED** 2026-09-09 `speak-vesper` `f9fd17a9…` `qwen3:4b`. Thinking leak NEED MORE. One launcher.
 4. Cinema Seating/Speech Reconciliation Report — only if all three pass.
 5. Then **pause construction** for a cross-house behavioral observe (who notices / speaks / stays silent) — not an unrestricted scheduler.
 6. Hollywood skills (manifests + actual wiring). Speech ≠ Hollywood.
