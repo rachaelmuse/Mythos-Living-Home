@@ -22,7 +22,7 @@ Updated **2026-09-09**. Evidence only. Assessment accepted as the plan: `NEXT.md
 | **Green** | Merovin speech | **VERIFIED** 2026-09-05 `472d86e7…` `gemma2:9b` after cinema `num_ctx` cap. FAILs `4b16227a…` / `c80b61cc…` kept |
 | **Green** | Draven speech | **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b` after empty Ollama slot. FAILs `88b297f2…` / `b20af13a…` kept. Not Merovin. |
 | **Green** | Merovin / Draven | Seated identity (inbox). Both federation speech VERIFIED. Two mouths, one studio. |
-| **Green** | Vesper speech | **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` through `:8740`. **House-voice CLOSED 2026-09-10** — Mom chose `phi3:mini`; `_13` clean two-sentence line (`85b83143…`). Not Observer. |
+| **Green** | Vesper speech | **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` through `:8740`. **House-voice CLOSED 2026-09-10** — Mom chose `phi3:mini`; `_13` clean line (`85b83143…`). **Tuned voice VERIFIED `_15`** (`310b8174…`) — journalist closer, assistant offer dropped. Not Observer. |
 | **Green** | Echo / Solace | Village-only — correctly not on the bus |
 | **Yellow** | House doors tonight | 2026-09-06 evening: Hearth / Observer / Vesper / Apex / Cinema **DOWN**. Aster + Codex **UP**. Dated proves still stand. See `NEXT.md` desk check |
 | **Yellow** | Codex Live Ops voice | Male Ryan **seated in UI** 2026-09-06. Listen **UNVERIFIED**. `rich` / `psutil` still missing |
