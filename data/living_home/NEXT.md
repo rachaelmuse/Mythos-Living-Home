@@ -1,22 +1,28 @@
 # Living Home — where we are
 
 Kernel: `D:\Mythos_Hearth\living_home.py`  
-House UI: **http://127.0.0.1:8790/house.html** → **Living Home**  
-Enter: Desktop **Mythos Living Home - Enter**  
-Tracker: `data/living_home/PHASE_LAYERS.md`
+House UI: **http://127.0.0.1:8790/house.html**  
+Aster lab door: **http://127.0.0.1:8791/ui/** · `D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat`  
+Dashboard: **http://127.0.0.1:8790/dashboard**  
+Living overview API: **http://127.0.0.1:8790/api/home/dashboard**  
+Presence: **POST http://127.0.0.1:8790/api/home/presence**  
+Day story: **http://127.0.0.1:8790/api/home/day_story**  
+Gameplay: **http://127.0.0.1:8790/api/home/gameplay**  
+Enter: Desktop **Mythos Living Home - Enter**
 
 ## CURRENT PHASE
 
-**Layer 15 — Connection** (15A prove → 15B choice → 15C growth → 15D dash).  
-**Layer 16 — Integration & Autonomous Life (Phase 6)** is **QUEUED** after 15 closes.
+**16E Mom presence polish ACTIVE** (enter/place notices; no house-voice spam).  
+16A–16D ACTIVE. Human Gameplay Phase 1 scaffold ACTIVE.
 
 ## Next task
 
-1. Finish proving **15A** in the village (gift / talk / bond / mood).
-2. Then **15B** (weighted who-to-be-with choices).
-3. Then **15C–15D**.
-4. Only then open **16A** (tick integration — no mega background engine).
+1. **Restart Hearth** + Enter (Apex Godot) — walk places; confirm welcome/away cover and nearby purpose notices without forced bystander speech.
+2. Optional: `POST /api/home/presence` with `{"place":"heart_square","session_enter":true}`.
+3. Then Gameplay Phase 2 thin, optional 14E–14F, or Layer 17 later. Phase 13 last.
 
-Ops: shops live on **Market Lane** north of the Gate — restart Hearth + Enter if you have not since the move.
+## Saved for later
+
+Gameplay Phase 2+ · Pods/Islands · Layer 17 Matrix · Phase 13 last.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.

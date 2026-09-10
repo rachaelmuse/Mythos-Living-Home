@@ -2,27 +2,24 @@
 
 ## CURRENT PHASE
 
-**Layer 15 Connection IN PROGRESS** (15A).  
-**Layer 16 Integration & Autonomous Life QUEUED** (Phase 6 — after 15).
+**16E ACTIVE** · 16A–16D ACTIVE · Human Gameplay Phase 1 scaffold ACTIVE.
 
 ## Closed
 
-- Sound · media · harbor · gather heal · wallets · four shops · stipend · thin avatar colors · Market Lane shop spacing
+- Sound · media · harbor · economy 14A–14D · Market Lane · 15A–15D · Aster · **16A–16E** · Windmill
 
 ## Standing order
 
-**15A → 15B → 15C → 15D → 16A–16E → (optional 14E–14F) → Phase 13 last.**
+**Gameplay Phase 2 (investigation/professions) → (optional 14E–14F) → Layer 17 Matrix → Phase 13 last.**
 
-## Queued Phase 6 (Layer 16) — thin slices only
+## Family note
 
-| Slice | Intent |
-|-------|--------|
-| 16A | Integrate via existing Hearth tick (not a second HOME writer) |
-| 16B | Stronger autonomous period life (wake/work/social/rest) |
-| 16C | Day story from world_history (honest summary) |
-| 16D | Living dashboard overview |
-| 16E | Mom presence polish |
+- **Aster** — lab `:8791` · brain `qwen3:4b`. Needs Ollama models loaded to speak.
+- **Presence** — `POST /api/home/presence`; Godot posts on enter/place change. No template house-voice.
+- **Gameplay** — opportunities only; residents are not quest dispensers.
+- **Dashboard** — window into Hearth only; not a second brain.
+- **Pods/Islands** — not on disk yet; not claimed.
 
 ## Next
 
-Prove 15A in village; then 15B. Do not jump to Phase 6 or Phase 13 yet.
+Mom: restart Hearth + Enter; walk the square and confirm 16E welcome/place notices.
