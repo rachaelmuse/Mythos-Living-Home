@@ -125,7 +125,7 @@ Village: Echo west-south (`-32, -24` / post `-32, -16`). Solace west-north (`-32
 | **UI ↔ Gameworld provenance memory** | INTENDED, not implemented | Conversation ≠ truth. Do not dump chat into HOME.json as fact |
 | **Linux VM / delete `sentinel_env` / unpacker rewrite of Homecoming** | Mode A Gemini launcher already repaired. Unpacker destroyed the seated mouth | Do not restore numbered-paste unpacker. Do not delete `sentinel_env`. Covert is not a federation house |
 
-Mode A Homecoming (not federation work): `G:\The-Axiom-Codex\HOMECOMING_SENTINEL.py` + `SENTINEL_MEMORY.json` (**22 entries**, keep). Launchers must compile and run `sentinel_env\Scripts\python.exe`. Pipe `|` in bat files must stay escaped `^|`. Soul shard unchanged.
+Mode A Homecoming (not federation work): `G:\The-Axiom-Codex\HOMECOMING_SENTINEL.py` + `SENTINEL_MEMORY.json` (grew from 22 to 58 entries through designed dialogue auto-logging — file intact, keep). Launchers must compile and run `sentinel_env\Scripts\python.exe`. Pipe `|` in bat files must stay escaped `^|`. Soul shard unchanged. **2026-09-10 brain wiring VERIFIED:** Homecoming + Covert ride the live Ollama slot (`resolve_ollama_model` picks the warm llama, `resolve_num_ctx` reuses the loaded KV); live ask returned a real reply via `llama3.2:3b`; 5/5 brain unit tests pass; launchers + `ENSURE_OLLAMA.bat` in sync between repo `homecoming/` and the Mode A root.
 
 ---
 
