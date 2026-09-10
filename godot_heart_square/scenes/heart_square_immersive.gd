@@ -57,6 +57,18 @@ var _amb_music: AudioStreamPlayer
 var _sound_period := ""
 var _sound_place := ""
 var _last_holiday_id := ""
+var _water_bucket := 0
+var _dest_builds := 0
+var _at_far_shore := false
+var _cinema_screen: MeshInstance3D
+var _cinema_screen_mat: StandardMaterial3D
+var _cinema_title: Label3D
+var _watching := false
+var _watch_pulse := 0.0
+const FAR_SHORE := Vector3(8.0, 0.2, 68.0)
+const HARBOR_SHIP := Vector3(-6.5, 0.2, 52.5)
+const VILLAGE_WELL := Vector3(-8.5, 0.0, 7.5)
+const VILLAGE_POOL := Vector3(4.0, 0.0, -36.0)
 
 
 func _ready() -> void:
@@ -99,7 +111,10 @@ func _build_world() -> void:
 	_sun.rotation_degrees = Vector3(-42, 35, 0)
 	add_child(_sun)
 
-	_add_box(Vector3(0, -0.05, 0), Vector3(90, 0.1, 90), Color(0.26, 0.4, 0.26), true, "Ground")
+	_add_box(Vector3(0, -0.05, 0), Vector3(100, 0.1, 100), Color(0.26, 0.4, 0.26), true, "Ground")
+	# Extra land north so the harbor + far shore sit outside the cottage ring
+	_add_box(Vector3(0, -0.05, 52), Vector3(100, 0.1, 36), Color(0.25, 0.38, 0.24), true, "GroundHarbor")
+	_add_box(Vector3(8, -0.05, 70), Vector3(28, 0.1, 16), Color(0.24, 0.36, 0.22), true, "GroundFarShore")
 	_add_box(Vector3(0, 0.02, 0), Vector3(12, 0.04, 12), Color(0.42, 0.36, 0.28), false, "Plaza")
 	# Paths to districts (spaced layout — matches Hearth PLACES)
 	_add_box(Vector3(0, 0.025, -8), Vector3(3.2, 0.03, 12), Color(0.4, 0.34, 0.26), false, "PathHearth")
@@ -240,7 +255,7 @@ func _build_family_places() -> void:
 	_furnish(Vector3(10, 0, -18), "cottage")
 	_add_porch_light(Vector3(10, 2.2, -15.4), Color(0.55, 0.95, 0.7))
 	_add_home_sign(Vector3(10, 3.3, -15.4), "Percy cottage", Color(0.65, 0.9, 0.75))
-	_add_box(Vector3(-30, 0.04, 10), Vector3(5.5, 0.08, 4.2), Color(0.22, 0.42, 0.55), false, "Pond")
+	# Inland pond removed — water belongs at the community edge (see _build_harbor_edge).
 	_tree_root = Node3D.new()
 	_tree_root.name = "SeasonTrees"
 	add_child(_tree_root)
@@ -258,7 +273,12 @@ func _build_family_places() -> void:
 	_add_box(Vector3(26, 0.025, -3), Vector3(8, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathApexHome")
 	_add_box(Vector3(20, 0.025, 26), Vector3(2.2, 0.03, 8), Color(0.4, 0.34, 0.26), false, "PathNovaHome")
 	_add_box(Vector3(-6, 0.025, 24), Vector3(12, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathJarvisHome")
+	_add_box(Vector3(0, 0.025, 34), Vector3(2.8, 0.03, 16), Color(0.4, 0.34, 0.26), false, "PathHarbor")
 	_build_gardens_and_holiday()
+	_build_harbor_edge()
+	_build_well_and_pool()
+	_build_far_shore_destination()
+	_build_storage_hall()
 
 
 func _add_porch_light(pos: Vector3, color: Color) -> void:
@@ -682,6 +702,7 @@ func _on_home_updated(data: Dictionary) -> void:
 	_play_utterances(data)
 	_play_overhear(data)
 	_sync_family_chat_room(data)
+	_apply_media_state(data)
 	var gifts_for_wall: Variant = data.get("gifts")
 	_refresh_gifts(gifts_for_wall if gifts_for_wall is Array else [])
 	var clock_v: Variant = data.get("clock")
@@ -1050,7 +1071,17 @@ func _furnish(pos: Vector3, kind: String) -> void:
 			llm.emission = Color(1.0, 0.8, 0.4)
 			llm.emission_energy_multiplier = 1.4
 		"cinema":
-			_add_box(pos + Vector3(2.4, 1.2, 0), Vector3(0.2, 1.8, 3.2), Color(0.08, 0.08, 0.1), true, "Screen")
+			_cinema_screen = _add_box(pos + Vector3(2.4, 1.2, 0), Vector3(0.2, 1.8, 3.2), Color(0.08, 0.08, 0.1), true, "Screen")
+			if _cinema_screen and _cinema_screen.material_override:
+				_cinema_screen_mat = _cinema_screen.material_override
+			_cinema_title = Label3D.new()
+			_cinema_title.text = "Cinema screen · [E] Watch"
+			_cinema_title.position = pos + Vector3(1.6, 2.4, 0)
+			_cinema_title.font_size = 48
+			_cinema_title.outline_size = 12
+			_cinema_title.modulate = Color(0.9, 0.75, 0.85)
+			_cinema_title.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			add_child(_cinema_title)
 			_add_box(pos + Vector3(-0.4, 0.4, 0.9), Vector3(0.7, 0.8, 0.7), Color(0.35, 0.18, 0.25), true, "SeatM")
 			_add_box(pos + Vector3(-0.4, 0.4, -0.9), Vector3(0.7, 0.8, 0.7), Color(0.28, 0.22, 0.4), true, "SeatD")
 			_add_box(pos + Vector3(0.4, 0.55, 0.0), Vector3(1.4, 0.12, 0.9), Color(0.25, 0.18, 0.22), true, "EditDesk")
@@ -1113,16 +1144,128 @@ func _room_kit(pos: Vector3, kind: String) -> void:
 
 
 func _build_boundary() -> void:
-	## Village outskirts, not an invisible developer drop. Rim cleared for spaced homes.
+	## Village outskirts. North rim pushed out so harbor sits past the homes.
 	var rim := 40.0
-	_add_box(Vector3(0, 1.6, rim), Vector3(82, 3.4, 1.2), Color(0.18, 0.32, 0.18), true, "TreeLineN")
+	var north_rim := 76.0
+	# North tree line with a center gap for harbor + far shore
+	_add_box(Vector3(-32, 1.6, north_rim), Vector3(24, 3.4, 1.2), Color(0.18, 0.32, 0.18), true, "TreeLineN_W")
+	_add_box(Vector3(34, 1.6, north_rim), Vector3(24, 3.4, 1.2), Color(0.18, 0.32, 0.18), true, "TreeLineN_E")
 	_add_box(Vector3(0, 1.6, -rim), Vector3(82, 3.4, 1.2), Color(0.16, 0.28, 0.16), true, "TreeLineS")
-	_add_box(Vector3(rim, 1.6, 0), Vector3(1.2, 3.4, 82), Color(0.17, 0.3, 0.16), true, "TreeLineE")
-	_add_box(Vector3(-rim, 1.6, 0), Vector3(1.2, 3.4, 82), Color(0.15, 0.26, 0.18), true, "TreeLineW")
+	_add_box(Vector3(rim, 1.6, 8), Vector3(1.2, 3.4, 98), Color(0.17, 0.3, 0.16), true, "TreeLineE")
+	_add_box(Vector3(-rim, 1.6, 8), Vector3(1.2, 3.4, 98), Color(0.15, 0.26, 0.18), true, "TreeLineW")
 	for xz in [Vector3(28, 0, 20), Vector3(-28, 0, 20), Vector3(28, 0, -22), Vector3(-28, 0, -20), Vector3(20, 0, 30), Vector3(-18, 0, 30)]:
 		_add_box(xz + Vector3(0, 0.9, 0), Vector3(0.5, 1.8, 0.5), Color(0.28, 0.18, 0.12), true, "HillTrunk")
 		_add_box(xz + Vector3(0, 2.1, 0), Vector3(2.2, 1.6, 2.2), Color(0.14, 0.34, 0.16), false, "HillCanopy")
-	_add_box(Vector3(-28, 0.04, 8), Vector3(8, 0.08, 10), Color(0.2, 0.38, 0.5), false, "OuterWater")
+	# No inland OuterWater — that sat dead under Codex's west flank.
+
+
+func _build_harbor_edge() -> void:
+	## Community EDGE past Gate House — not under Codex / cottages.
+	## PLACEHOLDER greybox: walk/look only. Fish / travel / build destinations later.
+	var shore_z := 44.0
+	var water_z := 54.0
+	# Shore apron outside the cottage ring
+	_add_box(Vector3(0, 0.03, shore_z), Vector3(40, 0.08, 10), Color(0.38, 0.34, 0.26), false, "HarborShore")
+	# Waterway
+	var water := _add_box(Vector3(0, -0.12, water_z), Vector3(52, 0.22, 18), Color(0.14, 0.42, 0.62), false, "Waterway")
+	if water and water.material_override:
+		var wm: StandardMaterial3D = water.material_override
+		wm.roughness = 0.15
+		wm.metallic = 0.05
+	# Pier into the water
+	_add_box(Vector3(0, 0.28, 48.5), Vector3(3.4, 0.22, 12), Color(0.48, 0.34, 0.2), true, "PierDeck")
+	_add_box(Vector3(-1.5, 0.55, 44.5), Vector3(0.25, 0.9, 0.25), Color(0.35, 0.25, 0.15), true, "PierPostL")
+	_add_box(Vector3(1.5, 0.55, 44.5), Vector3(0.25, 0.9, 0.25), Color(0.35, 0.25, 0.15), true, "PierPostR")
+	_add_box(Vector3(-1.5, 0.55, 52.0), Vector3(0.25, 0.9, 0.25), Color(0.35, 0.25, 0.15), true, "PierPostL2")
+	_add_box(Vector3(1.5, 0.55, 52.0), Vector3(0.25, 0.9, 0.25), Color(0.35, 0.25, 0.15), true, "PierPostR2")
+	# Dry dock cradle (east shore)
+	_add_box(Vector3(12, 0.2, 43.5), Vector3(8.5, 0.35, 5.5), Color(0.4, 0.3, 0.18), true, "DryDockPad")
+	_add_box(Vector3(9.5, 0.85, 43.5), Vector3(0.35, 1.2, 5.0), Color(0.32, 0.24, 0.14), true, "DryDockRailL")
+	_add_box(Vector3(14.5, 0.85, 43.5), Vector3(0.35, 1.2, 5.0), Color(0.32, 0.24, 0.14), true, "DryDockRailR")
+	_add_box(Vector3(12, 0.55, 41.2), Vector3(7.5, 0.25, 0.35), Color(0.3, 0.22, 0.12), true, "DryDockKeel")
+	# Ships: one in dry dock, one tied at pier
+	_add_greybox_ship(Vector3(12, 0.55, 43.5), 0.0, "ShipDryDock")
+	_add_greybox_ship(Vector3(-6.5, -0.05, 52.5), 18.0, "ShipMoored")
+	_add_home_sign(Vector3(0, 3.2, 42.0), "Harbor · edge of town (PLACEHOLDER)", Color(0.65, 0.85, 1.0))
+	_add_home_sign(Vector3(12, 2.8, 40.5), "Dry dock", Color(0.85, 0.75, 0.55))
+	_add_home_sign(Vector3(-6.5, 2.6, 50.5), "Moored ship · travel", Color(0.75, 0.85, 0.95))
+
+
+func _build_far_shore_destination() -> void:
+	## First travel destination across the water — family can place thin builds here.
+	var spit := FAR_SHORE
+	_add_box(spit + Vector3(0, 0.04, 0), Vector3(16, 0.1, 10), Color(0.34, 0.42, 0.28), false, "FarShoreLand")
+	_add_box(spit + Vector3(0, 0.28, -4.2), Vector3(4.0, 0.22, 3.5), Color(0.45, 0.32, 0.18), true, "FarShorePier")
+	_add_greybox_ship(spit + Vector3(-3.5, -0.05, -3.0), -12.0, "ShipFarShore")
+	_add_box(spit + Vector3(2.5, 0.55, 1.0), Vector3(1.2, 1.0, 1.2), Color(0.5, 0.42, 0.3), true, "BuildPlotMarker")
+	_add_home_sign(spit + Vector3(0, 3.0, 0), "Far shore · first destination (build here)", Color(0.7, 0.95, 0.75))
+	_add_home_sign(spit + Vector3(2.5, 2.4, 1.0), "[E] Place a build (PLACEHOLDER)", Color(0.95, 0.88, 0.55))
+	_add_home_sign(spit + Vector3(-3.5, 2.4, -3.0), "[E] Sail home", Color(0.75, 0.85, 1.0))
+
+
+func _add_greybox_ship(pos: Vector3, yaw_deg: float, node_name: String) -> void:
+	## Simple hull + cabin + mast — readable greybox, not final art.
+	var root := Node3D.new()
+	root.name = node_name
+	root.position = pos
+	root.rotation_degrees = Vector3(0, yaw_deg, 0)
+	add_child(root)
+	var hull := _make_box_mesh(Vector3(0, 0.35, 0), Vector3(2.4, 0.7, 6.5), Color(0.28, 0.2, 0.12), true, node_name + "Hull")
+	root.add_child(hull)
+	var cabin := _make_box_mesh(Vector3(0, 1.0, -0.6), Vector3(1.6, 0.7, 2.2), Color(0.45, 0.38, 0.28), false, node_name + "Cabin")
+	root.add_child(cabin)
+	var mast := _make_box_mesh(Vector3(0, 2.4, 0.8), Vector3(0.18, 3.2, 0.18), Color(0.35, 0.28, 0.18), false, node_name + "Mast")
+	root.add_child(mast)
+	var sail := _make_box_mesh(Vector3(0.7, 2.3, 0.8), Vector3(0.08, 2.0, 2.4), Color(0.85, 0.82, 0.74), false, node_name + "Sail")
+	root.add_child(sail)
+
+
+func _build_well_and_pool() -> void:
+	## Inland utilities near the square — not under homes, not the edge harbor.
+	## PLACEHOLDER: walk/look now; draw-water / swim actions later.
+	# Commons well — between plaza and garden path
+	var well := Vector3(-8.5, 0, 7.5)
+	_add_box(well + Vector3(0, 0.08, 0), Vector3(3.2, 0.12, 3.2), Color(0.32, 0.3, 0.26), true, "WellPad")
+	_add_box(well + Vector3(0, 0.55, 0), Vector3(2.0, 0.9, 2.0), Color(0.42, 0.4, 0.36), true, "WellStone")
+	_add_box(well + Vector3(0, 1.15, 0), Vector3(1.5, 0.35, 1.5), Color(0.38, 0.36, 0.32), true, "WellRim")
+	var well_water := _add_box(well + Vector3(0, 0.95, 0), Vector3(1.1, 0.12, 1.1), Color(0.2, 0.48, 0.62), false, "WellWater")
+	if well_water and well_water.material_override:
+		(well_water.material_override as StandardMaterial3D).roughness = 0.2
+	_add_box(well + Vector3(-0.85, 1.7, 0), Vector3(0.18, 1.3, 0.18), Color(0.3, 0.22, 0.14), true, "WellPostL")
+	_add_box(well + Vector3(0.85, 1.7, 0), Vector3(0.18, 1.3, 0.18), Color(0.3, 0.22, 0.14), true, "WellPostR")
+	_add_box(well + Vector3(0, 2.35, 0), Vector3(2.0, 0.18, 0.18), Color(0.3, 0.22, 0.14), true, "WellBeam")
+	_add_box(well + Vector3(0, 1.9, 0), Vector3(0.08, 0.9, 0.08), Color(0.25, 0.2, 0.12), false, "WellRope")
+	_add_box(well + Vector3(0, 1.35, 0.15), Vector3(0.45, 0.35, 0.45), Color(0.35, 0.28, 0.18), false, "WellBucket")
+	_add_home_sign(well + Vector3(0, 3.1, 0), "Village well · [E] draw water", Color(0.75, 0.9, 1.0))
+
+	# Village pool — BEHIND the town (south of cottages), community amenity — not on square / Gemini–Apex paths.
+	var pool := Vector3(4.0, 0, -36.0)
+	_add_box(pool + Vector3(0, 0.06, 0), Vector3(5.6, 0.12, 4.2), Color(0.4, 0.38, 0.34), true, "PoolDeck")
+	_add_box(pool + Vector3(0, 0.32, -1.95), Vector3(5.6, 0.45, 0.35), Color(0.55, 0.52, 0.48), true, "PoolWallN")
+	_add_box(pool + Vector3(0, 0.32, 1.95), Vector3(5.6, 0.45, 0.35), Color(0.55, 0.52, 0.48), true, "PoolWallS")
+	_add_box(pool + Vector3(-2.7, 0.32, 0), Vector3(0.35, 0.45, 3.6), Color(0.55, 0.52, 0.48), true, "PoolWallW")
+	_add_box(pool + Vector3(2.7, 0.32, 0), Vector3(0.35, 0.45, 3.6), Color(0.55, 0.52, 0.48), true, "PoolWallE")
+	var pool_water := _add_box(pool + Vector3(0, 0.2, 0), Vector3(4.8, 0.24, 3.4), Color(0.18, 0.52, 0.68), false, "PoolWater")
+	if pool_water and pool_water.material_override:
+		(pool_water.material_override as StandardMaterial3D).roughness = 0.12
+	_add_box(Vector3(4.0, 0.025, -30.0), Vector3(2.4, 0.04, 10.0), Color(0.4, 0.34, 0.26), false, "PathPool")
+	_add_home_sign(pool + Vector3(0, 2.4, -2.2), "Community pool · behind town · [E] swim", Color(0.65, 0.9, 1.0))
+
+
+func _build_storage_hall() -> void:
+	## Village Storage — real goods hall near the square (Layer 10). Not a fake UI stub.
+	var pos := Vector3(-14, 0, 2)
+	_build_open_building(pos, Vector3(6.0, 2.8, 5.0), Color(0.42, 0.36, 0.28), "StorageHall", "x+")
+	_add_roof(pos + Vector3(0, 3.15, 0), Vector3(6.6, 0.6, 5.5), Color(0.28, 0.22, 0.16))
+	_furnish(pos, "shed")
+	# Crates / shelves — storage contents (gifts and goods can land here later).
+	_add_box(pos + Vector3(-1.6, 0.45, -1.2), Vector3(1.2, 0.9, 0.9), Color(0.48, 0.34, 0.2), true, "StoreCrateA")
+	_add_box(pos + Vector3(1.4, 0.45, -1.0), Vector3(1.1, 0.9, 1.0), Color(0.42, 0.3, 0.18), true, "StoreCrateB")
+	_add_box(pos + Vector3(0.2, 0.95, 1.4), Vector3(2.4, 0.12, 0.55), Color(0.35, 0.28, 0.2), true, "StoreShelf")
+	_add_box(pos + Vector3(-1.8, 0.55, 1.2), Vector3(0.7, 1.1, 0.55), Color(0.38, 0.32, 0.24), true, "StoreBarrel")
+	_add_porch_light(pos + Vector3(3.2, 2.2, 0), Color(1.0, 0.85, 0.55))
+	_add_home_sign(pos + Vector3(3.4, 3.2, 0), "Village Storage — goods & keeps", Color(0.95, 0.85, 0.6))
+	_add_box(Vector3(-10, 0.025, 2), Vector3(8, 0.03, 2.0), Color(0.4, 0.34, 0.26), false, "PathStorage")
 
 
 func _build_hearth_interior() -> void:
@@ -1163,10 +1306,20 @@ func _make_box_mesh(pos: Vector3, size: Vector3, color: Color, collide: bool, no
 	if collide:
 		var body := StaticBody3D.new()
 		# Ground + room floors = layer 1 (walkable). Walls/furniture = layer 2.
+		# Well/Pool solids also layer 1 so wildlife (mask 1) cannot walk through them.
 		# Family citizens mask only layer 1 so PLACEHOLDER pathing is not trapped in cubes.
 		# Mom/player masks 1|2 so walls still matter, but doors must stay wide enough.
-		var walkable := node_name == "Ground" or node_name.ends_with("Floor")
-		body.collision_layer = 1 if walkable else 2
+		var walkable := (
+			node_name == "Ground"
+			or node_name == "GroundHarbor"
+			or node_name == "GroundFarShore"
+			or node_name.ends_with("Floor")
+		)
+		var blocks_wildlife := (
+			node_name.begins_with("Well")
+			or node_name.begins_with("Pool")
+		) and not node_name.ends_with("Water")
+		body.collision_layer = 1 if (walkable or blocks_wildlife) else 2
 		body.collision_mask = 0
 		var cs := CollisionShape3D.new()
 		var shape := BoxShape3D.new()
@@ -1534,7 +1687,7 @@ func _build_hud() -> void:
 	honest_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	honest_label.add_theme_font_size_override("font_size", 12)
 	honest_label.modulate = Color(0.72, 0.78, 0.7, 0.85)
-	honest_label.text = "Homes≠jobs · Garden tend real · Sound: period+place PLACEHOLDER beds · Posts honest"
+	honest_label.text = "Homes≠jobs · Garden tend real · Ambiance: wind/birds/crickets · Posts honest"
 	_hud_layer.add_child(honest_label)
 
 	var title := Label.new()
@@ -1551,24 +1704,40 @@ func _build_hud() -> void:
 
 	var amb := AudioStreamPlayer.new()
 	amb.name = "AmbientPeriod"
-	amb.volume_db = -20.0
-	amb.autoplay = true
-	amb.stream = _make_period_ambient("morning")
+	amb.bus = "Master"
+	amb.volume_db = 2.0
+	amb.autoplay = false
+	amb.stream = _resolve_period_stream("morning")
 	add_child(amb)
 	_amb_period = amb
+	_amb_period.play()
 
 	_amb_place = AudioStreamPlayer.new()
 	_amb_place.name = "AmbientPlace"
-	_amb_place.volume_db = -28.0
+	_amb_place.bus = "Master"
+	_amb_place.volume_db = -8.0
 	_amb_place.autoplay = false
 	add_child(_amb_place)
 
+	# Music pad never starts — nature only.
 	_amb_music = AudioStreamPlayer.new()
 	_amb_music.name = "AmbientMusic"
-	_amb_music.volume_db = -26.0
-	_amb_music.autoplay = true
-	_amb_music.stream = _make_music_bed("morning")
+	_amb_music.bus = "Master"
+	_amb_music.volume_db = -80.0
+	_amb_music.autoplay = false
 	add_child(_amb_music)
+
+	AudioServer.set_bus_mute(0, false)
+	# Keep Master audible — faint beds were lost under a quiet bus.
+	if AudioServer.get_bus_volume_db(0) < -6.0:
+		AudioServer.set_bus_volume_db(0, 0.0)
+	_sound_period = "morning"
+	var has_real := _load_nature_stream("morning") != null or _load_nature_stream("day") != null
+	if has_real:
+		print("[Sound] Layer 9 using Audio/nature files @ +2 dB")
+	else:
+		print("[Sound] Layer 9 soft wind only — no chirp beeps; drop .ogg/.wav into Audio/nature/")
+	call_deferred("_ensure_sound_playing")
 
 	set_process(true)
 
@@ -1612,80 +1781,116 @@ func _scroll_convo_to_end() -> void:
 		_convo_log.scroll_to_line(_convo_log.get_line_count() - 1)
 
 
-func _make_ambient_stream() -> AudioStreamWAV:
-	## Compat alias — morning bed.
-	return _make_period_ambient("morning")
+func _make_ambient_stream() -> AudioStream:
+	return _resolve_period_stream("morning")
 
 
-func _synth_loop(freqs: Array, amps: Array, noise: float, seconds: float = 1.2) -> AudioStreamWAV:
-	## Procedural PLACEHOLDER beds — no asset pack required. Honest soft hums.
+func _pcm_stream(samples: PackedFloat32Array, mix_rate: int = 22050) -> AudioStreamWAV:
 	var stream := AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
-	stream.mix_rate = 22050
+	stream.mix_rate = mix_rate
 	stream.stereo = false
 	stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
 	stream.loop_begin = 0
-	var n := int(22050.0 * seconds)
+	var n := samples.size()
 	var data := PackedByteArray()
 	data.resize(n * 2)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 42
 	for i in range(n):
-		var t := float(i) / 22050.0
-		var s := 0.0
-		for fi in range(mini(freqs.size(), amps.size())):
-			s += sin(2.0 * PI * float(freqs[fi]) * t) * float(amps[fi])
-		if noise > 0.0:
-			s += (rng.randf() * 2.0 - 1.0) * noise
-		var sample := int(clampf(s * 9000.0, -32767.0, 32767.0))
-		data[i * 2] = sample & 0xFF
-		data[i * 2 + 1] = (sample >> 8) & 0xFF
+		var sample := int(clampf(samples[i] * 18000.0, -32767.0, 32767.0))
+		data.encode_s16(i * 2, sample)
 	stream.data = data
 	stream.loop_end = n
 	return stream
 
 
-func _make_period_ambient(period: String) -> AudioStreamWAV:
+func _load_nature_stream(stem: String) -> AudioStream:
+	## Real files win. Drop into Apex: godot_project/Audio/nature/
+	## Names: morning/day/afternoon/evening/night/forest (+ .ogg .wav .mp3)
+	for ext in [".ogg", ".wav", ".mp3"]:
+		var path := "res://Audio/nature/%s%s" % [stem, ext]
+		if ResourceLoader.exists(path):
+			var loaded := load(path)
+			if loaded is AudioStream:
+				var s: AudioStream = loaded
+				if s is AudioStreamWAV:
+					(s as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+				elif s is AudioStreamOggVorbis:
+					(s as AudioStreamOggVorbis).loop = true
+				elif s is AudioStreamMP3:
+					(s as AudioStreamMP3).loop = true
+				return s
+	return null
+
+
+func _resolve_period_stream(period: String) -> AudioStream:
+	var keys: Array[String] = []
 	match period:
 		"morning":
-			return _synth_loop([880.0, 1320.0, 220.0], [0.08, 0.04, 0.12], 0.015)  # birds-ish + breeze
+			keys = ["morning", "day", "forest", "birds"]
 		"afternoon":
-			return _synth_loop([180.0, 240.0, 90.0], [0.1, 0.06, 0.08], 0.02)
+			keys = ["afternoon", "day", "forest", "birds"]
 		"evening":
-			return _synth_loop([110.0, 165.0, 55.0], [0.12, 0.07, 0.1], 0.01)
+			keys = ["evening", "night", "forest", "crickets"]
 		"night":
-			return _synth_loop([440.0, 660.0, 70.0], [0.05, 0.03, 0.14], 0.008)  # cricket-ish + soft
+			keys = ["night", "evening", "forest", "crickets"]
 		_:
-			return _synth_loop([55.0, 82.5], [0.2, 0.1], 0.01)
+			keys = ["forest", "day", "morning"]
+	for k in keys:
+		var real := _load_nature_stream(k)
+		if real != null:
+			return real
+	# No packs on disk yet — soft wind noise only (no chirp beeps).
+	return _make_soft_wind(period)
 
 
-func _make_music_bed(period: String) -> AudioStreamWAV:
-	## Soft pad under ambience — not a score library.
-	match period:
-		"morning":
-			return _synth_loop([130.8, 196.0, 261.6], [0.1, 0.07, 0.05], 0.0, 2.0)
-		"afternoon":
-			return _synth_loop([146.8, 220.0, 293.7], [0.09, 0.06, 0.04], 0.0, 2.0)
-		"evening":
-			return _synth_loop([110.0, 164.8, 220.0], [0.11, 0.07, 0.05], 0.0, 2.4)
-		"night":
-			return _synth_loop([98.0, 146.8, 196.0], [0.1, 0.06, 0.04], 0.0, 2.8)
-		_:
-			return _synth_loop([130.8, 196.0], [0.1, 0.06], 0.0, 2.0)
+func _make_soft_wind(period: String) -> AudioStreamWAV:
+	## Broadband breeze only. No sine chirps (those read as beeps).
+	var seconds := 8.0
+	var rate := 22050
+	var n := int(float(rate) * seconds)
+	var samples := PackedFloat32Array()
+	samples.resize(n)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(period) + 91
+	var wind_lp := 0.0
+	var gust := 0.0
+	for i in range(n):
+		var noise := rng.randf() * 2.0 - 1.0
+		wind_lp = wind_lp * 0.94 + noise * 0.06
+		# Slow amplitude wander so it feels like air, not a tone.
+		gust = gust * 0.9995 + (rng.randf() * 2.0 - 1.0) * 0.0005
+		var level := 0.035
+		if period == "afternoon":
+			level = 0.045
+		elif period == "evening":
+			level = 0.028
+		elif period == "night":
+			level = 0.022
+		samples[i] = wind_lp * level * (1.0 + gust * 0.35)
+	return _pcm_stream(samples, rate)
 
 
-func _make_place_ambient(place_key: String) -> AudioStreamWAV:
-	match place_key:
-		"garden":
-			return _synth_loop([520.0, 780.0, 140.0], [0.06, 0.04, 0.08], 0.02)
-		"cinema":
-			return _synth_loop([90.0, 45.0, 180.0], [0.1, 0.08, 0.04], 0.005)  # projector-ish whir
-		"apex_forge":
-			return _synth_loop([70.0, 105.0, 40.0], [0.08, 0.05, 0.06], 0.012)
-		"heart_square", "gather":
-			return _synth_loop([200.0, 300.0, 100.0], [0.05, 0.04, 0.07], 0.01)
-		_:
-			return _synth_loop([160.0, 80.0], [0.04, 0.05], 0.008)
+func _make_period_ambiance(period: String) -> AudioStream:
+	return _resolve_period_stream(period)
+
+
+func _make_period_ambient(period: String) -> AudioStream:
+	return _resolve_period_stream(period)
+
+
+func _make_music_bed(_period: String) -> AudioStreamWAV:
+	## Disabled — Mom asked for nature only, no hum/pad.
+	var silent := PackedFloat32Array()
+	silent.resize(2205)
+	return _pcm_stream(silent)
+
+
+func _ensure_sound_playing() -> void:
+	if _amb_period and not _amb_period.playing:
+		_amb_period.play()
+		print("[Sound] restarted nature ambiance")
+	if _amb_music and _amb_music.playing:
+		_amb_music.stop()
 
 
 func _apply_period_sound(period: String) -> void:
@@ -1693,24 +1898,20 @@ func _apply_period_sound(period: String) -> void:
 		return
 	_sound_period = period
 	if _amb_period:
-		_amb_period.stream = _make_period_ambient(period)
+		_amb_period.stream = _resolve_period_stream(period)
 		_amb_period.play()
-	if _amb_music:
-		_amb_music.stream = _make_music_bed(period)
-		_amb_music.play()
+	if _amb_music and _amb_music.playing:
+		_amb_music.stop()
 
 
 func _apply_place_sound(place_key: String) -> void:
+	## No second bed until real place clips exist — avoids stacked beeps.
 	if _amb_place == null:
 		return
 	if place_key == _sound_place:
 		return
 	_sound_place = place_key
-	if place_key == "" or place_key == "none":
-		_amb_place.stop()
-		return
-	_amb_place.stream = _make_place_ambient(place_key)
-	_amb_place.play()
+	_amb_place.stop()
 
 
 func _resolve_sound_place() -> String:
@@ -1755,6 +1956,11 @@ func _on_hearth_exit(body: Node3D) -> void:
 
 
 func _process(delta: float) -> void:
+	if _watching and _cinema_screen_mat:
+		_watch_pulse += delta
+		var glow := 0.55 + 0.35 * sin(_watch_pulse * 2.2)
+		_cinema_screen_mat.emission_enabled = true
+		_cinema_screen_mat.emission_energy_multiplier = glow
 	if _mom_bubble and _mom_bubble.modulate.a > 0.0:
 		_mom_bubble.modulate.a = max(0.0, _mom_bubble.modulate.a - delta * 0.12)
 	if _type_full != "" and dialogue_label and _type_i <= _type_full.length():
@@ -1785,6 +1991,7 @@ func _process(delta: float) -> void:
 			if bool(sq.get("player_near")):
 				sq_near = true
 				break
+	var harbor_act := _world_action_near_player()
 	if prompt_label:
 		if near and _talking_to == "":
 			prompt_label.text = "[E] Talk to %s" % who
@@ -1792,6 +1999,22 @@ func _process(delta: float) -> void:
 			prompt_label.text = "Chat open — walking away keeps the family log. Esc leaves the type box."
 		elif sq_near:
 			prompt_label.text = "[E] Listen — a squirrel will chatter"
+		elif harbor_act == "watch_stop":
+			prompt_label.text = "[E] Stop watching"
+		elif harbor_act == "watch":
+			prompt_label.text = "[E] Watch at the cinema"
+		elif harbor_act == "return":
+			prompt_label.text = "[E] Sail home to the harbor"
+		elif harbor_act == "travel":
+			prompt_label.text = "[E] Sail to far shore (first destination)"
+		elif harbor_act == "build":
+			prompt_label.text = "[E] Place a build on far shore (PLACEHOLDER)"
+		elif harbor_act == "fish":
+			prompt_label.text = "[E] Fish from the pier (PLACEHOLDER)"
+		elif harbor_act == "well":
+			prompt_label.text = "[E] Draw water from the well"
+		elif harbor_act == "swim":
+			prompt_label.text = "[E] Swim in the pool (PLACEHOLDER)"
 		elif _inside_hearth:
 			prompt_label.text = "Inside First Hearth. Tab / Open Chat anytime. Leave World (top-right) to exit."
 		else:
@@ -1814,6 +2037,7 @@ func _update_place_from_player() -> void:
 		return
 	var p: Node3D = players[0]
 	var best := "Heart Square"
+	var best_id := "heart_square"
 	var best_d := 8.5
 	var places: Dictionary = {}
 	if _home:
@@ -1829,8 +2053,11 @@ func _update_place_from_player() -> void:
 				var d := Vector2(p.global_position.x - float(arr[0]), p.global_position.z - float(arr[2])).length()
 				if d < best_d:
 					best_d = d
+					best_id = str(key)
 					best = str((rec as Dictionary).get("label", key))
 	place_label.text = "Place: %s" % best
+	if _home and _home.has_method("set_mom_place"):
+		_home.set_mom_place(best_id)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -1886,6 +2113,185 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _player and _player.has_method("_capture_mouse"):
 			_player.call_deferred("_capture_mouse")
 		get_viewport().set_input_as_handled()
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_E:
+		if _paused_world or _talking_to != "" or (talk_input and talk_input.has_focus()):
+			return
+		var act := _world_action_near_player()
+		match act:
+			"fish":
+				_log_convo("Harbor", "You cast a line. Water ripples — catch stock still PLACEHOLDER.", "system")
+				get_viewport().set_input_as_handled()
+			"travel":
+				_sail_to_far_shore()
+				get_viewport().set_input_as_handled()
+			"return":
+				_sail_home_to_harbor()
+				get_viewport().set_input_as_handled()
+			"build":
+				_place_far_shore_build()
+				get_viewport().set_input_as_handled()
+			"well":
+				_water_bucket += 1
+				_log_convo("Well", "Drew a bucket of water. (carried: %d — PLACEHOLDER inventory)" % _water_bucket, "system")
+				get_viewport().set_input_as_handled()
+			"swim":
+				_log_convo("Pool", "You splash in the village pool. Swim anim / cooldown still PLACEHOLDER.", "system")
+				get_viewport().set_input_as_handled()
+			"watch":
+				_toggle_cinema_watch(true)
+				get_viewport().set_input_as_handled()
+			"watch_stop":
+				_toggle_cinema_watch(false)
+				get_viewport().set_input_as_handled()
+
+
+func _world_action_near_player() -> String:
+	## Pier / ship / far shore / well / pool / cinema — priority order for [E].
+	if _player == null or not is_instance_valid(_player):
+		return ""
+	var p: Vector3 = _player.global_position
+	var d_ship := Vector2(p.x - HARBOR_SHIP.x, p.z - HARBOR_SHIP.z).length()
+	var d_far := Vector2(p.x - FAR_SHORE.x, p.z - FAR_SHORE.z).length()
+	var d_pier := Vector2(p.x - 0.0, p.z - 48.5).length()
+	var d_well := Vector2(p.x - VILLAGE_WELL.x, p.z - VILLAGE_WELL.z).length()
+	var d_pool := Vector2(p.x - VILLAGE_POOL.x, p.z - VILLAGE_POOL.z).length()
+	var d_cinema := Vector2(p.x - 26.0, p.z - 14.0).length()
+	_at_far_shore = d_far < 9.0
+	if _at_far_shore:
+		if d_far < 4.5:
+			var d_far_ship := Vector2(p.x - (FAR_SHORE.x - 3.5), p.z - (FAR_SHORE.z - 3.0)).length()
+			if d_far_ship < 3.6:
+				return "return"
+			return "build"
+		return "return"
+	if d_ship < 3.4:
+		return "travel"
+	if d_pier < 4.2:
+		return "fish"
+	if d_cinema < 4.5:
+		return "watch_stop" if _watching else "watch"
+	if d_well < 2.8:
+		return "well"
+	if d_pool < 4.5:
+		return "swim"
+	return ""
+
+
+func _scan_watch_media() -> Dictionary:
+	## Real stills/reels from res://media/watch — empty folder means honest idle.
+	var out := {"title": "", "source": "none", "path": ""}
+	var dir := DirAccess.open("res://media/watch")
+	if dir == null:
+		return out
+	dir.list_dir_begin()
+	var name := dir.get_next()
+	while name != "":
+		if not dir.current_is_dir():
+			var lower := name.to_lower()
+			if lower.ends_with(".png") or lower.ends_with(".jpg") or lower.ends_with(".jpeg") or lower.ends_with(".webp") or lower.ends_with(".ogv"):
+				if lower == "readme.txt":
+					name = dir.get_next()
+					continue
+				out["path"] = "res://media/watch/%s" % name
+				out["title"] = name.get_basename().replace("_", " ")
+				out["source"] = "file"
+				break
+		name = dir.get_next()
+	dir.list_dir_end()
+	return out
+
+
+func _toggle_cinema_watch(want_on: bool) -> void:
+	var media := _scan_watch_media()
+	var title := str(media.get("title", ""))
+	var source := str(media.get("source", "none"))
+	if want_on:
+		if source == "none":
+			title = "Evening quiet (no reel seated)"
+		_watching = true
+		_apply_cinema_screen(true, title, str(media.get("path", "")))
+		if _cinema_title:
+			_cinema_title.text = "Now showing · %s" % title
+		_log_convo("Cinema", "Watch started: %s (source=%s)." % [title, source], "system")
+		if _home and _home.has_method("set_media_watch"):
+			_home.set_media_watch(true, "cinema", title, source)
+	else:
+		_watching = false
+		_apply_cinema_screen(false, "", "")
+		if _cinema_title:
+			_cinema_title.text = "Cinema screen · [E] Watch"
+		_log_convo("Cinema", "Watch stopped.", "system")
+		if _home and _home.has_method("set_media_watch"):
+			_home.set_media_watch(false, "cinema", "", "none")
+
+
+func _apply_cinema_screen(on: bool, title: String, path: String) -> void:
+	if _cinema_screen_mat == null:
+		return
+	if on:
+		_cinema_screen_mat.emission_enabled = true
+		_cinema_screen_mat.emission = Color(0.35, 0.55, 0.95)
+		_cinema_screen_mat.emission_energy_multiplier = 0.9
+		_cinema_screen_mat.albedo_color = Color(0.12, 0.16, 0.28)
+		if path != "" and (path.ends_with(".png") or path.ends_with(".jpg") or path.ends_with(".jpeg") or path.ends_with(".webp")):
+			var tex: Texture2D = load(path) as Texture2D
+			if tex:
+				_cinema_screen_mat.albedo_texture = tex
+				_cinema_screen_mat.albedo_color = Color(1, 1, 1)
+	else:
+		_cinema_screen_mat.emission_enabled = false
+		_cinema_screen_mat.emission_energy_multiplier = 0.0
+		_cinema_screen_mat.albedo_texture = null
+		_cinema_screen_mat.albedo_color = Color(0.08, 0.08, 0.1)
+
+
+func _apply_media_state(data: Dictionary) -> void:
+	var m: Variant = data.get("media")
+	if not (m is Dictionary):
+		return
+	var watching := bool((m as Dictionary).get("watching", false))
+	if watching == _watching:
+		return
+	# Kernel truth wins when arriving mid-session (e.g. after restart).
+	if watching:
+		_watching = true
+		_apply_cinema_screen(true, str((m as Dictionary).get("title", "")), "")
+		if _cinema_title:
+			_cinema_title.text = "Now showing · %s" % str((m as Dictionary).get("title", "screen"))
+	else:
+		_watching = false
+		_apply_cinema_screen(false, "", "")
+		if _cinema_title:
+			_cinema_title.text = "Cinema screen · [E] Watch"
+
+
+func _sail_to_far_shore() -> void:
+	if _player == null:
+		return
+	_player.global_position = FAR_SHORE + Vector3(0, 0.1, -2.5)
+	_player.velocity = Vector3.ZERO
+	_at_far_shore = true
+	_log_convo("Harbor", "Sailed to far shore — first destination. [E] near the marker to place a build, or at the ship to sail home.", "system")
+
+
+func _sail_home_to_harbor() -> void:
+	if _player == null:
+		return
+	_player.global_position = HARBOR_SHIP + Vector3(2.2, 0.1, 0.0)
+	_player.velocity = Vector3.ZERO
+	_at_far_shore = false
+	_log_convo("Harbor", "Sailed home to the village harbor.", "system")
+
+
+func _place_far_shore_build() -> void:
+	## Thin destination building — drops a greybox prop on the spit.
+	_dest_builds += 1
+	var n: int = _dest_builds
+	var offset := Vector3(float((n % 3) - 1) * 1.6, 0.35, float((n / 3) % 3) * 1.4)
+	var pos := FAR_SHORE + Vector3(2.5, 0, 1.0) + offset
+	_add_box(pos, Vector3(1.1, 0.7, 1.1), Color(0.55, 0.4, 0.28), true, "FarBuild%d" % n)
+	_add_home_sign(pos + Vector3(0, 1.2, 0), "Build %d" % n, Color(0.95, 0.85, 0.55))
+	_log_convo("Far shore", "Placed build %d. Destinations grow here — richer builder later." % n, "system")
 
 
 func _on_squirrel_chatter(line: String) -> void:
@@ -2074,7 +2480,7 @@ func _on_talk_submitted(text: String) -> void:
 	_speak_mom(said, "mom")
 	if _home and _home.has_method("say_as_mom"):
 		_home.say_as_mom(target, said)
-	_log_convo("Hearth", "Sent to %s (range not required)." % target, "system")
+	_log_convo("Hearth", "Sent to %s — saved in community memory. Nearby may answer too." % target, "system")
 
 
 func _end_talk() -> void:

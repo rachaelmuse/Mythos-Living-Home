@@ -2,18 +2,17 @@
 
 ## CURRENT PHASE
 
-**Layer 9 Sound IN PROGRESS** (Mom playtest). Tracker: `PHASE_LAYERS.md`.
+**Layer 11 TV/Media IN PROGRESS.** Layer 14 Living Economy **QUEUED** (after 11–12). Final Phase 13 last.
 
 ## Closed
 
-- 8A forge probe · 8B AABB pathing · 8C evening gather (Mom advanced).
+- 8A–8C · Harbor/well/far shore · Mom memory · Sound · Storage  
+- Pool moved behind town (Mom request)
 
-## This pass (Layer 9)
+## Standing order
 
-- Godot: period ambient + soft music bed + place beds (garden/cinema/forge/square/gather).
-- Kernel: `music_preferences` taste tags + honesty.sound / snapshot.sound.
-- Procedural WAV loops — PLACEHOLDER, not a media library.
+11 TV → 12 richer harbor → **14 Living Economy** → final Phase 13 last.
 
 ## Next
 
-Mom ears in village. Then mark 9 DONE.
+Mom OK on cinema watch, then harbor, then economy slices.

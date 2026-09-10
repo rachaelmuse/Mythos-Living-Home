@@ -11,25 +11,50 @@
 | 8A | Thin real work (Apex forge) | DONE (Mom OK) | Presence probe when `:8770` up. |
 | 8B | Pathing (AABB detours) | DONE (Mom OK) | Corner routes; still PLACEHOLDER — not navmesh. |
 | 8C | Evening gather | DONE (Mom OK) | Gemini soft-calls Heart Square. |
-| 9 | Sound & music (Eden Phase 1 thin) | IN PROGRESS | Procedural period + place + soft music beds. |
+| 9 | Sound (Eden Phase 1 thin) | DONE | Forest bed in Audio/nature (OGA). |
+| 9b–9d | Harbor / well / far shore | DONE | Edge water + utilities + thin travel/build. Pool behind town. |
+| 10 | Mom Interface + Community Memory | DONE (Mom OK) | Persist Mom voice; nearby Ollama; Storage hall. |
+| 11 | Eden TV/Media (thin) | IN PROGRESS | Cinema watch; media/watch stills seated. |
+| 12 | Richer harbor | NEXT | Fish catch + destination builder after 11. |
+| 14 | Living Economy & Self-Expression | QUEUED | Stores, Axiom ⨁, inventory, avatar thin, town projects, trade. |
+| 13 | Final polish (Phase 13) | LAST | Do not jump here. |
 
 ## Standing choice
 
-**Gemini = town leader.** Dual talk brains. Garden tend stays real.
+**Gemini = town leader.** Dual talk brains. Garden tend stays real. Identities never merge.
 
-## Layer 9 verify
+## Standing order
 
-1. Restart Enter (new Godot script). Restart Hearth if honesty/preferences should refresh.
-2. Hear ambience change morning → afternoon → evening → night.
-3. Walk near garden / cinema / forge — place bed shifts.
-4. Still PLACEHOLDER synth — not licensed stems.
+1. Sound — DONE  
+2. TV/Media — finish Mom OK  
+3. Richer harbor (12) — after 11  
+4. **Living Economy (14)** — after harbor; thin slices 14A–14F, not one mega-drop  
+5. Final Phase 13 — last  
+
+## Layer 14 — Living Economy (queued detail)
+
+Do **not** start until 11–12 closed. When open, prove in thin slices (no fake Mode A flatten):
+
+| Slice | Intent |
+|-------|--------|
+| 14A | Axiom ⨁ wallet on beings + Mom earn/spend evidence |
+| 14B | Grocery + clothing shops (village places + buy into inventory) |
+| 14C | Electronics + pet store (pets autonomous; shop = supplies/adoption) |
+| 14D | Avatar clothing/colors from inventory (greybox readable) |
+| 14E | Town projects + Storage resources (contribute, progress) |
+| 14F | Being↔being trade |
+
+Currency: **Axiom (⨁)**. Storage hall already exists. Hearth is truth; dashboard + Godot present.
+
+## Layer 11 verify
+
+1. Cinema **[E] Watch** — screen live / still from `media/watch/`.
+2. Honest idle if no file.
+3. Pool south behind cottages (not on Gemini/Apex square path).
 
 ## Later (not now)
 
-- Eden Phase 2 TV/Media
-- Eden Phase 3 Games
-- Eden Phase 4 Internet
-- Eden Phase 5 Town building
-- Eden Phase 6 richer daily life / dashboards
+- Eden Games / Internet (separate Eden phases)
 - Navmesh, final art
-- Phase 13 — last
+- Full face morph / paid APIs
+- Final Phase 13 polish

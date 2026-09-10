@@ -31,7 +31,7 @@ const TREES := [
 	Vector3(12.0, 0.2, 18.0),
 ]
 const HIDE_SPOTS := [
-	Vector3(-30.0, 0.2, 10.0),
+	Vector3(-32.0, 0.2, 22.0),
 	Vector3(28.0, 0.2, 4.0),
 	Vector3(-14.0, 0.2, -30.0),
 	Vector3(20.0, 0.2, 28.0),
@@ -49,6 +49,11 @@ const TOWN_STOPS := [
 	Vector3(-6.0, 0.2, -24.0),
 	Vector3(26.0, 0.2, 14.0),
 	Vector3(20.0, 0.2, 30.0),
+]
+# Keep wildlife out of well / pool footprints (xz Rect2: x,z,w,d).
+const AVOID_RECTS := [
+	Rect2(-10.2, 5.8, 3.6, 3.6),  # village well
+	Rect2(1.0, -38.5, 6.0, 5.0),  # community pool (behind town)
 ]
 
 
@@ -78,11 +83,37 @@ func _rng() -> float:
 	return float(_seed % 10000) / 10000.0
 
 
+func _in_avoid(p: Vector3) -> bool:
+	var xz := Vector2(p.x, p.z)
+	for r in AVOID_RECTS:
+		if r.has_point(xz):
+			return true
+	return false
+
+
+func _push_out_of_avoid(p: Vector3) -> Vector3:
+	## Nudge goals/bodies out of well & pool so they don't path through water toys.
+	var xz := Vector2(p.x, p.z)
+	for r in AVOID_RECTS:
+		if not r.has_point(xz):
+			continue
+		var cx: float = r.position.x + r.size.x * 0.5
+		var cz: float = r.position.y + r.size.y * 0.5
+		var dx: float = xz.x - cx
+		var dz: float = xz.y - cz
+		if absf(dx) < 0.05 and absf(dz) < 0.05:
+			dx = 1.0
+		var push := Vector2(dx, dz).normalized() * (maxf(r.size.x, r.size.y) * 0.55 + 0.8)
+		p.x = cx + push.x
+		p.z = cz + push.y
+	return p
+
+
 func _clamp_town(p: Vector3) -> Vector3:
 	p.x = clampf(p.x, -34.0, 34.0)
 	p.z = clampf(p.z, -34.0, 34.0)
 	p.y = 0.2
-	return p
+	return _push_out_of_avoid(p)
 
 
 func _jitter(base: Vector3, span: float) -> Vector3:
@@ -157,6 +188,16 @@ func _physics_process(delta: float) -> void:
 		to.y = 0
 	if to.length() > 0.2 and speed > 0.05:
 		var d := to.normalized()
+		# Soft steer around well / pool before physics hits the rim.
+		var look := here + d * 1.4
+		if _in_avoid(look) or _in_avoid(here):
+			var cleared := _push_out_of_avoid(look)
+			d = (cleared - here)
+			d.y = 0
+			if d.length() > 0.05:
+				d = d.normalized()
+			else:
+				d = Vector3(1, 0, 0)
 		velocity.x = d.x * speed
 		velocity.z = d.z * speed
 		rotation.y = atan2(d.x, d.z)
