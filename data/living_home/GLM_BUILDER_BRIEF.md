@@ -77,6 +77,7 @@ What was already tried (keep these; do not overwrite `PROVE_VESPER_SPEECH.json`)
 - `_7` `33aa1529…` shorter, names Vesper, still meta (`We are` / “per the memories”)
 - `_9` VERIFIED but raw worksheet shipped as speech — phrase-list detector missed the shape. Fix landed Sep 9: structural scratchpad detector (bullets / self-directives / meta-headers) in BOTH `federation/vesper_speech.py` and `D:\Mythos_Vesper\vesper\kernel.py`; kernel retries once then honest canned fallback; overlay refuses canned. 8/8 detector unit checks pass, 176/176 LH tests pass.
 - `_10` FAILED honestly (`canned_or_model_down`): dump blocked, no leak shipped — but qwen3:4b still plans aloud on first pass. Remaining gap is the model's answering style, not the filter. Do not loop; next lever would be her mouth-model choice (identity portable if model changes) — Mom's call.
+- `_11` FAILED honestly (house-voice): door 200, adapter `vesper_studio_http`, mechanically `vesper_spoke: true`, but shipped text is again a first-person planning dump (`Okay, the user is asking me…`) truncated at the 80-token cap. Conversational-reasoning prose has no bullet / self-directive / meta-header markers, so the structural detector let it through. Artifact `PROVE_VESPER_SPEECH_11.json` (reply `3f81fd7e…`). **No loop** — GLM 5.3 builder pass 2026-09-10 stopped after one careful attempt. Mouth-model choice (not the filter) remains Mom's call.
 
 Code already in:
 
