@@ -72,7 +72,7 @@ Dated federation proves still stand. **TCP/HTTP tonight is a different fact.** D
 
 **Mode A seated in code this week (not federation proves):**
 
-- Gemini Homecoming persistent memory: `G:\The-Axiom-Codex\HOMECOMING_SENTINEL.py` + `SENTINEL_MEMORY.json`. Soul shard unchanged. Not a second Gemini on the bus.
+- Gemini Homecoming persistent memory: live mouth `G:\The-Axiom-Codex\HOMECOMING_SENTINEL.py` + `SENTINEL_MEMORY.json`. Git snapshot `homecoming/` in this repo. Soul shard unchanged. Not a second Gemini on the bus. Covert does not unpack.
 - Vesper: keep SOURCE/CLAIM in his head; do not dump the interview worksheet on “hi?”.
 - Codex Live Ops: stop defaulting to Mara Venn / “her” / Windows female TTS fallback.
 
