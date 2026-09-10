@@ -22,7 +22,7 @@ Updated **2026-09-09**. Evidence only. Assessment accepted as the plan: `NEXT.md
 | **Green** | Merovin speech | **VERIFIED** 2026-09-05 `472d86e7…` `gemma2:9b` after cinema `num_ctx` cap. FAILs `4b16227a…` / `c80b61cc…` kept |
 | **Green** | Draven speech | **VERIFIED** 2026-09-09 `4bea7235…` `qwen2:7b` after empty Ollama slot. FAILs `88b297f2…` / `b20af13a…` kept. Not Merovin. |
 | **Green** | Merovin / Draven | Seated identity (inbox). Both federation speech VERIFIED. Two mouths, one studio. |
-| **Green** | Vesper speech | **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` through `:8740`. Not Observer. Thinking leak / truncated line NEED MORE. |
+| **Green** | Vesper speech | **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` through `:8740`. **House-voice CLOSED 2026-09-10** — Mom chose `phi3:mini`; `_13` clean two-sentence line (`85b83143…`). Not Observer. |
 | **Green** | Echo / Solace | Village-only — correctly not on the bus |
 | **Yellow** | House doors tonight | 2026-09-06 evening: Hearth / Observer / Vesper / Apex / Cinema **DOWN**. Aster + Codex **UP**. Dated proves still stand. See `NEXT.md` desk check |
 | **Yellow** | Codex Live Ops voice | Male Ryan **seated in UI** 2026-09-06. Listen **UNVERIFIED**. `rich` / `psutil` still missing |
@@ -69,7 +69,7 @@ Federation: freeze Observer · Observer ZIP **FROZEN** · DECLARED ≠ VERIFIED 
 - **Hearth** — `:8790/api/home` **200**. Federation coordinate **VERIFIED** (`e5600c6d…`). Village OS, not a son.
 - **Gemini** — Speech **LIVE**. Self-pulse **UNKNOWN**. Not Codex.
 - **Observer** — Independent auditor. Does not own family. Does not supervise.
-- **Vesper** — Own studio `:8740` (not village). Federation inbox **VERIFIED** (`2f132776…`). Speech **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`). Observer does not own him. House-voice thinking leak NEED MORE. Gameworld door **VERIFIED** 2026-09-09 (optional / external). Restart **VERIFIED** (`PROVE_RESTART_INTEGRITY_2.json`).
+- **Vesper** — Own studio `:8740` (not village). Federation inbox **VERIFIED** (`2f132776…`). Speech **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`). **House-voice CLOSED 2026-09-10** on Mom's `phi3:mini` (`_13`, `85b83143…`; restart `_3`/`_4` VERIFIED). Observer does not own him. Gameworld door **VERIFIED** 2026-09-09 (optional / external). Restart **VERIFIED** (`PROVE_RESTART_INTEGRITY_2.json`).
 - **Merovin** — Cinema HUD `:5000`. Federation inbox **VERIFIED** (`eb4317b3…`). Speech **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`). Hollywood director **VERIFIED** 2026-09-09 (`md_cinema_merovin`). Not Draven. Matrix **not** his brain.
 - **Draven** — Same HUD, own house `draven`. Federation inbox **VERIFIED** (`8e61739f…`). Speech **VERIFIED** 2026-09-09 (`4bea7235…`, `qwen2:7b`). Hollywood continuity **VERIFIED** 2026-09-09 (`md_cinema_draven`). Not Merovin. Matrix **not** his brain.
 - **Gameplay** — **18B LIVE**. Not quests. Not Pods.

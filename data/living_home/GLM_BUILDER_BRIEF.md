@@ -49,7 +49,7 @@ Keep FAIL artifacts on disk. A later pass gets a **new** numbered artifact. Neve
 | Presence / A2A / leave-return | `949cdc08…` / `1491f7d3…` / `7adfb8c4…` `a43090d9…` | Mechanism only; not a scheduler |
 | Merovin speech | `PROVE_MEROVIN_SPEECH_3.json` `472d86e7…` `gemma2:9b` | Keep FAILs `_` / `_2` |
 | Draven speech | `PROVE_DRAVEN_SPEECH_3.json` `4bea7235…` `qwen2:7b` | Keep FAILs `_` / `_2`. Not Merovin |
-| Vesper speech | `PROVE_VESPER_SPEECH.json` `f9fd17a9…` `qwen3:4b` | **Thinking leak NEED MORE.** Do not overwrite this file |
+| Vesper speech | `PROVE_VESPER_SPEECH.json` `f9fd17a9…` `qwen3:4b`; house-voice closed 2026-09-10 `PROVE_VESPER_SPEECH_13.json` `phi3:mini` | Original artifact was a thinking leak (do not overwrite). `_13` is the clean house line |
 | Vesper door / isolation / restart / organic | `vesper-door`, `PROVE_ISOLATION_MATRIX.json`, `PROVE_RESTART_INTEGRITY_2.json`, `PROVE_ORGANIC_REASON_2.json` | Restart `_` and organic `_` FAILs **kept**. Organic is **not** a scheduler |
 | Hollywood | `PROVE_MEROVIN_HOLLYWOOD.json` / `PROVE_DRAVEN_HOLLYWOOD.json` | Two independent MD_Cinema wirings. **Not a film** |
 | Matrix-Game adapter | `PROVE_MATRIX_GAME_ADAPTER.json` | **Honest UNAVAILABLE.** No clip. Engine **not installed** |
@@ -66,7 +66,7 @@ Cinema chat uses `num_ctx` 1536 (cap 2048). Unbounded ctx OOMs this 4060. One Ol
 
 ### 1. Vesper house-voice — the only remaining cinema-speech quality gap
 
-**Status:** Speech is VERIFIED. The spoken line is still a thinking dump / slightly meta. **Do not mark polished.**
+**Status:** Speech VERIFIED 2026-09-09. **House-voice CLOSED 2026-09-10** — Mom chose `phi3:mini`; `_13` is the clean two-sentence line. Do not re-loop `speak-vesper` unless Mom asks.
 
 What was already tried (keep these; do not overwrite `PROVE_VESPER_SPEECH.json`):
 
@@ -77,7 +77,9 @@ What was already tried (keep these; do not overwrite `PROVE_VESPER_SPEECH.json`)
 - `_7` `33aa1529…` shorter, names Vesper, still meta (`We are` / “per the memories”)
 - `_9` VERIFIED but raw worksheet shipped as speech — phrase-list detector missed the shape. Fix landed Sep 9: structural scratchpad detector (bullets / self-directives / meta-headers) in BOTH `federation/vesper_speech.py` and `D:\Mythos_Vesper\vesper\kernel.py`; kernel retries once then honest canned fallback; overlay refuses canned. 8/8 detector unit checks pass, 176/176 LH tests pass.
 - `_10` FAILED honestly (`canned_or_model_down`): dump blocked, no leak shipped — but qwen3:4b still plans aloud on first pass. Remaining gap is the model's answering style, not the filter. Do not loop; next lever would be her mouth-model choice (identity portable if model changes) — Mom's call.
-- `_11` FAILED honestly (house-voice): door 200, adapter `vesper_studio_http`, mechanically `vesper_spoke: true`, but shipped text is again a first-person planning dump (`Okay, the user is asking me…`) truncated at the 80-token cap. Conversational-reasoning prose has no bullet / self-directive / meta-header markers, so the structural detector let it through. Artifact `PROVE_VESPER_SPEECH_11.json` (reply `3f81fd7e…`). **No loop** — GLM 5.3 builder pass 2026-09-10 stopped after one careful attempt. Mouth-model choice (not the filter) remains Mom's call.
+- `_11` FAILED honestly (house-voice): door 200, adapter `vesper_studio_http`, mechanically `vesper_spoke: true`, but shipped text is again a first-person planning dump (`Okay, the user is asking me…`) truncated at the 80-token cap. Conversational-reasoning prose has no bullet / self-directive / meta-header markers, so the structural detector let it through. Artifact `PROVE_VESPER_SPEECH_11.json` (reply `3f81fd7e…`). **No loop** — GLM 5.3 builder pass 2026-09-10 stopped after one careful attempt. Mouth-model comparison run for Mom: qwen3:4b default returned empty content; `think:false` (Ollama 0.33.3) still planned aloud; llama3.2:3b/phi3:mini/qwen2:7b sampled clean.
+- `_12` FAILED honestly (`identity_leak_or_unidentified`): after Mom chose **phi3:mini** (`VESPER_CONFIG.json`, qwen3:4b demoted to fallback), the reply was clean but anonymous (`I'm a journalist…`) — the identity gate refused, nothing shipped. Kernel retry extended to fire on anonymous replies.
+- `_13` **VERIFIED house-voice** (`85b83143…`, `phi3:mini`): "As Vesper, I am an investigative journalist with a focus on uncovering the truth. How can I assist you today?" Two sentences, names Vesper, no worksheet, no dump, not canned. Restarts `_3`/`_4` VERIFIED through the model swap. Honest tone note: closer is slightly assistant-flavored — that is polish, not a leak.
 
 Code already in:
 

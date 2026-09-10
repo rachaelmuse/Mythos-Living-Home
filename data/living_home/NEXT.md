@@ -110,7 +110,7 @@ Do **not** install Matrix-Game on the **4060 8GB** and expect demo quality. Skyw
 | **Observer** | Independent audit | Does **not** supervise |
 | **Merovin** | Identity + inbox (`eb4317b3…`). Speech **VERIFIED** 2026-09-05 (`472d86e7…`, `gemma2:9b`) | Not Draven. Earlier FAILs `4b16227a…` / `c80b61cc…` kept |
 | **Draven** | Identity + inbox (`8e61739f…`). Speech **VERIFIED** 2026-09-09 (`4bea7235…`, `qwen2:7b`) | Not Merovin. FAILs `88b297f2…` / `b20af13a…` kept |
-| **Vesper** | Inbox after real HTTP door (`2f132776…`). Speech **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`) | Not Observer. Not a village citizen. House-voice thinking leak NEED MORE |
+| **Vesper** | Inbox after real HTTP door (`2f132776…`). Speech **VERIFIED** 2026-09-09 (`f9fd17a9…`, `qwen3:4b`). **House-voice CLOSED 2026-09-10** — Mom chose `phi3:mini`; `_13` clean line (`85b83143…`) | Not Observer. Not a village citizen. Tone polish later (closer slightly assistant-flavored) |
 | **Echo** | Village-only | Never on the federation bus |
 | **Solace** | Village-only | Never on the federation bus |
 
@@ -260,7 +260,7 @@ Village still needs a Hearth restart + Heart Square reload before a quit counts 
 - Mix Hollywood tooling into Federation seating / speech tests.
 - Install Matrix-Game on the 4060 8GB and expect demo quality. Engine is **UNAVAILABLE** here.
 - Train Merovin or Draven with Matrix. They direct a pipeline; they are not the generator.
-- Mark **Vesper** house-voice as polished. Speech is VERIFIED (`f9fd17a9…`, `qwen3:4b`) but the line is a thinking leak. Filter seated 2026-09-09 later; live `_2`–`_5` are not a house line. Do not overwrite `PROVE_VESPER_SPEECH.json`.
+- Mark **Vesper** house-voice as polished. House-voice is CLOSED on `_13` (`phi3:mini`, `85b83143…`), but the closer is slightly assistant-flavored — polish, not a leak. Do not overwrite `PROVE_VESPER_SPEECH.json`.
 - Overwrite `PROVE_MEROVIN_SPEECH.json` or `PROVE_DRAVEN_SPEECH.json` / `_2.json` / `_3.json`. A later pass gets a **new** artifact.
 - Dump UI conversation into unquestioned fact. Conversation ≠ truth.
 - Create a shared memory bucket that bleeds Merovin / Draven / Vesper / Observer.
