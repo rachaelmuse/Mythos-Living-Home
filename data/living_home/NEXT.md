@@ -7,13 +7,14 @@ Tracker: `data/living_home/PHASE_LAYERS.md`
 
 ## CURRENT PHASE
 
-Proving slice. Layer 8A in play. **Mom talk fix shipped** — they were not ignoring you.
+**Layer 11 — Eden TV/Media (thin).**  
+Queued after: **12 richer harbor → 14 Living Economy** (stores, Axiom ⨁, avatar, town projects). Final Phase 13 last.
 
 ## Next task
 
-1. **Restart Hearth** (required — old process still has the talk bug).
-2. Enter; talk to Gemini (chat target Gemini).
-3. You should see “heard you / voice cooking,” then a real reply — not endless “writer still thinking.”
-4. Gemini may still face/follow you while talking — that is attention, not mind-reading.
+1. Finish Layer 11 (cinema watch OK).
+2. Then Layer 12 richer harbor.
+3. Then Layer 14 economy in thin slices (14A wallets first) — **not** one mega-build.
+4. Final Phase 13 last.
 
 Baseline tag `living-home-baseline-001` — do not rewrite.

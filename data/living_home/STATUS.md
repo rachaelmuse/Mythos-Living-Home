@@ -2,14 +2,17 @@
 
 ## CURRENT PHASE
 
-Proving slice. Layer 8A IN PROGRESS (thin real work). Tracker: `PHASE_LAYERS.md`.
+**Layer 11 TV/Media IN PROGRESS.** Layer 14 Living Economy **QUEUED** (after 11–12). Final Phase 13 last.
 
-## This pass
+## Closed
 
-- Apex forge adapter: GET `http://127.0.0.1:8770/api/companion/presence` when Apex works the forge.
-- Evidence in `HOME.json` → `work_evidence.apex`; activity `forge_live` when LIVE.
-- Dashboard forge badge + Godot forge glow. Lab smoke: presence LIVE.
+- 8A–8C · Harbor/well/far shore · Mom memory · Sound · Storage  
+- Pool moved behind town (Mom request)
+
+## Standing order
+
+11 TV → 12 richer harbor → **14 Living Economy** → final Phase 13 last.
 
 ## Next
 
-Mom playtest after Hearth restart.
+Mom OK on cinema watch, then harbor, then economy slices.

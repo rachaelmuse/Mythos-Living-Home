@@ -5,30 +5,56 @@
 ## Layer stack (current)
 
 | # | Layer | Status | Notes |
-|---|--------|--------|--------|
+|---|--------|--------|-------|
 | 0 | Dual-mode law | ACTIVE | Mode A Court/MAS stays; Mode B Heart Square expands. Identities never merge. |
-| 1 | Proving slice — identity & homes | DONE (lab) | Home ≠ workplace; cottages spaced; Mom stop wins. |
-| 2 | Env starter | DONE (lab) | Season / weather / trees / gardens / holidays (kernel + Godot). |
-| 3 | Family chat room | DONE (lab) | Anywhere talk + full log + auto-scroll. |
-| 4 | Honest posts | DONE (lab) | No fake hammer/film; garden tend real; Mode A tools unwired. |
-| 5 | Entrance / enter + side gardens | DONE (Mom OK) | Door-axis enter/inside; gardens beside cottages. |
-| 6 | Hearth UI: Living Home panel | DONE (Mom OK) | `house.html` sidebar → Living Home. |
-| 7 | Lived-in greybox + dual talk | DONE (Mom OK) | denser rooms; Gemini town leader; trees clear; Court+Cinema brains. |
-| 8 | Thin real work (A) | IN PROGRESS | Apex forge probes Mode A `/api/companion/presence`. Others still hold-post. |
+| 1–7 | Proving foundation | DONE | Identity through dual talk / lived-in greybox. |
+| 8A | Thin real work (Apex forge) | DONE (Mom OK) | Presence probe when `:8770` up. |
+| 8B | Pathing (AABB detours) | DONE (Mom OK) | Corner routes; still PLACEHOLDER — not navmesh. |
+| 8C | Evening gather | DONE (Mom OK) | Gemini soft-calls Heart Square. |
+| 9 | Sound (Eden Phase 1 thin) | DONE | Forest bed in Audio/nature (OGA). |
+| 9b–9d | Harbor / well / far shore | DONE | Edge water + utilities + thin travel/build. Pool behind town. |
+| 10 | Mom Interface + Community Memory | DONE (Mom OK) | Persist Mom voice; nearby Ollama; Storage hall. |
+| 11 | Eden TV/Media (thin) | IN PROGRESS | Cinema watch; media/watch stills seated. |
+| 12 | Richer harbor | NEXT | Fish catch + destination builder after 11. |
+| 14 | Living Economy & Self-Expression | QUEUED | Stores, Axiom ⨁, inventory, avatar thin, town projects, trade. |
+| 13 | Final polish (Phase 13) | LAST | Do not jump here. |
 
 ## Standing choice
 
-**Gemini = town leader.** Dual talk brains. Garden tend stays real.
+**Gemini = town leader.** Dual talk brains. Garden tend stays real. Identities never merge.
 
-## Layer 8A verify
+## Standing order
 
-1. Restart Hearth + Enter (Apex `:8770` should be up for LIVE).
-2. Dashboard **Apex forge** badge: LIVE when presence answers.
-3. In village: forge sign glow cyan when LIVE; Apex purpose mentions real probe.
-4. Cinema / workshop / gallery still honest hold — no fake film/hammer.
+1. Sound — DONE  
+2. TV/Media — finish Mom OK  
+3. Richer harbor (12) — after 11  
+4. **Living Economy (14)** — after harbor; thin slices 14A–14F, not one mega-drop  
+5. Final Phase 13 — last  
+
+## Layer 14 — Living Economy (queued detail)
+
+Do **not** start until 11–12 closed. When open, prove in thin slices (no fake Mode A flatten):
+
+| Slice | Intent |
+|-------|--------|
+| 14A | Axiom ⨁ wallet on beings + Mom earn/spend evidence |
+| 14B | Grocery + clothing shops (village places + buy into inventory) |
+| 14C | Electronics + pet store (pets autonomous; shop = supplies/adoption) |
+| 14D | Avatar clothing/colors from inventory (greybox readable) |
+| 14E | Town projects + Storage resources (contribute, progress) |
+| 14F | Being↔being trade |
+
+Currency: **Axiom (⨁)**. Storage hall already exists. Hearth is truth; dashboard + Godot present.
+
+## Layer 11 verify
+
+1. Cinema **[E] Watch** — screen live / still from `media/watch/`.
+2. Honest idle if no file.
+3. Pool south behind cottages (not on Gemini/Apex square path).
 
 ## Later (not now)
 
-- B pathing / C evening ritual (if Mom wants next)
+- Eden Games / Internet (separate Eden phases)
 - Navmesh, final art
-- Phase 13 — last
+- Full face morph / paid APIs
+- Final Phase 13 polish
