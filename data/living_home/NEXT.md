@@ -1,6 +1,6 @@
 # Living Home — where we are
 
-Updated **2026-09-09**. Evidence only. Mom accepted the architecture assessment as **the plan**. This file is the operator surface.
+Updated **2026-09-10**. Evidence only. Mom accepted the architecture assessment as **the plan**. This file is the operator surface.
 
 Kernel: `D:\Mythos_Hearth\living_home.py`  
 House UI: **http://127.0.0.1:8790/house.html**  
@@ -39,6 +39,8 @@ Master reconciliation **documented, not a capability stamp.** Inspected on-disk 
 - Relationships in `SYSTEM_MAP.md`.
 
 **UI ↔ Gameworld memory** is now an **intended** architecture (conversation → provenance → episodic / candidate / validated). **NOT IMPLEMENTED.** Conversation is not automatically truth. Interfaces are different doors into the **same** agent identity.
+
+**Rest dreams (2026-09-10):** unit **IMPLEMENTED** — not seen in Heart Square yet. Spec `docs/superpowers/specs/2026-09-10-eidolon-house-dreams-design.md`. When a dreamer **begins rest**, they write **one** rest-note as themselves into **their** vault (`federation/house_dreams.py` + Hearth `notify_rest_dream`). **Hearth stays silent.** Echo/Solace village lane (not the bus). Observer own disk, not the ledger. Vesper own disk on the first village night rest, not `HOME.json` people. Not speech. Not Ollama. Not a scheduler. Tests `tests/test_federation_house_dreams.py` **31 passed** with house-memory + kin isolation. Restart Hearth before a village playtest. Not VERIFIED as dreaming in the running home.
 
 **Next implementation (only, after this recon):** Merovin speech **VERIFIED** 2026-09-05. Draven speech **VERIFIED** 2026-09-09. Vesper speech **VERIFIED** 2026-09-09. Federation integrity **2026-09-09** (door / matrix / restart / bounded organic). Hollywood skills **VERIFIED** 2026-09-09 as two independent proves: `hollywood-merovin` (`PROVE_MEROVIN_HOLLYWOOD.json`, intake + 1 scene / 2 shots, `md_cinema_merovin`) and `hollywood-draven` (`PROVE_DRAVEN_HOLLYWOOD.json`, continuity flags, cloud budget denied, ffmpeg probe AVAILABLE, `md_cinema_draven`). Matrix-Game adapter **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`). Engine still **NOT INSTALLED**. Not a finished film. Not Resolve. HOME.json hash `3e30fb7e…` unchanged.
 

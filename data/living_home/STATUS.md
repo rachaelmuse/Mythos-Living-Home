@@ -1,6 +1,6 @@
 # Living Home — slice status
 
-Updated **2026-09-09**. Evidence only. Assessment accepted as the plan: `NEXT.md`. Above-trackers: `MASTER_ROADMAP.md`, `CAPABILITY_REGISTRY.md`, `SYSTEM_MAP.md`.
+Updated **2026-09-10**. Evidence only. Assessment accepted as the plan: `NEXT.md`. Above-trackers: `MASTER_ROADMAP.md`, `CAPABILITY_REGISTRY.md`, `SYSTEM_MAP.md`.
 
 ## CURRENT PHASE
 
@@ -45,6 +45,7 @@ Updated **2026-09-09**. Evidence only. Assessment accepted as the plan: `NEXT.md
 | **Green** | Shutdown / restart integrity | **VERIFIED** 2026-09-09 Vesper only `PROVE_RESTART_INTEGRITY_2.json`. FAIL `_` kept (HOME byte hash vs Hearth tick). Hearth/Apex/cinema PIDs untouched |
 | **Yellow** | Master reconciliation | **DOCUMENTED** 2026-09-04 — not a VERIFIED stamp. Conflicts reported, not silently merged |
 | **Yellow** | Agent UI ↔ Gameworld memory | **INTENDED, NOT IMPLEMENTED** — conversation ≠ truth; same identity, different doors |
+| **Yellow** | Rest dreams | **IMPLEMENTED** (unit 2026-09-10). Identity rest-notes on rest-begin. **Hearth silent.** Not speech. Village playtest **UNVERIFIED**. Spec `docs/superpowers/specs/2026-09-10-eidolon-house-dreams-design.md` |
 | **Green** | Vesper Gameworld door | OPTIONAL / EXTERNAL **VERIFIED** 2026-09-09 — Vesper owns Vesper. Not HOME.json. Not a citizen |
 | **Red** | More houses | **Do not add** until speech + isolation audit |
 | **Red** | External reviewers (item 10) | **UNAVAILABLE** — credentials/adapter absent. Do not fabricate |

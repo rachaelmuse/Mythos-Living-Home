@@ -5220,6 +5220,63 @@ def dashboard_overview(persist: bool = True) -> dict[str, Any]:
     }
 
 
+def notify_rest_dream(
+    home: dict[str, Any],
+    member: dict[str, Any],
+    prev_purpose: str,
+    prev_stance: str,
+    *,
+    store: Any = None,
+) -> dict[str, Any] | None:
+    """When a dreamer begins rest, write one identity rest-note. Hearth stays silent. Not speech."""
+    mid = str(member.get("id") or "")
+    if mid == "hearth":
+        return None
+    st = (home.get("people") or {}).get(mid) or {}
+    try:
+        from federation.house_dreams import HouseDreams, rest_began
+    except Exception:
+        return None
+    if not rest_began(
+        prev_purpose,
+        prev_stance,
+        str(st.get("purpose") or ""),
+        str(st.get("stance") or ""),
+    ):
+        return None
+    dreams = store
+    if dreams is None:
+        try:
+            from federation.law import DEFAULT_DATA_ROOT
+
+            dreams = HouseDreams(
+                federation_root=DEFAULT_DATA_ROOT,
+                village_root=DATA / "dreams",
+                observer_root=Path(r"D:\The_Observer"),
+                vesper_root=Path(r"D:\Mythos_Vesper"),
+            )
+        except Exception:
+            return None
+    tick_n = int(home.get("tick") or 0)
+    clock = home.get("clock") if isinstance(home.get("clock"), dict) else {}
+    period = str(clock.get("period") or "")
+    day = int(clock.get("day") or 1)
+    place = str(st.get("place") or member.get("place") or "")
+    try:
+        row = dreams.rest_begin(mid, bout=str(tick_n), place=place)
+    except (PermissionError, OSError, ValueError):
+        return None
+    if not row:
+        return None
+    st["last_rest_dream_tick"] = tick_n
+    if period == "night":
+        try:
+            dreams.rest_begin("vesper", bout=f"{day}-night", place="studio")
+        except (PermissionError, OSError, ValueError):
+            pass
+    return row
+
+
 def tick(n: int = 1) -> dict[str, Any]:
     """Advance life layer + clock. Safe to call from Godot or Hearth."""
     import random
@@ -5356,7 +5413,13 @@ def tick(n: int = 1) -> dict[str, Any]:
                         st["purpose_left"] = max(2, int(st.get("purpose_left") or 2))
                         st["purpose_plain"] = f"Left the square. Walking to {PLACES.get(st['place'], {}).get('label', st['place'])}."
             _unfreeze_waiting(home, m)
+            prev_purpose = str(st.get("purpose") or "")
+            prev_stance = str(st.get("stance") or "")
             if _arrive_from_walk(home, m):
+                try:
+                    notify_rest_dream(home, m, prev_purpose, prev_stance)
+                except Exception:
+                    pass
                 continue
             # Host / invited gatherers keep purpose during the window.
             if gather_on and str(st.get("place") or "") == "heart_square" and st.get("purpose") in {"gather", "gather_host"}:
@@ -5364,6 +5427,10 @@ def tick(n: int = 1) -> dict[str, Any]:
             if gather_on and m["id"] == "gemini":
                 continue
             _choose_purpose(home, m, period, living_ids)
+            try:
+                notify_rest_dream(home, m, prev_purpose, prev_stance)
+            except Exception:
+                pass
 
         # Layer 8A — thin real work: Apex at forge probes Mode A presence (throttled).
         apex_st = (home.get("people") or {}).get("apex") or {}
