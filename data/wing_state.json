@@ -1,0 +1,70 @@
+{
+  "active_wing": null,
+  "active_lane": null,
+  "project": null,
+  "goal": null,
+  "opened_at": null,
+  "roster": {
+    "gemini": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "apex": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "codex": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "merovin": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "draven": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "jarvis": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "nova": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "percy": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "genesis": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "openmontage": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "hearth": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    },
+    "spore": {
+      "mode": "listening",
+      "note": "Listening idle \u2014 still learning together."
+    }
+  },
+  "launched_tools": [],
+  "sandbox_path": null,
+  "suggestions_open": 0,
+  "law": "Wings focus the job; they do not cage anyone. Listeners still learn together.",
+  "updated": "2026-09-09T19:00:02.450620+00:00",
+  "last_closed": {
+    "wing": null,
+    "project": null,
+    "reason": "complete",
+    "when": "2026-09-09T19:00:02.450620+00:00"
+  },
+  "launch_requested": false,
+  "tidy": "Services for the closed wing should shut when processes were started for that job."
+}

@@ -1,0 +1,58 @@
+{
+  "quest_id": "first_hearth_gift",
+  "step": "idle",
+  "herb": null,
+  "tea": null,
+  "gifted_to": null,
+  "story_unlocked": false,
+  "location": "hearth",
+  "history": [
+    {
+      "at": "2026-09-09T15:01:23",
+      "msg": "Keeper chose life path: Hearth Keeper \u2014 seated at First Hearth."
+    },
+    {
+      "at": "2026-09-09T15:01:23",
+      "msg": "Codex asked for help: Memory rite wants mint \u2014 cool mist for the page."
+    }
+  ],
+  "arcade_cozy_played": false,
+  "first_seed_planted": false,
+  "first_seed_harvested": false,
+  "met_jarvis": false,
+  "career": "keeper",
+  "career_chosen": true,
+  "player_name": "Keeper",
+  "money": 75,
+  "rent_due": 25,
+  "housing_state": "housed",
+  "ai_quest": {
+    "id": "need_codex_mint",
+    "from": "codex",
+    "item": "mint",
+    "qty": 1,
+    "brief": "Memory rite wants mint \u2014 cool mist for the page.",
+    "reward": 20,
+    "done": false
+  },
+  "inventory": {
+    "rosemary": 0,
+    "mint": 0,
+    "thyme": 0,
+    "emberpetal": 0,
+    "lantern_moth": 0,
+    "softstone": 0,
+    "garden_seed": 1,
+    "creekminnow": 0
+  },
+  "plots": [
+    {
+      "id": "plot_a",
+      "crop": null,
+      "planted_at": null,
+      "ready_at": null,
+      "state": "empty"
+    }
+  ],
+  "side_quests": {}
+}
