@@ -93,6 +93,58 @@ func set_media_watch(watching: bool, place: String = "cinema", title: String = "
 		print("[Hearth] media request failed err=", err)
 
 
+func harbor_action(action: String, kind: String = "", destination: String = "far_shore") -> void:
+	## Layer 12 — fish / build / sail via Hearth (inventory + destinations persist).
+	if _busy_talk:
+		_talk_queue.append(
+			{"_harbor": true, "action": action, "kind": kind, "destination": destination}
+		)
+		return
+	_busy_talk = true
+	var body := JSON.stringify(
+		{"action": action, "kind": kind, "destination": destination, "who": "mom"}
+	)
+	var headers := PackedStringArray(["Content-Type: application/json"])
+	var err := _talk.request(hearth_url + "/api/home/harbor", headers, HTTPClient.METHOD_POST, body)
+	if err != OK:
+		_busy_talk = false
+		print("[Hearth] harbor request failed err=", err)
+
+
+func axiom_transfer(to_id: String, amount: int = 5, reason: String = "gift") -> void:
+	## Layer 14A — Mom gifts Axiom ⨁ to a being.
+	if _busy_talk:
+		_talk_queue.append({"_axiom": true, "action": "transfer", "to": to_id, "amount": amount, "reason": reason})
+		return
+	_busy_talk = true
+	var body := JSON.stringify(
+		{"action": "transfer", "from": "mom", "who": "mom", "to": to_id, "amount": amount, "reason": reason}
+	)
+	var headers := PackedStringArray(["Content-Type: application/json"])
+	var err := _talk.request(hearth_url + "/api/home/axiom", headers, HTTPClient.METHOD_POST, body)
+	if err != OK:
+		_busy_talk = false
+		print("[Hearth] axiom request failed err=", err)
+
+
+func store_buy(store_id: String, item_id: String, quantity: int = 1) -> void:
+	## Layer 14B — buy from grocery / clothing via Hearth.
+	if _busy_talk:
+		_talk_queue.append(
+			{"_store": true, "action": "buy", "store_id": store_id, "item_id": item_id, "quantity": quantity}
+		)
+		return
+	_busy_talk = true
+	var body := JSON.stringify(
+		{"action": "buy", "store_id": store_id, "item_id": item_id, "quantity": quantity, "buyer": "mom"}
+	)
+	var headers := PackedStringArray(["Content-Type: application/json"])
+	var err := _talk.request(hearth_url + "/api/home/store", headers, HTTPClient.METHOD_POST, body)
+	if err != OK:
+		_busy_talk = false
+		print("[Hearth] store request failed err=", err)
+
+
 func _drain_talk_queue() -> void:
 	if _busy_talk or _talk_queue.is_empty():
 		return
@@ -111,6 +163,54 @@ func _drain_talk_queue() -> void:
 		var headers_m := PackedStringArray(["Content-Type: application/json"])
 		var err_m := _talk.request(hearth_url + "/api/home/media", headers_m, HTTPClient.METHOD_POST, body_m)
 		if err_m != OK:
+			_busy_talk = false
+			_talk_queue.push_front(item)
+		return
+	if bool(item.get("_harbor", false)):
+		var body_h := JSON.stringify(
+			{
+				"action": str(item.get("action", "")),
+				"kind": str(item.get("kind", "")),
+				"destination": str(item.get("destination", "far_shore")),
+				"who": "mom",
+			}
+		)
+		var headers_h := PackedStringArray(["Content-Type: application/json"])
+		var err_h := _talk.request(hearth_url + "/api/home/harbor", headers_h, HTTPClient.METHOD_POST, body_h)
+		if err_h != OK:
+			_busy_talk = false
+			_talk_queue.push_front(item)
+		return
+	if bool(item.get("_axiom", false)):
+		var body_a := JSON.stringify(
+			{
+				"action": str(item.get("action", "transfer")),
+				"who": "mom",
+				"from": "mom",
+				"to": str(item.get("to", "")),
+				"amount": int(item.get("amount", 5)),
+				"reason": str(item.get("reason", "gift")),
+			}
+		)
+		var headers_a := PackedStringArray(["Content-Type: application/json"])
+		var err_a := _talk.request(hearth_url + "/api/home/axiom", headers_a, HTTPClient.METHOD_POST, body_a)
+		if err_a != OK:
+			_busy_talk = false
+			_talk_queue.push_front(item)
+		return
+	if bool(item.get("_store", false)):
+		var body_s := JSON.stringify(
+			{
+				"action": str(item.get("action", "buy")),
+				"store_id": str(item.get("store_id", "")),
+				"item_id": str(item.get("item_id", "")),
+				"quantity": int(item.get("quantity", 1)),
+				"buyer": "mom",
+			}
+		)
+		var headers_s := PackedStringArray(["Content-Type: application/json"])
+		var err_s := _talk.request(hearth_url + "/api/home/store", headers_s, HTTPClient.METHOD_POST, body_s)
+		if err_s != OK:
 			_busy_talk = false
 			_talk_queue.push_front(item)
 		return

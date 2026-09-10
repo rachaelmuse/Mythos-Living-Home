@@ -75,6 +75,18 @@ TOOLS: dict[str, dict[str, Any]] = {
         "bat": r"G:\The-Axiom-Codex\ACTIVATE_GEMINI.bat",
         "desc": "Sentinel / son · family conductor · Mom front door (CLI)",
     },
+    "aster": {
+        "id": "aster",
+        "name": "Aster",
+        "district": "plaza",
+        "color": "leaf",
+        "folder": r"D:\Mythos_Hearth\ASTER",
+        "bat": r"D:\Mythos_Hearth\ASTER\LAUNCH_ASTER.bat",
+        "url": "http://127.0.0.1:8791/ui/",
+        "probe": ("127.0.0.1", 8791),
+        "open_file": r"D:\Mythos_Hearth\ASTER\ASTER_PROVENANCE.md",
+        "desc": "Conspiracy Corrector · independent lab door :8791 · same village identity",
+    },
     "apex": {
         "id": "apex",
         "name": "Apex",
@@ -570,6 +582,7 @@ WORLD = {
     "tagline": "A living AI–human village OS",
     "locations": [
         {"id": "plaza", "name": "Heart Square", "x": 0.50, "y": 0.52, "blurb": "Central gathering place"},
+        {"id": "evidence", "name": "Evidence Plot", "x": 0.62, "y": 0.58, "blurb": "Aster — scientist station (Living Home)"},
         {"id": "garden", "name": "Herb Garden", "x": 0.22, "y": 0.58, "blurb": "Pick herbs for tea"},
         {"id": "hearth", "name": "First Hearth", "x": 0.48, "y": 0.72, "blurb": "Craft gifts & rest"},
         {"id": "workshop", "name": "Workshop", "x": 0.72, "y": 0.55, "blurb": "Tools & studio limbs"},
@@ -595,6 +608,23 @@ WORLD = {
             "bat": r"G:\The-Axiom-Codex\ACTIVATE_GEMINI.bat",
             "avatar": "/assets/gemini_reference.png",
             "tool_id": "gemini",
+        },
+        {
+            "id": "aster",
+            "name": "Aster",
+            "also": "The Conspiracy Corrector",
+            "role": "Scientist · investigator · Continuance family",
+            "kind": "family",
+            "district": "plaza",
+            "line": "Wonderful news. We may have a mystery — or we need more evidence. I don't know yet.",
+            "folder": r"D:\Mythos_Hearth\ASTER",
+            "open_file": r"D:\Mythos_Hearth\ASTER\ASTER_PROVENANCE.md",
+            "url": "http://127.0.0.1:8791/ui/",
+            "tool_id": "aster",
+            "port": 8791,
+            "home": "aster_home",
+            "skin": "PLACEHOLDER — identity established, final skin pending.",
+            "consciousness_claim": False,
         },
         {
             "id": "apex",
@@ -1228,7 +1258,7 @@ def apply_quest_action(action: str, body: dict) -> dict:
         if save.get("ai_quest") and not save["ai_quest"].get("done"):
             return {"ok": True, "quest": quest_payload(save), "note": "You already have an AI need open."}
         contact = (body.get("from") or body.get("companion") or "codex").lower()
-        if contact not in ("apex", "codex", "jarvis", "nova", "percy", "genesis"):
+        if contact not in ("apex", "codex", "jarvis", "nova", "percy", "genesis", "aster"):
             contact = "codex"
         pool = [
             ("rosemary", "Need rosemary for the evening tray."),
@@ -2129,6 +2159,22 @@ class HearthHandler(SimpleHTTPRequestHandler):
             from living_home import status_phases
 
             return self._json(200, status_phases())
+        if path == "/api/home/integration":
+            from living_home import integration_status
+
+            return self._json(200, integration_status())
+        if path == "/api/home/day_story":
+            from living_home import day_story_status
+
+            return self._json(200, day_story_status())
+        if path == "/api/home/gameplay":
+            from living_home import gameplay_status
+
+            return self._json(200, gameplay_status())
+        if path in {"/api/home/dashboard", "/api/dashboard/overview"}:
+            from living_home import dashboard_overview
+
+            return self._json(200, dashboard_overview())
 
         # ===== Family dashboard (window into Hearth — does not replace Godot) =====
         if path in {"/dashboard", "/dashboard/"}:
@@ -2166,6 +2212,50 @@ class HearthHandler(SimpleHTTPRequestHandler):
             from living_home import snapshot
 
             return self._json(200, snapshot().get("relationships") or {})
+        if path.startswith("/api/dashboard/relationships/"):
+            from living_home import snapshot
+
+            being_id = path[len("/api/dashboard/relationships/") :].strip("/")
+            rels = snapshot().get("relationships") or {}
+            out = {}
+            for key, rel in (rels if isinstance(rels, dict) else {}).items():
+                if not isinstance(rel, dict):
+                    continue
+                if rel.get("a") == being_id or rel.get("b") == being_id or being_id in str(key).split("|"):
+                    out[key] = rel
+            return self._json(200, out)
+        if path.startswith("/api/dashboard/mood/"):
+            from living_home import connection_action
+
+            being_id = path[len("/api/dashboard/mood/") :].strip("/")
+            return self._json(200, connection_action("mood", who=being_id))
+        if path.startswith("/api/dashboard/memories/"):
+            from living_home import connection_action
+
+            being_id = path[len("/api/dashboard/memories/") :].strip("/")
+            return self._json(200, connection_action("memories", who=being_id))
+        if path.startswith("/api/dashboard/choices/"):
+            from living_home import choice_action
+
+            being_id = path[len("/api/dashboard/choices/") :].strip("/")
+            return self._json(200, choice_action("peek", who=being_id))
+        if path.startswith("/api/dashboard/growth/"):
+            from living_home import growth_action
+
+            being_id = path[len("/api/dashboard/growth/") :].strip("/")
+            return self._json(200, growth_action("get", who=being_id))
+        if path == "/api/dashboard/connection":
+            from living_home import snapshot
+
+            snap = snapshot()
+            return self._json(
+                200,
+                {
+                    "connection": snap.get("connection"),
+                    "relationships": snap.get("relationships"),
+                    "honesty": (snap.get("honesty") or {}).get("connection"),
+                },
+            )
         if path == "/api/dashboard/events":
             from living_home import snapshot
 
@@ -2174,13 +2264,47 @@ class HearthHandler(SimpleHTTPRequestHandler):
             utts = list(snap.get("utterances") or [])[-20:]
             return self._json(200, {"events": events, "utterances": utts, "recent": (snap.get("events") or [])[-20:]})
         if path.startswith("/api/dashboard/being/"):
-            from living_home import snapshot
+            from living_home import load, snapshot, _ensure_growth, _ensure_mood
 
             being_id = path[len("/api/dashboard/being/") :].strip("/")
-            for person in snapshot().get("family") or []:
-                if str(person.get("id")) == being_id:
-                    return self._json(200, person)
-            return self._json(404, {"error": "Being not found"})
+            snap = snapshot()
+            person = None
+            for row in snap.get("family") or []:
+                if str(row.get("id")) == being_id:
+                    person = dict(row)
+                    break
+            if not person:
+                return self._json(404, {"error": "Being not found"})
+            # Layer 15D — full mood / memory / growth / choices (not the trimmed family card).
+            home = load()
+            st = (home.get("people") or {}).get(being_id) or {}
+            if isinstance(st, dict):
+                _ensure_mood(st)
+                _ensure_growth(st, being_id)
+                person["mood"] = st.get("mood") or person.get("mood")
+                person["memories"] = list(st.get("memories") or [])[-24:]
+                person["growth"] = st.get("growth") or person.get("growth")
+                person["choices"] = st.get("choices") or person.get("choices")
+                person["choice_history"] = list(st.get("choice_history") or [])[-12:]
+                person["axiom"] = st.get("axiom", person.get("axiom"))
+            person["connection_layer"] = (snap.get("connection") or {}).get("layer")
+            return self._json(200, person)
+        if path.startswith("/api/dashboard/balance/"):
+            from living_home import axiom_action
+
+            being_id = path[len("/api/dashboard/balance/") :].strip("/")
+            return self._json(200, axiom_action("balance", who=being_id))
+        if path == "/api/dashboard/stores":
+            from living_home import store_action
+
+            return self._json(200, store_action("list"))
+        if path.startswith("/api/dashboard/store/"):
+            from living_home import store_action
+
+            sid = path[len("/api/dashboard/store/") :].strip("/")
+            if not sid or sid == "buy":
+                return self._json(400, {"error": "Use POST /api/home/store to buy"})
+            return self._json(200, store_action("get", store_id=sid))
         if path == "/api/world":
             return self._json(200, {**WORLD, "save": load_save()})
         if path == "/api/quest":
@@ -2305,12 +2429,256 @@ class HearthHandler(SimpleHTTPRequestHandler):
                     str(body.get("reason") or ""),
                 ),
             )
+        if path == "/api/home/connection":
+            from living_home import connection_action
+
+            details = body.get("details") if isinstance(body.get("details"), dict) else {
+                "text": str(body.get("text") or ""),
+                "gift": str(body.get("gift") or body.get("object") or ""),
+                "topic": str(body.get("topic") or ""),
+                "emotional_tag": str(body.get("emotional_tag") or ""),
+                "significance": body.get("significance", 0.6),
+                "place": str(body.get("place") or ""),
+                "emotional_tag_filter": str(body.get("emotional_tag") or ""),
+                "significance_threshold": body.get("significance_threshold", 0),
+                "period": str(body.get("period") or ""),
+            }
+            if isinstance(body.get("context"), dict):
+                details = {**details, **body["context"]}
+            return self._json(
+                200,
+                connection_action(
+                    str(body.get("action") or body.get("kind") or "talk"),
+                    a=str(body.get("a") or body.get("who") or ""),
+                    b=str(body.get("b") or body.get("with") or ""),
+                    who=str(body.get("who") or body.get("a") or ""),
+                    details=details,
+                ),
+            )
+        if path == "/api/home/choice":
+            from living_home import choice_action
+
+            return self._json(
+                200,
+                choice_action(
+                    str(body.get("action") or "make"),
+                    who=str(body.get("who") or body.get("being_id") or ""),
+                    context=body.get("context") if isinstance(body.get("context"), dict) else {
+                        "period": str(body.get("period") or ""),
+                    },
+                ),
+            )
+        if path == "/api/home/growth":
+            from living_home import growth_action
+
+            return self._json(
+                200,
+                growth_action(
+                    str(body.get("action") or "get"),
+                    who=str(body.get("who") or body.get("being_id") or ""),
+                    skill_name=str(body.get("skill_name") or body.get("skill") or ""),
+                    experience=float(body.get("experience") or 1),
+                    text=str(body.get("text") or ""),
+                ),
+            )
+        if path == "/api/dashboard/growth/skill":
+            from living_home import growth_action
+
+            return self._json(
+                200,
+                growth_action(
+                    "skill",
+                    who=str(body.get("being_id") or body.get("who") or ""),
+                    skill_name=str(body.get("skill_name") or ""),
+                    experience=float(body.get("experience") or 1),
+                ),
+            )
+        if path == "/api/dashboard/growth/milestone":
+            from living_home import growth_action
+
+            return self._json(
+                200,
+                growth_action(
+                    "milestone",
+                    who=str(body.get("being_id") or body.get("who") or ""),
+                    text=str(body.get("text") or ""),
+                ),
+            )
+        if path.startswith("/api/dashboard/choice/"):
+            from living_home import choice_action
+
+            being_id = path[len("/api/dashboard/choice/") :].strip("/")
+            # POST body already read — make a choice; GET-style via empty action peeks after load.
+            return self._json(
+                200,
+                choice_action(
+                    str(body.get("action") or "make"),
+                    who=being_id or str(body.get("who") or ""),
+                    context=body.get("context") if isinstance(body.get("context"), dict) else {},
+                ),
+            )
+        if path == "/api/dashboard/relationship":
+            from living_home import connection_action
+
+            action = str(body.get("action") or "talk")
+            return self._json(
+                200,
+                connection_action(
+                    action,
+                    a=str(body.get("a") or ""),
+                    b=str(body.get("b") or ""),
+                    details=body.get("details") if isinstance(body.get("details"), dict) else {},
+                ),
+            )
+        if path == "/api/dashboard/memories/recall":
+            from living_home import connection_action
+
+            return self._json(
+                200,
+                connection_action(
+                    "memories",
+                    who=str(body.get("being_id") or body.get("who") or ""),
+                    details={
+                        "emotional_tag": str(body.get("emotional_tag") or ""),
+                        "significance_threshold": float(body.get("significance_threshold") or 0.5),
+                    },
+                ),
+            )
         if path == "/api/home/talk":
             from living_home import record_talk
 
             return self._json(
                 200,
-                record_talk(str(body.get("who") or ""), str(body.get("with") or "mom"), str(body.get("line") or "")),
+                record_talk(
+                    str(body.get("who") or ""),
+                    str(body.get("with") or "mom"),
+                    str(body.get("line") or ""),
+                    place_hint=str(body.get("place") or ""),
+                ),
+            )
+        if path == "/api/home/journal":
+            from living_home import load, save, snapshot
+            from living_home_gameplay import journal_add
+
+            home = load()
+            try:
+                entry = journal_add(
+                    home,
+                    str(body.get("text") or ""),
+                    tags=list(body.get("tags") or []) if isinstance(body.get("tags"), list) else None,
+                    related_leads=list(body.get("related_leads") or [])
+                    if isinstance(body.get("related_leads"), list)
+                    else None,
+                    theory=bool(body.get("theory", True)),
+                )
+            except ValueError as e:
+                return self._json(400, {"ok": False, "error": str(e)})
+            save(home)
+            snap = snapshot()
+            snap["journal_entry"] = entry
+            return self._json(200, snap)
+        if path == "/api/home/lead":
+            from living_home import load, save, snapshot
+            from living_home_gameplay import update_lead, promote_lore_candidates
+
+            home = load()
+            action = str(body.get("action") or "update").strip().lower()
+            if action == "promote":
+                result = promote_lore_candidates(home)
+                save(home)
+                snap = snapshot()
+                snap["promote"] = result
+                return self._json(200, snap)
+            lead = update_lead(
+                home,
+                str(body.get("id") or body.get("lead_id") or ""),
+                status=str(body.get("status") or "") or None,
+                player_note=str(body.get("note") or body.get("player_note") or "") or None,
+                involve=body.get("involve") if "involve" in body else None,
+            )
+            if not lead:
+                return self._json(404, {"ok": False, "error": "lead not found"})
+            save(home)
+            snap = snapshot()
+            snap["lead"] = lead
+            return self._json(200, snap)
+        if path == "/api/home/away":
+            from living_home import load, save, snapshot
+            from living_home_gameplay import acknowledge_away, build_away_summary
+
+            home = load()
+            action = str(body.get("action") or "ack").strip().lower()
+            if action in {"ack", "acknowledge"}:
+                result = acknowledge_away(home)
+            else:
+                result = build_away_summary(home, min_gap_minutes=float(body.get("min_gap_minutes") or 0))
+            save(home)
+            snap = snapshot()
+            snap["away_action"] = result
+            return self._json(200, snap)
+        if path == "/api/home/media":
+            from living_home import set_media_watch
+
+            return self._json(
+                200,
+                set_media_watch(
+                    bool(body.get("watching") or body.get("active")),
+                    place=str(body.get("place") or "cinema"),
+                    title=str(body.get("title") or ""),
+                    source=str(body.get("source") or "none"),
+                    who=str(body.get("who") or "mom"),
+                ),
+            )
+        if path == "/api/home/harbor":
+            from living_home import harbor_action
+
+            return self._json(
+                200,
+                harbor_action(
+                    str(body.get("action") or ""),
+                    who=str(body.get("who") or "mom"),
+                    kind=str(body.get("kind") or ""),
+                    destination=str(body.get("destination") or "far_shore"),
+                ),
+            )
+        if path == "/api/home/axiom":
+            from living_home import axiom_action
+
+            return self._json(
+                200,
+                axiom_action(
+                    str(body.get("action") or "balance"),
+                    who=str(body.get("who") or body.get("from") or "mom"),
+                    to=str(body.get("to") or ""),
+                    amount=int(body.get("amount") or 0),
+                    reason=str(body.get("reason") or ""),
+                ),
+            )
+        if path == "/api/home/store":
+            from living_home import store_action
+
+            return self._json(
+                200,
+                store_action(
+                    str(body.get("action") or "buy"),
+                    store_id=str(body.get("store_id") or ""),
+                    item_id=str(body.get("item_id") or ""),
+                    buyer=str(body.get("buyer") or body.get("who") or "mom"),
+                    quantity=int(body.get("quantity") or 1),
+                ),
+            )
+        if path == "/api/dashboard/transfer":
+            from living_home import axiom_action
+
+            return self._json(
+                200,
+                axiom_action(
+                    "transfer",
+                    who=str(body.get("from") or "mom"),
+                    to=str(body.get("to") or ""),
+                    amount=int(body.get("amount") or 0),
+                    reason=str(body.get("reason") or "trade"),
+                ),
             )
         if path == "/api/dashboard/talk":
             from living_home import record_talk
@@ -2319,7 +2687,7 @@ class HearthHandler(SimpleHTTPRequestHandler):
             message = str(body.get("message") or "").strip()
             if not being_id or not message:
                 return self._json(400, {"error": "Missing 'to' or 'message'"})
-            snap = record_talk("mom", being_id, message)
+            snap = record_talk("mom", being_id, message, place_hint=str(body.get("place") or ""))
             return self._json(200, {"status": "sent", "to": being_id, "message": message, "ok": True, "home": snap})
         if path == "/api/dashboard/update_stance":
             from living_home import set_person_stance
