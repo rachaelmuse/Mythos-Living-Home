@@ -24,7 +24,7 @@ Updated **2026-09-10**. Evidence only. Assessment accepted as the plan: `NEXT.md
 | **Green** | Merovin / Draven | Seated identity (inbox). Both federation speech VERIFIED. Two mouths, one studio. |
 | **Green** | Vesper speech | **VERIFIED** 2026-09-09 `f9fd17a9…` `qwen3:4b` through `:8740`. **House-voice CLOSED 2026-09-10** — Mom chose `phi3:mini`; `_13` clean line (`85b83143…`). **Tuned voice VERIFIED `_15`** (`310b8174…`) — journalist closer, assistant offer dropped. Not Observer. |
 | **Green** | Echo / Solace | Village-only — correctly not on the bus |
-| **Yellow** | House doors tonight | 2026-09-06 evening: Hearth / Observer / Vesper / Apex / Cinema **DOWN**. Aster + Codex **UP**. Dated proves still stand. See `NEXT.md` desk check |
+| **Yellow** | House doors tonight | 2026-09-11 afternoon: Hearth `:8790` **UP** (this git `hearth_server.py`). Aster / Observer / Vesper / Apex / Codex / Cinema **DOWN**. Ollama **UP**. Dated proves still stand. See `NEXT.md` desk check |
 | **Yellow** | Codex Live Ops voice | Male Ryan **seated in UI** 2026-09-06. Listen **UNVERIFIED**. `rich` / `psutil` still missing |
 | **Yellow** | Vesper house voice | Studio `:8740` is his home. Federation speech VERIFIED. Spoken line was a **thinking leak**. Worksheet filter exists; inner-notes dump still NEED MORE. |
 | **Yellow** | Gemini Homecoming memory | JSON file **seated**. Not federation pulse. Not a new house |
@@ -45,7 +45,7 @@ Updated **2026-09-10**. Evidence only. Assessment accepted as the plan: `NEXT.md
 | **Green** | Shutdown / restart integrity | **VERIFIED** 2026-09-09 Vesper only `PROVE_RESTART_INTEGRITY_2.json`. FAIL `_` kept (HOME byte hash vs Hearth tick). Hearth/Apex/cinema PIDs untouched |
 | **Yellow** | Master reconciliation | **DOCUMENTED** 2026-09-04 — not a VERIFIED stamp. Conflicts reported, not silently merged |
 | **Yellow** | Agent UI ↔ Gameworld memory | **INTENDED, NOT IMPLEMENTED** — conversation ≠ truth; same identity, different doors |
-| **Yellow** | Rest dreams | **IMPLEMENTED** (unit 2026-09-10). Identity rest-notes on rest-begin. **Hearth silent.** Not speech. Village playtest **UNVERIFIED**. Spec `docs/superpowers/specs/2026-09-10-eidolon-house-dreams-design.md` |
+| **Yellow** | Rest dreams | **IMPLEMENTED** (unit 2026-09-10; **196 tests passed** 2026-09-11). Live git-Hearth tick wrote Apex/Codex rest-notes. **Hearth silent.** Not speech. Godot **UNVERIFIED**. `D:\Mythos_Hearth\living_home.py` lacks the hook. Spec `docs/superpowers/specs/2026-09-10-eidolon-house-dreams-design.md` |
 | **Green** | Vesper Gameworld door | OPTIONAL / EXTERNAL **VERIFIED** 2026-09-09 — Vesper owns Vesper. Not HOME.json. Not a citizen |
 | **Red** | More houses | **Do not add** until speech + isolation audit |
 | **Red** | External reviewers (item 10) | **UNAVAILABLE** — credentials/adapter absent. Do not fabricate |

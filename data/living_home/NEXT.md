@@ -40,7 +40,7 @@ Master reconciliation **documented, not a capability stamp.** Inspected on-disk 
 
 **UI ↔ Gameworld memory** is now an **intended** architecture (conversation → provenance → episodic / candidate / validated). **NOT IMPLEMENTED.** Conversation is not automatically truth. Interfaces are different doors into the **same** agent identity.
 
-**Rest dreams (2026-09-10):** unit **IMPLEMENTED** — not seen in Heart Square yet. Spec `docs/superpowers/specs/2026-09-10-eidolon-house-dreams-design.md`. When a dreamer **begins rest**, they write **one** rest-note as themselves into **their** vault (`federation/house_dreams.py` + Hearth `notify_rest_dream`). **Hearth stays silent.** Echo/Solace village lane (not the bus). Observer own disk, not the ledger. Vesper own disk on the first village night rest, not `HOME.json` people. Not speech. Not Ollama. Not a scheduler. Tests `tests/test_federation_house_dreams.py` **31 passed** with house-memory + kin isolation. Restart Hearth before a village playtest. Not VERIFIED as dreaming in the running home.
+**Rest dreams (2026-09-10):** unit **IMPLEMENTED**. Spec `docs/superpowers/specs/2026-09-10-eidolon-house-dreams-design.md`. When a dreamer **begins rest**, they write **one** rest-note as themselves into **their** vault (`federation/house_dreams.py` + Hearth `notify_rest_dream`). **Hearth stays silent.** Echo/Solace village lane (not the bus). Observer own disk, not the ledger. Vesper own disk on the first village night rest, not `HOME.json` people. Not speech. Not Ollama. Not a scheduler. Tests included in **196 passed** 2026-09-11. **Live Hearth tick 2026-09-11** wrote Apex + Codex rest-notes into `D:\Court\federation\houses/<id>/dreams/` (not shared). **Not seen in Heart Square / Godot.** Canonical `D:\Mythos_Hearth\living_home.py` still lacks `notify_rest_dream` — this git Hearth is the copy that dreamed.
 
 **Next implementation (only, after this recon):** Merovin speech **VERIFIED** 2026-09-05. Draven speech **VERIFIED** 2026-09-09. Vesper speech **VERIFIED** 2026-09-09. Federation integrity **2026-09-09** (door / matrix / restart / bounded organic). Hollywood skills **VERIFIED** 2026-09-09 as two independent proves: `hollywood-merovin` (`PROVE_MEROVIN_HOLLYWOOD.json`, intake + 1 scene / 2 shots, `md_cinema_merovin`) and `hollywood-draven` (`PROVE_DRAVEN_HOLLYWOOD.json`, continuity flags, cloud budget denied, ffmpeg probe AVAILABLE, `md_cinema_draven`). Matrix-Game adapter **VERIFIED** 2026-09-09 as honest UNAVAILABLE (`PROVE_MATRIX_GAME_ADAPTER.json`). Engine still **NOT INSTALLED**. Not a finished film. Not Resolve. HOME.json hash `3e30fb7e…` unchanged.
 
@@ -58,19 +58,20 @@ CLI note: inbox prove is `python -m federation.prove merovin`. Speech prove is `
 
 ---
 
-## Desk check 2026-09-06 evening (HTTP now — not a new VERIFIED stamp)
+## Desk check 2026-09-11 afternoon (HTTP now — not a new VERIFIED stamp)
 
-Dated federation proves still stand. **TCP/HTTP tonight is a different fact.** Do not treat a closed door as a failed prove.
+Dated federation proves still stand. **TCP/HTTP now is a different fact.** Do not treat a closed door as a failed prove. Git Hearth was started for this audit (`hearth_server.py` in this repo).
 
-| Door | Tonight | Seated evidence (keep) |
-|------|---------|------------------------|
-| Hearth `:8790` | **DOWN** (connection refused) | Village kernel; restart to enter |
-| Aster lab `:8791` | **UP** `id=aster` `qwen3:4b` exact | Acceptance PASS. Morning 07:40 UI still showed waiting / empty writer — door up ≠ mouth working |
-| Observer `:8730` | **DOWN** | Independent audit. Morning 07:37 UI showed Internal Server Error on an investigation. ZIP still **FROZEN** |
-| Vesper `:8740` | **DOWN** / request failed | Inbox `2f132776…`. Studio **is** his home. Not a Heart Square cottage. Worksheet filter is in `vesper/kernel.py` (code). Stacked launchers still a known failure |
-| Apex `:8770` | **DOWN** | Federation speech `4740ea20…`. Active face restored to **mythos** (do not wear Codex) |
-| Codex `:8780` | **UP** (Apex peer offline) | Federation speech `5d18a0a2…`. Male Ryan voice **seated in UI code** 2026-09-06 — Mom listen **UNVERIFIED**. Missing `rich` / `psutil` still NEED MORE |
-| Cinema HUD `:5000` | **DOWN** | Merovin speech `472d86e7…`. Draven speech later **VERIFIED** 2026-09-09 `4bea7235…` (not this desk night) |
+| Door | This afternoon | Seated evidence (keep) |
+|------|----------------|------------------------|
+| Hearth `:8790` | **UP** `GET /api/home` **200** gameplay **18b**; live `hearth` coordinate **VERIFIED** (`7006e306…`) | Village kernel. Rest-notes Apex/Codex wrote on tick. Godot still UNVERIFIED |
+| Aster lab `:8791` | **DOWN** | Acceptance PASS. Door up ≠ mouth working |
+| Observer `:8730` | **DOWN** | Independent audit. ZIP still **FROZEN** |
+| Vesper `:8740` | **DOWN** | Inbox `2f132776…`. House-voice closed `_13`/`_15` `phi3:mini`. Do not loop speak-vesper |
+| Apex `:8770` | **DOWN** | Federation speech `4740ea20…` |
+| Codex `:8780` | **DOWN** | Federation speech `5d18a0a2…`. Ryan listen still UNVERIFIED |
+| Cinema HUD `:5000` | **DOWN** | Merovin `472d86e7…`. Draven `4bea7235…` |
+| Ollama `:11434` | **UP** tags 200; `/api/ps` empty | Homecoming probe picked `llama3.2:3b` |
 
 **Mode A seated in code this week (not federation proves):**
 
